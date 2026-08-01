@@ -246,9 +246,9 @@ def plot_tren(df_fatigue, order_months):
         margin=dict(l=20, r=20, t=40, b=20)
     )
     
-    # Highlight Titik Tertinggi
+    # Highlight Titik Tertinggi (Konversi eksplisit bool(is_max))
     for i, row in trend.iterrows():
-        is_max = (row['Total'] == max_val)
+        is_max = bool(row['Total'] == max_val)
         fig.add_annotation(
             x=row['Bulan'], y=row['Total'],
             text=f"🔥 {row['Total']}" if is_max else str(row['Total']),
