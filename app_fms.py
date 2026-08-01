@@ -1085,4 +1085,4 @@ else:
 
 # ==================== FOOTER ====================
 st.markdown("---")
-st.caption("© 2024 PT. Bumiputera Maha Terpercaya | Dashboard FMS v3.0")
+st.caption("© 2026 PT. Bumiputera Maha Terpercaya | Dashboard FMS v3.0")
