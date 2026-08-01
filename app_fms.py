@@ -1,21 +1,18 @@
 import streamlit as st
 import pandas as pd
-import matplotlib.pyplot as plt
-import seaborn as sns
-from datetime import datetime
 import numpy as np
 import plotly.express as px
 import plotly.graph_objects as go
-import plotly.io as pio
+from datetime import datetime
 
-# ==================== KONFIGURASI ====================
+# ==================== KONFIGURASI HALAMAN ====================
 st.set_page_config(
     page_title="Dashboard FMS - PT. Bumiputera",
     page_icon="🚛",
     layout="wide"
 )
 
-# ==================== CSS ====================
+# ==================== CSS CUSTOM STYLING ====================
 st.markdown("""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
@@ -52,7 +49,7 @@ html, body, [class*="css"] {
     opacity: .8;
 }
 
-/* KPI */
+/* KPI CARDS */
 .kpi {
     background: white;
     padding: 22px;
@@ -87,21 +84,6 @@ html, body, [class*="css"] {
     margin-top: 8px;
     color: #2563eb;
     font-size: 13px;
-}
-
-/* SECTION */
-.section {
-    background: white;
-    padding: 24px;
-    border-radius: 18px;
-    margin-bottom: 20px;
-    box-shadow: 0 6px 20px rgba(0,0,0,.05);
-    border: 1px solid #edf2f7;
-}
-.section h3 {
-    margin-top: 0;
-    color: #0f172a;
-    font-weight: 600;
 }
 
 /* SIDEBAR */
@@ -149,41 +131,22 @@ div[data-testid="stDataFrame"] thead tr th {
     font-weight: 600 !important;
 }
 
-/* PLOTLY */
+/* PLOTLY CONTAINER */
 .js-plotly-plot .plotly .main-svg {
     border-radius: 12px;
 }
 
-/* RESPONSIVE */
+/* RESPONSIVE DESIGN */
 @media (max-width: 768px) {
     .dashboard-header { padding: 20px; }
     .dashboard-header h1 { font-size: 24px; }
     .kpi { padding: 16px; }
     .kpi-value { font-size: 26px; }
-    .section { padding: 16px; }
 }
 </style>
 """, unsafe_allow_html=True)
 
-# ==================== SEABORN SETUP ====================
-sns.set_theme(
-    style="whitegrid",
-    rc={
-        "axes.facecolor": "white",
-        "figure.facecolor": "white",
-        "grid.color": "#e2e8f0",
-        "axes.edgecolor": "#ffffff",
-        "font.family": "Inter"
-    }
-)
-
 # ==================== HELPER FUNCTIONS ====================
-def clean_ax(ax):
-    ax.spines['top'].set_visible(False)
-    ax.spines['right'].set_visible(False)
-    ax.spines['left'].set_visible(False)
-    ax.grid(axis='y', linestyle='--', alpha=.35)
-
 def fmt_num(n):
     return f"{n:,}".replace(',', '.')
 
@@ -219,7 +182,7 @@ def get_order_months():
 def get_order_2h():
     return [f"{i:02d}:00-{i+1:02d}:59" for i in range(0, 24, 2)]
 
-# ==================== COMPONENTS ====================
+# ==================== UI COMPONENTS ====================
 def kpi(title, value, footer, icon="📊", color="#2563eb"):
     st.markdown(f"""
     <div class="kpi" style="border-top:4px solid {color};">
@@ -257,7 +220,7 @@ def header(title, subtitle):
     </div>
     """, unsafe_allow_html=True)
 
-# ==================== CHART FUNCTIONS ====================
+# ==================== CHART FUNCTIONS WITH HIGHLIGHT PEAK ====================
 def plot_tren(df_fatigue, order_months):
     if df_fatigue.empty:
         return None
@@ -266,6 +229,8 @@ def plot_tren(df_fatigue, order_months):
     if trend.empty:
         return None
     
+    max_val = trend['Total'].max()
+    
     fig = px.line(
         trend, x='Bulan', y='Total',
         markers=True, title='Tren Fatigue Bulanan',
@@ -273,21 +238,25 @@ def plot_tren(df_fatigue, order_months):
     )
     fig.update_traces(line=dict(width=3), marker=dict(size=10))
     fig.update_layout(
-        plot_bgcolor='white',
-        paper_bgcolor='white',
+        plot_bgcolor='white', paper_bgcolor='white',
         font=dict(family='Inter', size=12),
         xaxis=dict(showgrid=False),
-        yaxis=dict(showgrid=True, gridcolor='#e2e8f0', gridwidth=0.5),
+        yaxis=dict(showgrid=True, gridcolor='#e2e8f0', gridwidth=0.5, range=[0, max_val * 1.3]),
         hovermode='x unified',
         margin=dict(l=20, r=20, t=40, b=20)
     )
+    
+    # Highlight Titik Tertinggi
     for i, row in trend.iterrows():
+        is_max = (row['Total'] == max_val)
         fig.add_annotation(
             x=row['Bulan'], y=row['Total'],
-            text=str(row['Total']),
-            showarrow=False,
-            yshift=10,
-            font=dict(size=11, weight='bold')
+            text=f"🔥 {row['Total']}" if is_max else str(row['Total']),
+            showarrow=is_max, arrowhead=1, arrowcolor='#dc2626',
+            yshift=14 if is_max else 10,
+            font=dict(size=12 if is_max else 11, weight='bold', color='#dc2626' if is_max else '#0f172a'),
+            bgcolor='#fee2e2' if is_max else None,
+            bordercolor='#ef4444' if is_max else None, borderwidth=1 if is_max else 0
         )
     return fig
 
@@ -306,8 +275,7 @@ def plot_shift_comparison(df_fatigue):
     )
     fig.update_traces(line=dict(width=2.5), marker=dict(size=8))
     fig.update_layout(
-        plot_bgcolor='white',
-        paper_bgcolor='white',
+        plot_bgcolor='white', paper_bgcolor='white',
         font=dict(family='Inter', size=12),
         xaxis=dict(showgrid=False),
         yaxis=dict(showgrid=True, gridcolor='#e2e8f0', gridwidth=0.5),
@@ -327,14 +295,12 @@ def plot_alarm_distribution(df_fatigue):
     colors = ['#ef4444', '#f59e0b']
     fig = px.bar(
         alarm_counts, x='Total', y='Jenis', orientation='h',
-        title='Jenis Alarm',
-        color='Jenis', color_discrete_sequence=colors,
-        text='Total'
+        title='Jenis Alarm', color='Jenis',
+        color_discrete_sequence=colors, text='Total'
     )
     fig.update_traces(textposition='outside', textfont=dict(size=12, weight='bold'))
     fig.update_layout(
-        plot_bgcolor='white',
-        paper_bgcolor='white',
+        plot_bgcolor='white', paper_bgcolor='white',
         font=dict(family='Inter', size=12),
         xaxis=dict(showgrid=True, gridcolor='#e2e8f0', gridwidth=0.5),
         yaxis=dict(showgrid=False),
@@ -354,20 +320,39 @@ def plot_jam_distribution(df_fatigue, order_2h):
     if rj.empty:
         return None
     
+    # DETEKSI DAN HIGHLIGHT BATANG TERTINGGI (PEAK)
+    max_val = rj['Total'].max()
+    colors = ['#991b1b' if v == max_val else '#f87171' for v in rj['Total']]
+    
     fig = px.bar(
         rj, x='Jam', y='Total',
-        title='Distribusi Jam Fatigue',
-        color_discrete_sequence=['#ef4444'],
+        title='Distribusi Jam Fatigue (Puncak Diberi Penanda)',
         text='Total'
     )
-    fig.update_traces(textposition='outside', textfont=dict(size=11, weight='bold'))
+    
+    fig.update_traces(
+        marker_color=colors,
+        textposition='outside', 
+        textfont=dict(size=11, weight='bold')
+    )
+    
+    # Kotak Penanda Puncak
+    max_row = rj[rj['Total'] == max_val].iloc[0]
+    fig.add_annotation(
+        x=max_row['Jam'], 
+        y=max_val + (max_val * 0.12),
+        text="⚠️ PUNCAK TERTIAGGI",
+        showarrow=True, arrowhead=2, arrowcolor='#991b1b', arrowsize=1.2,
+        font=dict(size=11, color='white', weight='bold'),
+        bgcolor='#991b1b', bordercolor='#7f1d1d', borderwidth=2, borderpad=4
+    )
+    
     fig.update_layout(
-        plot_bgcolor='white',
-        paper_bgcolor='white',
+        plot_bgcolor='white', paper_bgcolor='white',
         font=dict(family='Inter', size=12),
         xaxis=dict(showgrid=False, tickangle=45),
-        yaxis=dict(showgrid=True, gridcolor='#e2e8f0', gridwidth=0.5),
-        margin=dict(l=20, r=20, t=40, b=20),
+        yaxis=dict(showgrid=True, gridcolor='#e2e8f0', gridwidth=0.5, range=[0, max_val * 1.35]),
+        margin=dict(l=20, r=20, t=50, b=20),
         showlegend=False
     )
     return fig
@@ -380,24 +365,23 @@ def plot_hotspot(df, label="Fatigue"):
     loc_counts.columns = ['Lokasi', 'Total']
     loc_counts = loc_counts.sort_values('Total', ascending=True)
     
-    color = '#ef4444' if label == "Fatigue" else '#f59e0b'
+    max_val = loc_counts['Total'].max()
+    base_color = '#ef4444' if label == "Fatigue" else '#f59e0b'
+    dark_color = '#991b1b' if label == "Fatigue" else '#b45309'
+    colors = [dark_color if v == max_val else base_color for v in loc_counts['Total']]
     
     fig = px.bar(
         loc_counts, x='Total', y='Lokasi', orientation='h',
-        title=f'Top 10 Lokasi {label}',
-        color_discrete_sequence=[color],
-        text='Total'
+        title=f'Top 10 Lokasi {label}', text='Total'
     )
-    fig.update_traces(textposition='outside', textfont=dict(size=11, weight='bold'))
+    fig.update_traces(marker_color=colors, textposition='outside', textfont=dict(size=11, weight='bold'))
     fig.update_layout(
-        plot_bgcolor='white',
-        paper_bgcolor='white',
+        plot_bgcolor='white', paper_bgcolor='white',
         font=dict(family='Inter', size=12),
-        xaxis=dict(showgrid=True, gridcolor='#e2e8f0', gridwidth=0.5),
+        xaxis=dict(showgrid=True, gridcolor='#e2e8f0', gridwidth=0.5, range=[0, max_val * 1.2]),
         yaxis=dict(showgrid=False),
         margin=dict(l=20, r=20, t=40, b=20),
-        showlegend=False,
-        height=400
+        showlegend=False, height=400
     )
     return fig
 
@@ -441,21 +425,21 @@ def plot_top_driver(df_fatigue):
     drv.columns = ['Driver', 'Total']
     drv = drv.sort_values('Total', ascending=True)
     
+    max_val = drv['Total'].max()
+    colors = ['#991b1b' if v == max_val else '#ef4444' for v in drv['Total']]
+    
     fig = px.bar(
         drv, x='Total', y='Driver', orientation='h',
-        title='Top 20 Driver Fatigue',
-        color_discrete_sequence=['#ef4444'],
-        text='Total'
+        title='Top 20 Driver Fatigue', text='Total'
     )
-    fig.update_traces(textposition='outside', textfont=dict(size=10))
+    fig.update_traces(marker_color=colors, textposition='outside', textfont=dict(size=10, weight='bold'))
     fig.update_layout(
         plot_bgcolor='white', paper_bgcolor='white',
         font=dict(family='Inter', size=11),
-        xaxis=dict(showgrid=True, gridcolor='#e2e8f0', gridwidth=0.5),
+        xaxis=dict(showgrid=True, gridcolor='#e2e8f0', gridwidth=0.5, range=[0, max_val * 1.2]),
         yaxis=dict(showgrid=False),
         margin=dict(l=20, r=20, t=40, b=20),
-        showlegend=False,
-        height=500
+        showlegend=False, height=500
     )
     return fig
 
@@ -480,15 +464,12 @@ def plot_heatmap(df_fatigue, order_months, top_n=15):
     fig = px.imshow(
         heatmap_data,
         title='Heatmap Driver Fatigue per Bulan',
-        text_auto=True,
-        color_continuous_scale='YlOrRd',
-        aspect='auto'
+        text_auto=True, color_continuous_scale='YlOrRd', aspect='auto'
     )
     fig.update_layout(
         plot_bgcolor='white', paper_bgcolor='white',
         font=dict(family='Inter', size=11),
-        xaxis=dict(side='bottom'),
-        yaxis=dict(title='Driver'),
+        xaxis=dict(side='bottom'), yaxis=dict(title='Driver'),
         margin=dict(l=20, r=20, t=40, b=20),
         height=max(400, len(heatmap_data) * 25)
     )
@@ -526,15 +507,12 @@ def plot_forecast(df_fatigue):
     fig = go.Figure()
     fig.add_trace(go.Scatter(
         x=hist_months, y=y,
-        mode='lines+markers',
-        name='Data Aktual',
-        line=dict(color='#3b82f6', width=3),
-        marker=dict(size=10)
+        mode='lines+markers', name='Data Aktual',
+        line=dict(color='#3b82f6', width=3), marker=dict(size=10)
     ))
     fig.add_trace(go.Scatter(
         x=future_labels, y=predictions,
-        mode='lines+markers',
-        name='Prediksi',
+        mode='lines+markers', name='Prediksi',
         line=dict(color='#ef4444', width=3, dash='dash'),
         marker=dict(size=10, color='#ef4444')
     ))
@@ -607,7 +585,7 @@ with st.sidebar:
     st.markdown("### 📁 Data Source")
     uploaded_file = st.file_uploader("Upload File Log FMS", type=['xlsx', 'csv'])
     st.markdown("---")
-    st.caption("© 2024 PT. Bumiputera")
+    st.caption("© 2026 PT. Bumiputera Maha Terpercaya")
 
 # ==================== HEADER ====================
 header(
@@ -658,19 +636,18 @@ else:
             df = df_raw.dropna(how='all').copy()
             df.columns = [str(c).strip() for c in df.columns]
 
-            # ========== DETEKSI & CLEAN ==========
+            # ========== DETEKSI & CLEANING DATA ==========
             cols = detect_columns(df)
             
             if not all([cols['date'], cols['type'], cols['driver']]):
-                st.error("❌ Kolom minimum: Tanggal, Type, Driver")
+                st.error("❌ Kolom minimum wajib ada: Tanggal, Type, Driver")
                 st.stop()
             
-            # Clean data
             df = df.dropna(subset=[cols['date'], cols['type'], cols['driver']]).copy()
             df[cols['date']] = pd.to_datetime(df[cols['date']], errors='coerce')
             df = df.dropna(subset=[cols['date']])
             
-            # Derived columns
+            # Kolom Turunan
             df['Month_Num'] = df[cols['date']].dt.month
             bulan_map = {1:'Jan',2:'Feb',3:'Mar',4:'Apr',5:'Mei',6:'Jun',
                          7:'Jul',8:'Ags',9:'Sep',10:'Okt',11:'Nov',12:'Des'}
@@ -704,7 +681,7 @@ else:
             
             df['Jam_Range'] = df[cols['time']].apply(cat_time) if cols['time'] else 'Unknown'
             
-            # Filter
+            # Filter Data
             df = df[~df['Lokasi'].isin(['OUT OF HAULING'])]
             df = df[~df['Driver'].isin(['Unknown'])]
             df = df[~df['Driver'].str.contains('Ba Minergo', case=False, na=False)]
@@ -715,7 +692,7 @@ else:
             order_months = get_order_months()
             order_2h = get_order_2h()
             
-            # ========== METRIK ==========
+            # ========== HITUNG METRIK ==========
             total_f = len(df_fatigue)
             total_o = len(df_overspeed)
             total_alarm = total_f + total_o
@@ -747,7 +724,7 @@ else:
             
             st.markdown("---")
             
-            # ========== INSIGHT ==========
+            # ========== RINGKASAN EKSEKUTIF ==========
             st.markdown("### 📋 Ringkasan Eksekutif")
             col1, col2 = st.columns(2)
             
@@ -791,7 +768,7 @@ else:
             
             st.markdown("---")
             
-            # ========== TABS ==========
+            # ========== TABS UTAMA ==========
             tab1, tab2, tab3, tab4, tab5 = st.tabs([
                 "📊 Overview",
                 "🗺️ Lokasi & Waktu",
@@ -840,23 +817,24 @@ else:
                     rj_o = rj_o[rj_o > 0].reset_index()
                     rj_o.columns = ['Jam', 'Total']
                     if not rj_o.empty:
+                        max_o_val = rj_o['Total'].max()
+                        colors_o = ['#b45309' if v == max_o_val else '#f59e0b' for v in rj_o['Total']]
+                        
                         fig = px.bar(
                             rj_o, x='Jam', y='Total',
-                            title='Distribusi Jam Overspeed',
-                            color_discrete_sequence=['#f59e0b'],
-                            text='Total'
+                            title='Distribusi Jam Overspeed', text='Total'
                         )
-                        fig.update_traces(textposition='outside', textfont=dict(size=11, weight='bold'))
+                        fig.update_traces(marker_color=colors_o, textposition='outside', textfont=dict(size=11, weight='bold'))
                         fig.update_layout(
                             plot_bgcolor='white', paper_bgcolor='white',
                             font=dict(family='Inter', size=12),
                             xaxis=dict(showgrid=False, tickangle=45),
-                            yaxis=dict(showgrid=True, gridcolor='#e2e8f0', gridwidth=0.5),
+                            yaxis=dict(showgrid=True, gridcolor='#e2e8f0', gridwidth=0.5, range=[0, max_o_val * 1.25]),
                             margin=dict(l=20, r=20, t=40, b=20),
                             showlegend=False
                         )
                         st.plotly_chart(fig, use_container_width=True)
-                        st.caption("💡 Overspeed umumnya pada jam operasional puncak")
+                        st.caption("💡 Overspeed umumnya terjadi pada jam operasional puncak")
                 
                 st.markdown("---")
                 
@@ -895,21 +873,22 @@ else:
                         unit = df['Unit'].value_counts().head(10).reset_index()
                         unit.columns = ['Unit', 'Total']
                         unit = unit.sort_values('Total', ascending=True)
+                        
+                        max_u = unit['Total'].max()
+                        colors_u = ['#1d4ed8' if v == max_u else '#3b82f6' for v in unit['Total']]
+                        
                         fig = px.bar(
                             unit, x='Total', y='Unit', orientation='h',
-                            title='Top 10 Unit Bermasalah',
-                            color_discrete_sequence=['#3b82f6'],
-                            text='Total'
+                            title='Top 10 Unit Bermasalah', text='Total'
                         )
-                        fig.update_traces(textposition='outside', textfont=dict(size=11))
+                        fig.update_traces(marker_color=colors_u, textposition='outside', textfont=dict(size=11, weight='bold'))
                         fig.update_layout(
                             plot_bgcolor='white', paper_bgcolor='white',
                             font=dict(family='Inter', size=11),
-                            xaxis=dict(showgrid=True, gridcolor='#e2e8f0', gridwidth=0.5),
+                            xaxis=dict(showgrid=True, gridcolor='#e2e8f0', gridwidth=0.5, range=[0, max_u * 1.2]),
                             yaxis=dict(showgrid=False),
                             margin=dict(l=20, r=20, t=40, b=20),
-                            showlegend=False,
-                            height=450
+                            showlegend=False, height=450
                         )
                         st.plotly_chart(fig, use_container_width=True)
                     else:
@@ -1057,13 +1036,13 @@ else:
                     if 'Shift 2' in shift_counts.index and 'Shift 1' in shift_counts.index:
                         ratio = shift_counts['Shift 2'] / shift_counts['Shift 1'] if shift_counts['Shift 1'] > 0 else 0
                         if ratio > 2:
-                            recs.append(("🔴 PRIORITAS", "🌙", f"Rotasi Shift: {ratio:.1f}x lebih tinggi"))
+                            recs.append(("🔴 PRIORITAS", "🌙", f"Rotasi Shift: {ratio:.1f}x lebih tinggi di Shift Malam"))
                     
                     jam_counts = df_fatigue['Jam_Range'].value_counts()
                     if not jam_counts.empty:
                         top_j = jam_counts.index[0]
                         if any(j in top_j for j in ['02:00', '03:00', '04:00']):
-                            recs.append(("🟡 PENTING", "☕", f"Istirahat: Puncak di jam {top_j}"))
+                            recs.append(("🟡 PENTING", "☕", f"Istirahat Terjadwal: Puncak fatigue di jam {top_j}"))
                     
                     unit_counts = df['Unit'].value_counts()
                     if not unit_counts.empty and unit_counts.iloc[0] > 5:
@@ -1078,8 +1057,8 @@ else:
             st.sidebar.success(f"✅ {fmt_num(len(df))} data valid")
 
         except Exception as e:
-            st.error(f"❌ Error: {str(e)}")
-            with st.expander("🔍 Detail"):
+            st.error(f"❌ Error saat memproses data: {str(e)}")
+            with st.expander("🔍 Detail Traceback"):
                 import traceback
                 st.code(traceback.format_exc())
 
