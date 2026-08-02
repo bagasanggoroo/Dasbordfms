@@ -773,7 +773,7 @@ else:
                     top_unit = unit_counts.index[0]
                     top_val = unit_counts.iloc[0]
                     if top_val > 5:
-                        insight("#fee2e2", "Unit Bermasalah", f"{top_unit} ({top_val} temuan) — inspeksi!")
+                        insight("#fee2e2", "Unit Dengan Temuan Berulang", f"{top_unit} ({top_val} temuan) — inspeksi!")
                     else:
                         insight("#dbeafe", "Unit Bermasalah", f"{top_unit} ({top_val} temuan)")
             
