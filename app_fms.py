@@ -289,11 +289,15 @@ def header(title, subtitle):
     """, unsafe_allow_html=True)
 
 # ==================== CHART FUNCTIONS ====================
-def plot_tren(df_fatigue, order_months):
-    if df_fatigue.empty:
+def plot_tren_generic(df_target, title="Tren Bulanan", color="#2563eb"):
+    """
+    Fungsi universal untuk membuat grafik tren bulanan terpisah 
+    (bisa untuk Fatigue, Overspeed, atau Total Alarm).
+    """
+    if df_target.empty or 'Month_Num' not in df_target.columns:
         return None
     
-    trend = df_fatigue.groupby(['Month_Num', 'Bulan']).size().reset_index(name='Total').sort_values('Month_Num')
+    trend = df_target.groupby(['Month_Num', 'Bulan']).size().reset_index(name='Total').sort_values('Month_Num')
     if trend.empty:
         return None
     
@@ -301,19 +305,20 @@ def plot_tren(df_fatigue, order_months):
     
     fig = px.line(
         trend, x='Bulan', y='Total',
-        markers=True, title='Tren Fatigue Bulanan',
-        color_discrete_sequence=['#2563eb']
+        markers=True, title=title,
+        color_discrete_sequence=[color]
     )
     fig.update_traces(line=dict(width=3), marker=dict(size=10))
     fig.update_layout(
         plot_bgcolor='white', paper_bgcolor='white',
         font=dict(family='Inter', size=12),
         xaxis=dict(showgrid=False),
-        yaxis=dict(showgrid=True, gridcolor='#e2e8f0', gridwidth=0.5, range=[0, max_val * 1.3]),
+        yaxis=dict(showgrid=True, gridcolor='#e2e8f0', gridwidth=0.5, range=[0, max_val * 1.35]),
         hovermode='x unified',
         margin=dict(l=20, r=20, t=40, b=20)
     )
     
+    # Highlight Titik Tertinggi (Peak)
     for i, row in trend.iterrows():
         is_max = bool(row['Total'] == max_val)
         fig.add_annotation(
@@ -325,31 +330,6 @@ def plot_tren(df_fatigue, order_months):
             bgcolor='#fee2e2' if is_max else None,
             bordercolor='#ef4444' if is_max else None, borderwidth=1 if is_max else 0
         )
-    return fig
-
-def plot_shift_comparison(df_fatigue):
-    if df_fatigue.empty:
-        return None
-    
-    shift_df = df_fatigue.groupby(['Bulan', 'Shift']).size().reset_index(name='Total')
-    if shift_df.empty:
-        return None
-    
-    fig = px.line(
-        shift_df, x='Bulan', y='Total', color='Shift',
-        markers=True, title='Perbandingan Shift',
-        color_discrete_map={'Shift 1': '#3b82f6', 'Shift 2': '#8b5cf6'}
-    )
-    fig.update_traces(line=dict(width=2.5), marker=dict(size=8))
-    fig.update_layout(
-        plot_bgcolor='white', paper_bgcolor='white',
-        font=dict(family='Inter', size=12),
-        xaxis=dict(showgrid=False),
-        yaxis=dict(showgrid=True, gridcolor='#e2e8f0', gridwidth=0.5),
-        hovermode='x unified',
-        legend=dict(orientation='h', yanchor='bottom', y=1.02, xanchor='center', x=0.5),
-        margin=dict(l=20, r=20, t=40, b=20)
-    )
     return fig
 
 def plot_alarm_distribution(df_fatigue):
