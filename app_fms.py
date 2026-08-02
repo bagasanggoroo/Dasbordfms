@@ -775,7 +775,7 @@ else:
                     if top_val > 5:
                         insight("#fee2e2", "Unit Dengan Temuan Berulang", f"{top_unit} ({top_val} temuan) — inspeksi!")
                     else:
-                        insight("#dbeafe", "Unit Bermasalah", f"{top_unit} ({top_val} temuan)")
+                        insight("#dbeafe", "Unit Dengan Temuan Berulang", f"{top_unit} ({top_val} temuan)")
             
             st.markdown("---")
             
@@ -904,7 +904,7 @@ else:
                         
                         fig = px.bar(
                             unit, x='Total', y='Unit', orientation='h',
-                            title='Top 10 Unit Bermasalah', text='Total'
+                            title='Top 10 Unit Dengan Temuan Berulang', text='Total'
                         )
                         fig.update_traces(marker_color=colors_u, textposition='outside', textfont=dict(size=11, weight='bold'))
                         fig.update_layout(
