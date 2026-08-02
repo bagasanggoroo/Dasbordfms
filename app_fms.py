@@ -676,7 +676,7 @@ with st.sidebar:
 header_with_logo(
     "🚛 Fleet Management System",
     "PT. Bumiputera Maha Terpercaya<br>Monitoring Fatigue • Overspeed • Safety Analytics",
-    "logo.png"
+    "image.png"
 )
 
 st.markdown("<br>", unsafe_allow_html=True)
