@@ -36,7 +36,6 @@ html, body, [class*="css"] {
     padding: 30px;
     border-radius: 22px;
     color: white;
-    margin-bottom: 25px;
     box-shadow: 0 15px 35px rgba(0,0,0,.12);
 }
 .dashboard-header h1 {
@@ -280,13 +279,30 @@ def rec_card(priority, icon, text):
     </div>
     """, unsafe_allow_html=True)
 
-def header(title, subtitle):
-    st.markdown(f"""
-    <div class="dashboard-header">
-        <h1>{title}</h1>
-        <p>{subtitle}</p>
-    </div>
-    """, unsafe_allow_html=True)
+# HEADER BARU DENGAN INTEGRASI LOGO DENGAN KARTU SAMA SAMA GRADIENT
+def header_with_logo(title, subtitle, logo_path="logo.png"):
+    col_text, col_logo = st.columns([3.5, 1])
+    
+    with col_text:
+        st.markdown(f"""
+        <div class="dashboard-header">
+            <h1>{title}</h1>
+            <p>{subtitle}</p>
+        </div>
+        """, unsafe_allow_html=True)
+        
+    with col_logo:
+        st.markdown("""
+        <div style="background: linear-gradient(135deg, #0f172a, #1d4ed8); 
+                    padding: 15px; border-radius: 22px; text-align: center; 
+                    display: flex; align-items: center; justify-content: center; height: 100%;
+                    box-shadow: 0 15px 35px rgba(0,0,0,.12);">
+        """, unsafe_allow_html=True)
+        try:
+            st.image(logo_path, width=180)
+        except:
+            st.markdown("🚛")
+        st.markdown("</div>", unsafe_allow_html=True)
 
 # ==================== CHART FUNCTIONS ====================
 def plot_tren_generic(df_target, title="Tren Bulanan", color="#2563eb"):
@@ -656,11 +672,14 @@ with st.sidebar:
     st.markdown("---")
     st.caption("© 2026 PT. Bumiputera Maha Terpercaya")
 
-# ==================== HEADER ====================
-header(
+# ==================== HEADER DENGAN LOGO ====================
+header_with_logo(
     "🚛 Fleet Management System",
-    "PT. Bumiputera Maha Terpercaya<br>Monitoring Fatigue • Overspeed • Safety Analytics"
+    "PT. Bumiputera Maha Terpercaya<br>Monitoring Fatigue • Overspeed • Safety Analytics",
+    "logo.png"
 )
+
+st.markdown("<br>", unsafe_allow_html=True)
 
 # ==================== MAIN ====================
 if uploaded_file is None:
