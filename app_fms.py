@@ -154,10 +154,15 @@ def cat_time(t):
     if pd.isna(t):
         return 'Unknown'
     try:
-        h = int(str(t).strip().split(':')[0])
+        if isinstance(t, (datetime, pd.Timestamp)):
+            h = t.hour
+        elif hasattr(t, 'hour'):
+            h = t.hour
+        else:
+            h = int(str(t).strip().split(':')[0])
+        return f"{h:02d}:00-{h+1:02d}:59"
     except:
         return 'Unknown'
-    return f"{h:02d}:00-{h+1:02d}:59"
 
 def detect_columns(df):
     col_date = next((c for c in df.columns if c.lower() in ['tanggal', 'date']), None)
@@ -181,6 +186,69 @@ def get_order_months():
 
 def get_order_2h():
     return [f"{i:02d}:00-{i+1:02d}:59" for i in range(0, 24, 2)]
+
+# ==================== DATA PROCESSING WITH CACHE ====================
+@st.cache_data
+def load_and_process_data(file):
+    if file.name.endswith('.xlsx'):
+        xls = pd.ExcelFile(file)
+        sheet = 'Input' if 'Input' in xls.sheet_names else xls.sheet_names[0]
+        df_raw = pd.read_excel(file, sheet_name=sheet)
+    else:
+        df_raw = pd.read_csv(file)
+
+    df = df_raw.dropna(how='all').copy()
+    df.columns = [str(c).strip() for c in df.columns]
+
+    cols = detect_columns(df)
+    
+    if not all([cols['date'], cols['type'], cols['driver']]):
+        return None, cols, ['<25', '26-30', '31-35', '36-40', '41-45', '46-50', '51-55', '>55']
+
+    df = df.dropna(subset=[cols['date'], cols['type'], cols['driver']]).copy()
+    df[cols['date']] = pd.to_datetime(df[cols['date']], errors='coerce')
+    df = df.dropna(subset=[cols['date']])
+    
+    # Kolom Turunan
+    df['Month_Num'] = df[cols['date']].dt.month
+    bulan_map = {1:'Jan',2:'Feb',3:'Mar',4:'Apr',5:'Mei',6:'Jun',
+                 7:'Jul',8:'Ags',9:'Sep',10:'Okt',11:'Nov',12:'Des'}
+    df['Bulan'] = df['Month_Num'].map(bulan_map)
+    
+    df['Driver'] = df[cols['driver']].astype(str).str.replace('_', ' ').str.strip().str.title()
+    df['Unit'] = df[cols['unit']].astype(str).str.strip().str.upper() if cols['unit'] else "N/A"
+    df['Lokasi'] = df[cols['location']].astype(str).str.strip().str.upper() if cols['location'] else "N/A"
+    df['Type'] = df[cols['type']].astype(str).str.strip().str.title()
+    
+    if cols['pengawas']:
+        df['Pengawas'] = df[cols['pengawas']].astype(str).str.strip().str.title()
+    else:
+        df['Pengawas'] = 'Tidak Diketahui'
+    
+    # RENTANG USIA 5 TAHUN (GRANULAR & LEBIH DETAIL)
+    labels = ['<25', '26-30', '31-35', '36-40', '41-45', '46-50', '51-55', '>55']
+    if cols['age']:
+        df['Umur'] = pd.to_numeric(df[cols['age']], errors='coerce')
+        bins = [0, 25, 30, 35, 40, 45, 50, 55, 100]
+        df['Kelompok_Umur'] = pd.cut(df['Umur'], bins=bins, labels=labels, right=True)
+    else:
+        df['Kelompok_Umur'] = 'N/A'
+    
+    if cols['shift']:
+        df['Shift'] = df[cols['shift']].apply(
+            lambda x: f"Shift {int(x)}" if str(x).replace('.','').isdigit() else str(x)
+        )
+    else:
+        df['Shift'] = "Shift 1"
+    
+    df['Jam_Range'] = df[cols['time']].apply(cat_time) if cols['time'] else 'Unknown'
+    
+    # Filter Data Outlier
+    df = df[~df['Lokasi'].isin(['OUT OF HAULING'])]
+    df = df[~df['Driver'].isin(['Unknown'])]
+    df = df[~df['Driver'].str.contains('Ba Minergo', case=False, na=False)]
+    
+    return df, cols, labels
 
 # ==================== UI COMPONENTS ====================
 def kpi(title, value, footer, icon="📊", color="#2563eb"):
@@ -220,7 +288,7 @@ def header(title, subtitle):
     </div>
     """, unsafe_allow_html=True)
 
-# ==================== CHART FUNCTIONS WITH HIGHLIGHT PEAK ====================
+# ==================== CHART FUNCTIONS ====================
 def plot_tren(df_fatigue, order_months):
     if df_fatigue.empty:
         return None
@@ -246,7 +314,6 @@ def plot_tren(df_fatigue, order_months):
         margin=dict(l=20, r=20, t=40, b=20)
     )
     
-    # Highlight Titik Tertinggi (Konversi eksplisit bool(is_max))
     for i, row in trend.iterrows():
         is_max = bool(row['Total'] == max_val)
         fig.add_annotation(
@@ -320,7 +387,6 @@ def plot_jam_distribution(df_fatigue, order_2h):
     if rj.empty:
         return None
     
-    # DETEKSI DAN HIGHLIGHT BATANG TERTINGGI (PEAK)
     max_val = rj['Total'].max()
     colors = ['#991b1b' if v == max_val else '#f87171' for v in rj['Total']]
     
@@ -336,12 +402,11 @@ def plot_jam_distribution(df_fatigue, order_2h):
         textfont=dict(size=11, weight='bold')
     )
     
-    # Kotak Penanda Puncak
     max_row = rj[rj['Total'] == max_val].iloc[0]
     fig.add_annotation(
         x=max_row['Jam'], 
         y=max_val + (max_val * 0.12),
-        text="⚠️ PUNCAK TERTIAGGI",
+        text="⚠️ PUNCAK TERTINGGI",
         showarrow=True, arrowhead=2, arrowcolor='#991b1b', arrowsize=1.2,
         font=dict(size=11, color='white', weight='bold'),
         bgcolor='#991b1b', bordercolor='#7f1d1d', borderwidth=2, borderpad=4
@@ -406,10 +471,10 @@ def plot_demografi(df_fatigue, df_overspeed, labels):
         text=merged['Overspeed'], textposition='outside'
     ))
     fig.update_layout(
-        title='Demografi Umur Driver',
+        title='Demografi Umur Driver (Rentang 5 Tahun)',
         plot_bgcolor='white', paper_bgcolor='white',
         font=dict(family='Inter', size=12),
-        xaxis=dict(showgrid=False),
+        xaxis=dict(showgrid=False, title="Rentang Umur (Tahun)"),
         yaxis=dict(showgrid=True, gridcolor='#e2e8f0', gridwidth=0.5),
         barmode='group',
         legend=dict(orientation='h', yanchor='bottom', y=1.02, xanchor='center', x=0.5),
@@ -625,67 +690,13 @@ if uploaded_file is None:
 else:
     with st.spinner("🔄 Memproses data..."):
         try:
-            # ========== BACA DATA ==========
-            if uploaded_file.name.endswith('.xlsx'):
-                xls = pd.ExcelFile(uploaded_file)
-                sheet = 'Input' if 'Input' in xls.sheet_names else xls.sheet_names[0]
-                df_raw = pd.read_excel(uploaded_file, sheet_name=sheet)
-            else:
-                df_raw = pd.read_csv(uploaded_file)
-
-            df = df_raw.dropna(how='all').copy()
-            df.columns = [str(c).strip() for c in df.columns]
-
-            # ========== DETEKSI & CLEANING DATA ==========
-            cols = detect_columns(df)
+            # MEMANGGIL DENGAN CACHING
+            df, cols, age_labels = load_and_process_data(uploaded_file)
             
-            if not all([cols['date'], cols['type'], cols['driver']]):
+            if df is None:
                 st.error("❌ Kolom minimum wajib ada: Tanggal, Type, Driver")
                 st.stop()
-            
-            df = df.dropna(subset=[cols['date'], cols['type'], cols['driver']]).copy()
-            df[cols['date']] = pd.to_datetime(df[cols['date']], errors='coerce')
-            df = df.dropna(subset=[cols['date']])
-            
-            # Kolom Turunan
-            df['Month_Num'] = df[cols['date']].dt.month
-            bulan_map = {1:'Jan',2:'Feb',3:'Mar',4:'Apr',5:'Mei',6:'Jun',
-                         7:'Jul',8:'Ags',9:'Sep',10:'Okt',11:'Nov',12:'Des'}
-            df['Bulan'] = df['Month_Num'].map(bulan_map)
-            
-            df['Driver'] = df[cols['driver']].astype(str).str.replace('_', ' ').str.strip().str.title()
-            df['Unit'] = df[cols['unit']].astype(str).str.strip().str.upper() if cols['unit'] else "N/A"
-            df['Lokasi'] = df[cols['location']].astype(str).str.strip().str.upper() if cols['location'] else "N/A"
-            df['Type'] = df[cols['type']].astype(str).str.strip().str.title()
-            
-            if cols['pengawas']:
-                df['Pengawas'] = df[cols['pengawas']].astype(str).str.strip().str.title()
-            else:
-                df['Pengawas'] = 'Tidak Diketahui'
-            
-            if cols['age']:
-                df['Umur'] = pd.to_numeric(df[cols['age']], errors='coerce')
-                bins = [18,25,35,45,55,100]
-                labels = ['18-25','26-35','36-45','46-55','>55']
-                df['Kelompok_Umur'] = pd.cut(df['Umur'], bins=bins, labels=labels, right=True)
-            else:
-                df['Kelompok_Umur'] = 'N/A'
-                labels = ['18-25','26-35','36-45','46-55','>55']
-            
-            if cols['shift']:
-                df['Shift'] = df[cols['shift']].apply(
-                    lambda x: f"Shift {int(x)}" if str(x).replace('.','').isdigit() else str(x)
-                )
-            else:
-                df['Shift'] = "Shift 1"
-            
-            df['Jam_Range'] = df[cols['time']].apply(cat_time) if cols['time'] else 'Unknown'
-            
-            # Filter Data
-            df = df[~df['Lokasi'].isin(['OUT OF HAULING'])]
-            df = df[~df['Driver'].isin(['Unknown'])]
-            df = df[~df['Driver'].str.contains('Ba Minergo', case=False, na=False)]
-            
+
             df_fatigue = df[df['Type'].isin(['Mata Tertutup', 'Mengantuk'])].copy()
             df_overspeed = df[df['Type'] == 'Overspeed'].copy()
             
@@ -855,7 +866,7 @@ else:
             
             # ========== TAB 3: DRIVER & UNIT ==========
             with tab3:
-                fig = plot_demografi(df_fatigue, df_overspeed, labels)
+                fig = plot_demografi(df_fatigue, df_overspeed, age_labels)
                 st.plotly_chart(fig, use_container_width=True)
                 
                 st.markdown("---")
