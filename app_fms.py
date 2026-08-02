@@ -5,7 +5,6 @@ import plotly.express as px
 import plotly.graph_objects as go
 from datetime import datetime
 import base64
-from io import BytesIO
 
 # ==================== KONFIGURASI HALAMAN ====================
 st.set_page_config(
@@ -25,194 +24,98 @@ html, body, [class*="css"] {
 }
 
 .block-container {
-    padding-top: 0.8rem;
-    padding-bottom: 1.5rem;
-    padding-left: 1.5rem;
-    padding-right: 1.5rem;
+    padding-top: 1.2rem;
+    padding-bottom: 2rem;
+    padding-left: 2rem;
+    padding-right: 2rem;
     max-width: 1600px;
-}
-
-/* HEADER KOMPAK */
-.header-compact {
-    background: linear-gradient(135deg, #0f172a, #1d4ed8);
-    padding: 12px 24px;
-    border-radius: 14px;
-    color: white;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.10);
-    margin-bottom: 18px;
-    height: 80px;
 }
 
 /* KPI CARDS */
 .kpi {
     background: white;
-    padding: 16px 20px;
-    border-radius: 14px;
-    box-shadow: 0 4px 15px rgba(0,0,0,.06);
+    padding: 22px;
+    border-radius: 18px;
+    box-shadow: 0 5px 20px rgba(0,0,0,.05);
     transition: .25s;
     border: 1px solid #edf2f7;
     position: relative;
 }
 .kpi:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 10px 25px rgba(0,0,0,.10);
+    transform: translateY(-6px);
+    box-shadow: 0 15px 35px rgba(0,0,0,.10);
 }
 .kpi-icon {
-    font-size: 22px;
-    margin-bottom: 4px;
+    font-size: 28px;
+    margin-bottom: 6px;
 }
 .kpi-title {
-    font-size: 12px;
+    font-size: 13px;
     color: #64748b;
     text-transform: uppercase;
-    letter-spacing: .6px;
+    letter-spacing: .8px;
     font-weight: 500;
 }
 .kpi-value {
-    font-size: 28px;
+    font-size: 34px;
     font-weight: 700;
     color: #0f172a;
-    margin-top: 4px;
+    margin-top: 6px;
 }
 .kpi-footer {
-    margin-top: 6px;
-    font-size: 12px;
-}
-
-/* CHART CARDS */
-.chart-card {
-    background: white;
-    border-radius: 16px;
-    padding: 20px 20px 10px 20px;
-    box-shadow: 0 4px 20px rgba(0,0,0,.06);
-    border: 1px solid #edf2f7;
-    transition: .25s;
-    margin-bottom: 16px;
-}
-.chart-card:hover {
-    box-shadow: 0 8px 30px rgba(0,0,0,.10);
-}
-.chart-title {
-    font-size: 14px;
-    font-weight: 600;
-    color: #0f172a;
-    margin-bottom: 12px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
+    margin-top: 8px;
+    color: #2563eb;
+    font-size: 13px;
 }
 
 /* SIDEBAR */
 section[data-testid="stSidebar"] {
     background: #0f172a;
-    padding-top: 0.5rem;
 }
 section[data-testid="stSidebar"] * {
     color: white;
 }
-.sidebar-menu {
-    padding: 6px 12px;
+section[data-testid="stSidebar"] .stSelectbox label,
+section[data-testid="stSidebar"] .stFileUploader label {
+    color: #94a3b8 !important;
+}
+section[data-testid="stSidebar"] .stSelectbox div[data-baseweb="select"] {
+    background: rgba(255,255,255,0.06);
     border-radius: 8px;
-    margin: 2px 0;
+    border: 1px solid rgba(255,255,255,0.08);
+}
+
+/* BUTTON */
+.stButton > button {
+    background: #2563eb;
+    color: white;
+    border-radius: 10px;
+    border: none;
+    padding: .55rem 1rem;
+    font-weight: 500;
     transition: .2s;
-    cursor: pointer;
-    font-size: 14px;
 }
-.sidebar-menu:hover {
-    background: rgba(255,255,255,0.08);
-}
-.sidebar-menu.active {
-    background: rgba(37,99,235,0.3);
-    border-left: 3px solid #2563eb;
+.stButton > button:hover {
+    background: #1d4ed8;
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(37,99,235,0.3);
 }
 
-/* FILTER BAR */
-.filter-bar {
-    background: white;
-    padding: 12px 20px;
+/* DATAFRAME */
+div[data-testid="stDataFrame"] {
+    border-radius: 14px;
+    border: 1px solid #edf2f7;
+    overflow: hidden;
+}
+div[data-testid="stDataFrame"] thead tr th {
+    background: #f8fafc !important;
+    font-weight: 600 !important;
+}
+
+/* PLOTLY CONTAINER */
+.js-plotly-plot .plotly .main-svg {
     border-radius: 12px;
-    box-shadow: 0 2px 10px rgba(0,0,0,.04);
-    margin-bottom: 18px;
-    border: 1px solid #edf2f7;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 12px;
-    align-items: center;
-}
-
-/* SAFETY SCORE */
-.safety-score {
-    background: white;
-    border-radius: 16px;
-    padding: 20px 24px;
-    box-shadow: 0 4px 20px rgba(0,0,0,.06);
-    border: 1px solid #edf2f7;
-    display: flex;
-    align-items: center;
-    gap: 24px;
-}
-.safety-number {
-    font-size: 48px;
-    font-weight: 700;
-    line-height: 1;
-}
-.safety-label {
-    font-size: 14px;
-    font-weight: 600;
-    color: #0f172a;
-}
-
-/* RESPONSIVE GRID */
-.stColumns {
-    gap: 16px;
-}
-
-/* TYPOGRAPHY */
-h1 { font-size: 28px !important; font-weight: 700 !important; }
-h2 { font-size: 22px !important; font-weight: 600 !important; }
-h3 { font-size: 18px !important; font-weight: 600 !important; }
-.card-title { font-size: 14px !important; font-weight: 600 !important; }
-.caption { font-size: 12px !important; color: #64748b; }
-
-/* EMPTY STATE */
-.empty-state {
-    background: white;
-    border-radius: 16px;
-    padding: 60px 40px;
-    text-align: center;
-    border: 2px dashed #e2e8f0;
-}
-.empty-state-icon {
-    font-size: 64px;
-    margin-bottom: 16px;
-}
-.empty-state-title {
-    font-size: 20px;
-    font-weight: 600;
-    color: #0f172a;
-    margin-bottom: 8px;
-}
-.empty-state-desc {
-    font-size: 14px;
-    color: #64748b;
-}
-
-/* FOOTER */
-.footer {
-    margin-top: 32px;
-    padding: 16px 24px;
-    background: white;
-    border-radius: 12px;
-    border: 1px solid #edf2f7;
-    display: flex;
-    justify-content: space-between;
-    flex-wrap: wrap;
-    gap: 8px;
-    font-size: 12px;
-    color: #64748b;
 }
 </style>
 """, unsafe_allow_html=True)
@@ -265,57 +168,40 @@ def get_order_months():
 def get_order_2h():
     return [f"{i:02d}:00-{i+1:02d}:59" for i in range(0, 24, 2)]
 
-def calculate_safety_score(df_fatigue, df_overspeed, df):
-    """Hitung Safety Score berdasarkan faktor-faktor"""
-    score = 100
+# ==================== HEADER BARU DENGAN INTEGRASI LOGO ====================
+def header_with_logo(title, subtitle, logo_path="image.png"):
+    img_b64 = get_image_base64(logo_path)
+    logo_html = f'<img src="data:image/png;base64,{img_b64}" style="height: 55px; object-fit: contain;">' if img_b64 else '<span style="font-size:30px;">🚛</span>'
     
-    # Faktor 1: Fatigue (max -20)
-    fatigue_pct = len(df_fatigue) / len(df) * 100 if len(df) > 0 else 0
-    if fatigue_pct > 20:
-        score -= 20
-    elif fatigue_pct > 10:
-        score -= 10
-    elif fatigue_pct > 5:
-        score -= 5
-    
-    # Faktor 2: Overspeed (max -15)
-    overspeed_pct = len(df_overspeed) / len(df) * 100 if len(df) > 0 else 0
-    if overspeed_pct > 15:
-        score -= 15
-    elif overspeed_pct > 8:
-        score -= 10
-    elif overspeed_pct > 3:
-        score -= 5
-    
-    # Faktor 3: Repeat Driver (max -15)
-    driver_counts = df_fatigue['Driver'].value_counts()
-    repeat_drivers = sum(1 for count in driver_counts if count > 5)
-    if repeat_drivers > 10:
-        score -= 15
-    elif repeat_drivers > 5:
-        score -= 10
-    elif repeat_drivers > 2:
-        score -= 5
-    
-    # Faktor 4: Hotspot (max -10)
-    if not df_fatigue.empty:
-        loc_counts = df_fatigue['Lokasi'].value_counts()
-        if not loc_counts.empty and loc_counts.iloc[0] > 10:
-            score -= 10
-        elif not loc_counts.empty and loc_counts.iloc[0] > 5:
-            score -= 5
-    
-    return max(0, min(100, score))
-
-def format_safety_score(score):
-    if score >= 85:
-        return "Excellent", "✅", "#22c55e"
-    elif score >= 70:
-        return "Good", "👍", "#3b82f6"
-    elif score >= 55:
-        return "Need Attention", "⚠️", "#f59e0b"
-    else:
-        return "Critical", "🚨", "#ef4444"
+    st.markdown(f"""
+    <div style="
+        background: linear-gradient(135deg, #0f172a, #1d4ed8);
+        padding: 24px 30px;
+        border-radius: 20px;
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.12);
+        margin-bottom: 25px;
+    ">
+        <div>
+            <h1 style="margin: 0; font-size: 30px; font-weight: 700; color: white;">{title}</h1>
+            <p style="margin: 6px 0 0 0; opacity: 0.85; font-size: 14px; line-height: 1.4;">{subtitle}</p>
+        </div>
+        <div style="
+            background: white;
+            padding: 8px 16px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        ">
+            {logo_html}
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
 
 # ==================== DATA PROCESSING WITH CACHE ====================
 @st.cache_data
@@ -340,6 +226,7 @@ def load_and_process_data(file):
     df[cols['date']] = pd.to_datetime(df[cols['date']], errors='coerce')
     df = df.dropna(subset=[cols['date']])
     
+    # Kolom Bulan & Minggu (Week 1-52)
     df['Month_Num'] = df[cols['date']].dt.month
     bulan_map = {1:'Jan',2:'Feb',3:'Mar',4:'Apr',5:'Mei',6:'Jun',
                  7:'Jul',8:'Ags',9:'Sep',10:'Okt',11:'Nov',12:'Des'}
@@ -379,47 +266,34 @@ def load_and_process_data(file):
     return df, cols, labels
 
 # ==================== UI COMPONENTS ====================
-def kpi(title, value, footer, icon="📊", color="#2563eb", change=None):
-    change_html = ""
-    if change is not None:
-        if change > 0:
-            change_html = f'<span style="color:#22c55e;">▲ +{change:.1f}%</span>'
-        elif change < 0:
-            change_html = f'<span style="color:#ef4444;">▼ {change:.1f}%</span>'
-        else:
-            change_html = '<span style="color:#64748b;">→ 0%</span>'
-    
+def kpi(title, value, footer, icon="📊", color="#2563eb"):
     st.markdown(f"""
     <div class="kpi" style="border-top:4px solid {color};">
         <div class="kpi-icon">{icon}</div>
         <div class="kpi-title">{title}</div>
         <div class="kpi-value">{value}</div>
-        <div class="kpi-footer">{change_html} vs bulan lalu</div>
+        <div class="kpi-footer">{footer}</div>
     </div>
     """, unsafe_allow_html=True)
 
-def executive_summary(items):
-    st.markdown("### 📋 Executive Summary")
-    for item in items:
-        color = item.get('color', '#f8fafc')
-        icon = item.get('icon', '•')
-        text = item.get('text', '')
-        st.markdown(f"""
-        <div style="background:{color}; padding:10px 16px; border-radius:10px; margin-bottom:6px; border-left:4px solid {item.get('border', '#2563eb')};">
-            <span style="font-size:14px;">{icon} {text}</span>
-        </div>
-        """, unsafe_allow_html=True)
-
-def chart_card(title, chart, height=400):
-    if chart is None:
-        return
-    
+def insight(color, title, text, icon="💡"):
     st.markdown(f"""
-    <div class="chart-card">
-        <div class="chart-title">{title}</div>
+    <div style="background:{color}; padding:16px 20px; border-radius:14px; margin-bottom:10px; border-left:5px solid {color};">
+        <div style="font-weight:600; font-size:0.95rem; color:#0f172a;">{icon} {title}</div>
+        <div style="font-size:0.85rem; color:#334155; margin-top:4px;">{text}</div>
     </div>
     """, unsafe_allow_html=True)
-    st.plotly_chart(chart, use_container_width=True, config={'displayModeBar': False})
+
+def rec_card(priority, icon, text):
+    bg = '#fef2f2' if 'PRIORITAS' in priority else '#fffbeb'
+    border = '#ef4444' if 'PRIORITAS' in priority else '#f59e0b'
+    st.markdown(f"""
+    <div style="background:{bg}; padding:12px 16px; border-radius:12px; border-left:5px solid {border}; margin:6px 0;">
+        <span style="font-weight:600; font-size:0.85rem;">{priority}</span> 
+        <span style="font-size:1rem;">{icon}</span> 
+        <span style="font-size:0.9rem; color:#1e293b;">{text}</span>
+    </div>
+    """, unsafe_allow_html=True)
 
 # ==================== CHART FUNCTIONS ====================
 def plot_tren_generic(df_target, title="Tren Bulanan", color="#2563eb"):
@@ -444,8 +318,7 @@ def plot_tren_generic(df_target, title="Tren Bulanan", color="#2563eb"):
         xaxis=dict(showgrid=False),
         yaxis=dict(showgrid=True, gridcolor='#e2e8f0', gridwidth=0.5, range=[0, max_val * 1.35]),
         hovermode='x unified',
-        margin=dict(l=20, r=20, t=40, b=20),
-        height=400
+        margin=dict(l=20, r=20, t=40, b=20)
     )
     
     for i, row in trend.iterrows():
@@ -461,6 +334,7 @@ def plot_tren_generic(df_target, title="Tren Bulanan", color="#2563eb"):
         )
     return fig
 
+# FUNGSI GRAFIK TREN MINGGUAN (WEEK 1-52) DENGAN GARIS TREN (TRENDLINE)
 def plot_weekly_trend_with_trendline(df_fatigue):
     if df_fatigue.empty or 'Week' not in df_fatigue.columns:
         return None, "Data Kosong"
@@ -472,9 +346,11 @@ def plot_weekly_trend_with_trendline(df_fatigue):
     x = weekly['Week'].values.astype(float)
     y = weekly['Total'].values.astype(float)
     
+    # Hitung Garis Tren Regresi Linier (y = mx + c)
     slope, intercept = np.polyfit(x, y, 1)
     trendline_y = slope * x + intercept
     
+    # Tentukan Arah Tren
     if slope > 0.1:
         trend_status = "⚠️ CENDERUNG NAIK (Memburuk)"
         trend_color = "#ef4444"
@@ -487,6 +363,7 @@ def plot_weekly_trend_with_trendline(df_fatigue):
 
     fig = go.Figure()
     
+    # Plot Data Mingguan
     fig.add_trace(go.Scatter(
         x=weekly['Week'], y=weekly['Total'],
         mode='lines+markers',
@@ -496,6 +373,7 @@ def plot_weekly_trend_with_trendline(df_fatigue):
         hovertemplate='<b>Week %{x}</b>: %{y} kasus<extra></extra>'
     ))
     
+    # Plot Garis Tren (Trendline)
     fig.add_trace(go.Scatter(
         x=weekly['Week'], y=trendline_y,
         mode='lines',
@@ -509,13 +387,12 @@ def plot_weekly_trend_with_trendline(df_fatigue):
         font=dict(family='Inter', size=12),
         xaxis=dict(
             title="Minggu Ke- (Week)", showgrid=True, gridcolor='#edf2f7',
-            dtick=1, rangeslider=dict(visible=True)
+            dtick=1, rangeslider=dict(visible=True)  # Tambahkan Slider Navigasi
         ),
         yaxis=dict(title="Jumlah Temuan", showgrid=True, gridcolor='#e2e8f0'),
         hovermode='x unified',
         legend=dict(orientation='h', yanchor='bottom', y=1.02, xanchor='center', x=0.5),
-        margin=dict(l=20, r=20, t=50, b=20),
-        height=400
+        margin=dict(l=20, r=20, t=50, b=20)
     )
     
     return fig, trend_status
@@ -541,8 +418,7 @@ def plot_shift_comparison(df_fatigue):
         yaxis=dict(showgrid=True, gridcolor='#e2e8f0', gridwidth=0.5),
         hovermode='x unified',
         legend=dict(orientation='h', yanchor='bottom', y=1.02, xanchor='center', x=0.5),
-        margin=dict(l=20, r=20, t=40, b=20),
-        height=400
+        margin=dict(l=20, r=20, t=40, b=20)
     )
     return fig
 
@@ -566,8 +442,7 @@ def plot_alarm_distribution(df_fatigue):
         xaxis=dict(showgrid=True, gridcolor='#e2e8f0', gridwidth=0.5),
         yaxis=dict(showgrid=False),
         margin=dict(l=20, r=20, t=40, b=20),
-        showlegend=False,
-        height=400
+        showlegend=False
     )
     return fig
 
@@ -613,8 +488,7 @@ def plot_jam_distribution(df_fatigue, order_2h):
         xaxis=dict(showgrid=False, tickangle=45),
         yaxis=dict(showgrid=True, gridcolor='#e2e8f0', gridwidth=0.5, range=[0, max_val * 1.35]),
         margin=dict(l=20, r=20, t=50, b=20),
-        showlegend=False,
-        height=400
+        showlegend=False
     )
     return fig
 
@@ -642,8 +516,7 @@ def plot_hotspot(df, label="Fatigue"):
         xaxis=dict(showgrid=True, gridcolor='#e2e8f0', gridwidth=0.5, range=[0, max_val * 1.2]),
         yaxis=dict(showgrid=False),
         margin=dict(l=20, r=20, t=40, b=20),
-        showlegend=False,
-        height=400
+        showlegend=False, height=400
     )
     return fig
 
@@ -675,8 +548,7 @@ def plot_demografi(df_fatigue, df_overspeed, labels):
         yaxis=dict(showgrid=True, gridcolor='#e2e8f0', gridwidth=0.5),
         barmode='group',
         legend=dict(orientation='h', yanchor='bottom', y=1.02, xanchor='center', x=0.5),
-        margin=dict(l=20, r=20, t=40, b=20),
-        height=400
+        margin=dict(l=20, r=20, t=40, b=20)
     )
     return fig
 
@@ -702,8 +574,7 @@ def plot_top_driver(df_fatigue):
         xaxis=dict(showgrid=True, gridcolor='#e2e8f0', gridwidth=0.5, range=[0, max_val * 1.2]),
         yaxis=dict(showgrid=False),
         margin=dict(l=20, r=20, t=40, b=20),
-        showlegend=False,
-        height=400
+        showlegend=False, height=500
     )
     return fig
 
@@ -743,13 +614,13 @@ def plot_heatmap(df_fatigue, order_months, top_n=15):
 
 def plot_forecast(df_fatigue):
     if df_fatigue.empty or 'Month_Num' not in df_fatigue.columns:
-        return None, None
+        return None
     
     monthly_data = df_fatigue.groupby('Month_Num').size().reset_index(name='Total')
     monthly_data = monthly_data.sort_values('Month_Num')
     
     if len(monthly_data) < 3:
-        return None, None
+        return None
     
     x = monthly_data['Month_Num'].values
     y = monthly_data['Total'].values
@@ -763,15 +634,6 @@ def plot_forecast(df_fatigue):
     last_month = x[-1]
     future_months = [last_month + i for i in range(1, 4)]
     predictions = [slope * m + intercept for m in future_months]
-    
-    # Hitung confidence
-    if len(y) > 1:
-        y_pred = slope * x + intercept
-        residuals = y - y_pred
-        mse = np.mean(residuals ** 2)
-        confidence = max(50, min(95, 95 - (mse / np.mean(y) * 10)))
-    else:
-        confidence = 85
     
     month_labels = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Ags','Sep','Okt','Nov','Des']
     hist_months = [month_labels[int(m)-1] for m in x]
@@ -797,28 +659,9 @@ def plot_forecast(df_fatigue):
         yaxis=dict(showgrid=True, gridcolor='#e2e8f0', gridwidth=0.5),
         hovermode='x unified',
         legend=dict(orientation='h', yanchor='bottom', y=1.02, xanchor='center', x=0.5),
-        margin=dict(l=20, r=20, t=40, b=20),
-        height=400
+        margin=dict(l=20, r=20, t=40, b=20)
     )
-    
-    # Tentukan trend
-    if len(predictions) >= 2 and len(y) >= 1:
-        last_actual = y[-1]
-        next_pred = predictions[0]
-        if next_pred > last_actual * 1.05:
-            trend = "Naik 🔺"
-            need_action = "⚠️ Perlu tindakan"
-        elif next_pred < last_actual * 0.95:
-            trend = "Turun 🔻"
-            need_action = "✅ Terkendali"
-        else:
-            trend = "Stabil ➡️"
-            need_action = "📊 Monitor"
-    else:
-        trend = "Tidak tersedia"
-        need_action = ""
-    
-    return fig, {'confidence': confidence, 'trend': trend, 'need_action': need_action}
+    return fig
 
 def plot_fatigue_vs_overspeed(df_fatigue, df_overspeed):
     if df_fatigue.empty or df_overspeed.empty:
@@ -859,101 +702,60 @@ def plot_fatigue_vs_overspeed(df_fatigue, df_overspeed):
         barmode='group',
         legend=dict(orientation='h', yanchor='bottom', y=1.02, xanchor='center', x=0.5),
         margin=dict(l=20, r=20, t=40, b=20),
-        height=400
+        height=450
     )
     return fig
 
 # ==================== SIDEBAR ====================
 with st.sidebar:
     st.markdown("""
-    <div style="text-align:center; padding:5px 0 15px 0;">
-        <div style="font-size:36px;">🚛</div>
-        <div style="font-weight:700; font-size:1.1rem; color:white;">FMS Dashboard</div>
-        <div style="font-size:0.65rem; color:#94a3b8;">v4.0 · Enterprise</div>
+    <div style="text-align:center; padding:10px 0 20px 0;">
+        <div style="font-size:40px;">🚛</div>
+        <div style="font-weight:700; font-size:1.2rem; color:white;">FMS Dashboard</div>
+        <div style="font-size:0.7rem; color:#94a3b8;">v3.0 · Enterprise</div>
     </div>
     """, unsafe_allow_html=True)
     
     st.markdown("---")
-    
-    # Sidebar Menu
-    menu_items = [
-        ("📊", "Dashboard"),
-        ("📈", "Overview"),
-        ("👤", "Driver"),
-        ("📍", "Lokasi"),
-        ("🔮", "Forecast"),
-        ("⚙️", "Settings"),
-        ("📁", "Upload")
-    ]
-    
-    for icon, label in menu_items:
-        active = "active" if label == "Dashboard" else ""
-        st.markdown(f"""
-        <div class="sidebar-menu {active}">
-            {icon} {label}
-        </div>
-        """, unsafe_allow_html=True)
-    
+    st.markdown("### 📁 Data Source")
+    uploaded_file = st.file_uploader("Upload File Log FMS", type=['xlsx', 'csv'])
     st.markdown("---")
-    
-    # Upload section
-    st.markdown("### 📁 Upload File")
-    uploaded_file = st.file_uploader("Upload Log FMS", type=['xlsx', 'csv'])
-    st.markdown("---")
-    st.caption("© 2026 PT. Bumiputera")
+    st.caption("© 2026 PT. Bumiputera Maha Terpercaya")
 
-# ==================== HEADER KOMPAK ====================
-st.markdown("""
-<div class="header-compact">
-    <div>
-        <h1 style="margin:0; font-size:28px; color:white;">🚛 Fleet Management System</h1>
-        <p style="margin:2px 0 0 0; opacity:0.8; font-size:13px;">PT. Bumiputera Maha Terpercaya · Monitoring Safety Analytics</p>
-    </div>
-    <div style="display:flex; align-items:center; gap:12px;">
-        <span style="font-size:13px; opacity:0.8;">📅 Last update: {}</span>
-        <div style="background:white; padding:4px 12px; border-radius:10px;">
-            <span style="color:#0f172a; font-weight:600; font-size:14px;">🚛</span>
-        </div>
-    </div>
-</div>
-""".format(datetime.now().strftime('%d/%m/%Y %H:%M')), unsafe_allow_html=True)
+# ==================== HEADER DENGAN LOGO ====================
+header_with_logo(
+    "🚛 Fleet Management System",
+    "PT. Bumiputera Maha Terpercaya<br>Monitoring Fatigue • Overspeed • Safety Analytics",
+    "image.png"
+)
 
 # ==================== MAIN ====================
 if uploaded_file is None:
-    # Empty State
-    st.markdown("""
-    <div class="empty-state">
-        <div class="empty-state-icon">🚛</div>
-        <div class="empty-state-title">Upload File Excel</div>
-        <div class="empty-state-desc">Drag & Drop atau Browse File untuk memulai</div>
-        <div style="margin-top:16px; color:#94a3b8; font-size:12px;">Format: .xlsx atau .csv</div>
-    </div>
-    """, unsafe_allow_html=True)
+    st.info("👆 Upload file Excel/CSV di sidebar untuk memulai")
     
-    # Preview cards
     col1, col2, col3 = st.columns(3)
     with col1:
         st.markdown("""
-        <div style="background:white; padding:24px; border-radius:14px; text-align:center; border:1px solid #edf2f7;">
-            <div style="font-size:32px;">📊</div>
-            <div style="font-weight:600; color:#0f172a; font-size:14px;">Analisis Lengkap</div>
-            <div style="font-size:12px; color:#64748b;">Tren fatigue, overspeed, performa</div>
+        <div style="background:white; padding:30px; border-radius:18px; text-align:center; border:1px solid #edf2f7;">
+            <div style="font-size:40px;">📊</div>
+            <div style="font-weight:600; color:#0f172a;">Analisis Lengkap</div>
+            <div style="font-size:0.85rem; color:#64748b;">Tren fatigue, overspeed, performa</div>
         </div>
         """, unsafe_allow_html=True)
     with col2:
         st.markdown("""
-        <div style="background:white; padding:24px; border-radius:14px; text-align:center; border:1px solid #edf2f7;">
-            <div style="font-size:32px;">🗺️</div>
-            <div style="font-weight:600; color:#0f172a; font-size:14px;">Spatial & Temporal</div>
-            <div style="font-size:12px; color:#64748b;">Hotspot & pola waktu</div>
+        <div style="background:white; padding:30px; border-radius:18px; text-align:center; border:1px solid #edf2f7;">
+            <div style="font-size:40px;">🗺️</div>
+            <div style="font-weight:600; color:#0f172a;">Spatial & Temporal</div>
+            <div style="font-size:0.85rem; color:#64748b;">Hotspot & pola waktu</div>
         </div>
         """, unsafe_allow_html=True)
     with col3:
         st.markdown("""
-        <div style="background:white; padding:24px; border-radius:14px; text-align:center; border:1px solid #edf2f7;">
-            <div style="font-size:32px;">👥</div>
-            <div style="font-weight:600; color:#0f172a; font-size:14px;">Driver & Fleet</div>
-            <div style="font-size:12px; color:#64748b;">Demografi & performa</div>
+        <div style="background:white; padding:30px; border-radius:18px; text-align:center; border:1px solid #edf2f7;">
+            <div style="font-size:40px;">👥</div>
+            <div style="font-weight:600; color:#0f172a;">Driver & Fleet</div>
+            <div style="font-size:0.85rem; color:#64748b;">Demografi & performa</div>
         </div>
         """, unsafe_allow_html=True)
 else:
@@ -975,286 +777,291 @@ else:
             total_o = len(df_overspeed)
             total_alarm = total_f + total_o
             
-            # ========== GLOBAL FILTER ==========
-            st.markdown("""
-            <div class="filter-bar">
-                <span style="font-weight:600; font-size:13px; color:#0f172a;">🔍 Filter Global</span>
-            </div>
-            """, unsafe_allow_html=True)
+            jam_counts = df_fatigue['Jam_Range'].value_counts()
+            top_jam = jam_counts.index[0] if not jam_counts.empty else "N/A"
+            top_jam_val = jam_counts.iloc[0] if not jam_counts.empty else 0
             
-            f_col1, f_col2, f_col3, f_col4, f_col5, f_col6 = st.columns(6)
-            with f_col1:
-                filter_tanggal = st.date_input("Tanggal", value=None, key="filter_tanggal")
-            with f_col2:
-                filter_shift = st.selectbox("Shift", ["Semua", "Shift 1", "Shift 2"], key="filter_shift")
-            with f_col3:
-                filter_pengawas = st.selectbox("Pengawas", ["Semua"] + sorted(df['Pengawas'].unique().tolist()), key="filter_pengawas")
-            with f_col4:
-                filter_driver = st.selectbox("Driver", ["Semua"] + sorted(df['Driver'].unique().tolist()), key="filter_driver")
-            with f_col5:
-                filter_lokasi = st.selectbox("Lokasi", ["Semua"] + sorted(df['Lokasi'].unique().tolist()), key="filter_lokasi")
-            with f_col6:
-                filter_type = st.selectbox("Jenis Alarm", ["Semua", "Fatigue", "Overspeed"], key="filter_type")
-            
-            # Apply filters
-            filtered_df = df.copy()
-            if filter_tanggal:
-                filtered_df = filtered_df[filtered_df[cols['date']].dt.date == filter_tanggal]
-            if filter_shift != "Semua":
-                filtered_df = filtered_df[filtered_df['Shift'] == filter_shift]
-            if filter_pengawas != "Semua":
-                filtered_df = filtered_df[filtered_df['Pengawas'] == filter_pengawas]
-            if filter_driver != "Semua":
-                filtered_df = filtered_df[filtered_df['Driver'] == filter_driver]
-            if filter_lokasi != "Semua":
-                filtered_df = filtered_df[filtered_df['Lokasi'] == filter_lokasi]
-            if filter_type == "Fatigue":
-                filtered_df = filtered_df[filtered_df['Type'].isin(['Mata Tertutup', 'Mengantuk'])]
-            elif filter_type == "Overspeed":
-                filtered_df = filtered_df[filtered_df['Type'] == 'Overspeed']
-            
-            # Update filtered data
-            filtered_fatigue = filtered_df[filtered_df['Type'].isin(['Mata Tertutup', 'Mengantuk'])].copy()
-            filtered_overspeed = filtered_df[filtered_df['Type'] == 'Overspeed'].copy()
-            
-            # ========== SAFETY SCORE ==========
-            safety_score = calculate_safety_score(filtered_fatigue, filtered_overspeed, filtered_df)
-            score_label, score_icon, score_color = format_safety_score(safety_score)
-            
-            st.markdown("### 🛡️ Safety Index")
-            col_s1, col_s2 = st.columns([1, 3])
-            with col_s1:
-                st.markdown(f"""
-                <div class="safety-score">
-                    <div>
-                        <div class="safety-number" style="color:{score_color};">{safety_score}</div>
-                        <div class="safety-label">{score_icon} {score_label}</div>
-                    </div>
-                </div>
-                """, unsafe_allow_html=True)
-            with col_s2:
-                st.caption(f"""
-                Score dihitung dari:
-                • Fatigue ({len(filtered_fatigue)} kasus)
-                • Overspeed ({len(filtered_overspeed)} kasus)
-                • Repeat Driver
-                • Hotspot
-                """)
-            
-            st.markdown("---")
+            loc_counts = df_fatigue['Lokasi'].value_counts()
+            top_loc = loc_counts.index[0] if not loc_counts.empty else "N/A"
+            top_loc_val = loc_counts.iloc[0] if not loc_counts.empty else 0
             
             # ========== KPI CARDS ==========
-            # Calculate monthly changes
-            if not filtered_fatigue.empty and len(filtered_fatigue) > 1:
-                prev_month = filtered_fatigue['Month_Num'].max() - 1
-                current_month = filtered_fatigue['Month_Num'].max()
-                prev_count = len(filtered_fatigue[filtered_fatigue['Month_Num'] == prev_month])
-                current_count = len(filtered_fatigue[filtered_fatigue['Month_Num'] == current_month])
-                f_change = ((current_count - prev_count) / prev_count * 100) if prev_count > 0 else 0
-            else:
-                f_change = 0
-            
+            st.markdown("### 📊 Ringkasan")
             c1, c2, c3, c4 = st.columns(4)
             
             with c1:
-                kpi("🚨 Total Alarm", fmt_num(len(filtered_df)), "Semua jenis", "🚨", "#ef4444", 0)
+                kpi("Total Alarm", fmt_num(total_alarm), "Semua jenis alarm", "🚨", "#ef4444")
             with c2:
-                kpi("😴 Fatigue", fmt_num(len(filtered_fatigue)), "Kasus fatigue", "😴", "#f59e0b", f_change)
+                kpi("Fatigue", fmt_num(total_f), "Kasus fatigue", "😴", "#f59e0b")
             with c3:
-                kpi("🚗 Overspeed", fmt_num(len(filtered_overspeed)), "Kasus overspeed", "🚗", "#3b82f6", 0)
+                kpi("Overspeed", fmt_num(total_o), "Kasus overspeed", "🚗", "#3b82f6")
             with c4:
-                loc_counts = filtered_fatigue['Lokasi'].value_counts()
-                top_loc = loc_counts.index[0] if not loc_counts.empty else "N/A"
-                top_loc_val = loc_counts.iloc[0] if not loc_counts.empty else 0
-                kpi("📍 Hotspot", top_loc, f"{top_loc_val} kasus", "📍", "#8b5cf6", 0)
+                kpi("Lokasi Rawan (Hotspot)", top_loc, f"{top_loc_val} kasus", "📍", "#8b5cf6")
             
             st.markdown("---")
             
-            # ========== EXECUTIVE SUMMARY ==========
-            exec_items = []
+            # ========== RINGKASAN EKSEKUTIF ==========
+            st.markdown("### 📋 Ringkasan Eksekutif")
+            col1, col2 = st.columns(2)
             
-            # Total alarm change
-            if len(filtered_df) > 1:
-                prev_month = filtered_df['Month_Num'].max() - 1
-                current_month = filtered_df['Month_Num'].max()
-                prev_total = len(filtered_df[filtered_df['Month_Num'] == prev_month])
-                current_total = len(filtered_df[filtered_df['Month_Num'] == current_month])
-                if prev_total > 0:
-                    total_change = ((current_total - prev_total) / prev_total * 100)
-                    if total_change < -5:
-                        exec_items.append({"text": f"✅ Total Alarm turun {abs(total_change):.1f}%", "icon": "📉", "color": "#dcfce7", "border": "#22c55e"})
-                    elif total_change > 5:
-                        exec_items.append({"text": f"⚠️ Total Alarm naik {total_change:.1f}%", "icon": "📈", "color": "#fee2e2", "border": "#ef4444"})
-            
-            # Fatigue trend
-            if not filtered_fatigue.empty and len(filtered_fatigue) > 1:
-                prev_month = filtered_fatigue['Month_Num'].max() - 1
-                current_month = filtered_fatigue['Month_Num'].max()
-                prev_f = len(filtered_fatigue[filtered_fatigue['Month_Num'] == prev_month])
-                current_f = len(filtered_fatigue[filtered_fatigue['Month_Num'] == current_month])
-                if prev_f > 0:
-                    f_change = ((current_f - prev_f) / prev_f * 100)
-                    if f_change > 5:
-                        exec_items.append({"text": f"🔴 Fatigue naik {f_change:.1f}%", "icon": "😴", "color": "#fee2e2", "border": "#ef4444"})
-                    elif f_change < -5:
-                        exec_items.append({"text": f"✅ Fatigue turun {abs(f_change):.1f}%", "icon": "😴", "color": "#dcfce7", "border": "#22c55e"})
-            
-            # Shift analysis
-            if not filtered_fatigue.empty:
-                shift_counts = filtered_fatigue['Shift'].value_counts()
+            with col1:
+                if not jam_counts.empty:
+                    top_jam = jam_counts.index[0]
+                    top_val = jam_counts.iloc[0]
+                    pct = top_val / jam_counts.sum() * 100
+                    if any(j in top_jam for j in ['00:00','01:00','02:00','03:00','04:00','05:00']):
+                        insight("#fee2e2", "Jam Kritis", f"Puncak fatigue di {top_jam} ({top_val} kasus, {pct:.1f}%) — waspada!")
+                    else:
+                        insight("#dbeafe", "Jam Rawan", f"{top_jam} ({top_val} kasus, {pct:.1f}%)")
+                
+                shift_counts = df_fatigue['Shift'].value_counts()
                 if 'Shift 2' in shift_counts.index and 'Shift 1' in shift_counts.index:
-                    if shift_counts['Shift 2'] > shift_counts['Shift 1'] * 1.5:
-                        exec_items.append({"text": "🌙 Shift 2 paling tinggi", "icon": "⚠️", "color": "#fef3c7", "border": "#f59e0b"})
-            
-            # Top driver
-            if not filtered_fatigue.empty:
-                top_driver = filtered_fatigue['Driver'].value_counts()
-                if not top_driver.empty and top_driver.iloc[0] > 3:
-                    exec_items.append({"text": f"👤 Driver {top_driver.index[0]} perlu coaching ({top_driver.iloc[0]} kasus)", "icon": "📌", "color": "#fee2e2", "border": "#ef4444"})
-            
-            # Hotspot
-            if not filtered_fatigue.empty:
-                loc_counts = filtered_fatigue['Lokasi'].value_counts()
-                if not loc_counts.empty and loc_counts.iloc[0] > 5:
-                    exec_items.append({"text": f"📍 Hotspot KM {loc_counts.index[0]} ({loc_counts.iloc[0]} kasus)", "icon": "🔥", "color": "#fef3c7", "border": "#f59e0b"})
-            
-            if exec_items:
-                executive_summary(exec_items)
-            else:
-                st.success("✅ Tidak ada insight kritis saat ini")
-            
-            st.markdown("---")
-            
-            # ========== LAYOUT CHART 2x2 ==========
-            st.markdown("### 📊 Dashboard Charts")
-            
-            # Row 1: Fatigue & Overspeed
-            col1, col2 = st.columns(2)
-            with col1:
-                fig_f = plot_tren_generic(filtered_fatigue, title="📉 Tren Fatigue Bulanan", color="#ef4444")
-                chart_card("Trend Fatigue", fig_f)
+                    s2, s1 = shift_counts['Shift 2'], shift_counts['Shift 1']
+                    if s1 > 0:
+                        ratio = s2 / s1
+                        if ratio > 2:
+                            insight("#fee2e2", "Shift Malam", f"{ratio:.1f}x lebih tinggi ({s2} vs {s1}) — evaluasi!")
+                        elif ratio > 1.2:
+                            insight("#fef3c7", "Shift Malam", f"{ratio:.1f}x lebih tinggi ({s2} vs {s1})")
+                        else:
+                            insight("#dcfce7", "Shift Seimbang", f"{s2} vs {s1}")
             
             with col2:
-                fig_o = plot_tren_generic(filtered_overspeed, title="📉 Tren Overspeed Bulanan", color="#f59e0b")
-                chart_card("Trend Overspeed", fig_o)
-            
-            # Row 2: Total Alarm & Shift Comparison
-            col1, col2 = st.columns(2)
-            with col1:
-                fig_total = plot_tren_generic(filtered_df, title="📊 Total Alarm Bulanan", color="#2563eb")
-                chart_card("Total Alarm", fig_total)
-            
-            with col2:
-                fig_shift = plot_shift_comparison(filtered_fatigue)
-                chart_card("Perbandingan Shift", fig_shift)
-            
-            st.markdown("---")
-            
-            # ========== HEATMAP FULL WIDTH ==========
-            st.markdown("### 🗺️ Heatmap Driver Fatigue")
-            hm_df = filtered_fatigue.copy()
-            fig_heatmap = plot_heatmap(hm_df, order_months, 15)
-            if fig_heatmap:
-                chart_card("Heatmap Driver per Bulan", fig_heatmap)
-            else:
-                st.info("Tidak ada data untuk heatmap")
+                driver_counts = df_fatigue['Driver'].value_counts()
+                if not driver_counts.empty:
+                    top_driver = driver_counts.index[0]
+                    top_val = driver_counts.iloc[0]
+                    insight("#fef3c7", "Driver Berisiko", f"{top_driver} ({top_val} kasus) — perlu monitoring")
+                
+                unit_counts = df['Unit'].value_counts()
+                if not unit_counts.empty:
+                    top_unit = unit_counts.index[0]
+                    top_val = unit_counts.iloc[0]
+                    if top_val > 5:
+                        insight("#fee2e2", "Unit dengan Temuan Berulang", f"{top_unit} ({top_val} temuan) — inspeksi!")
+                    else:
+                        insight("#dbeafe", "Unit dengan Temuan Berulang", f"{top_unit} ({top_val} temuan)")
             
             st.markdown("---")
             
-            # ========== TABS SISANYA ==========
-            tab1, tab2, tab3, tab4 = st.tabs([
-                "📍 Lokasi & Waktu",
+            # ========== TABS UTAMA ==========
+            tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs([
+                "📊 Overview Bulanan",
+                "📅 Tren Mingguan (Week 1-52)",
+                "🗺️ Lokasi & Waktu",
                 "👥 Driver & Unit",
                 "📋 Data Logs",
-                "🔮 Forecast"
+                "🧠 Analisis Lanjutan"
             ])
             
-            # ========== TAB 1: LOKASI & WAKTU ==========
+            # ========== TAB 1: OVERVIEW BULANAN ==========
             with tab1:
-                col1, col2 = st.columns(2)
-                with col1:
-                    fig_jam = plot_jam_distribution(filtered_fatigue, order_2h)
-                    chart_card("Distribusi Jam Fatigue", fig_jam)
+                st.markdown("### 📉 Tren Temuan FMS Bulanan")
                 
-                with col2:
-                    fig_hotspot_f = plot_hotspot(filtered_fatigue, "Fatigue")
-                    chart_card("Top 10 Lokasi Fatigue", fig_hotspot_f)
+                fig_f = plot_tren_generic(df_fatigue, title="Tren Bulanan Kasus Fatigue", color="#ef4444")
+                if fig_f:
+                    st.plotly_chart(fig_f, use_container_width=True)
+                else:
+                    st.info("Tidak ada data fatigue")
                 
-                col3, col4 = st.columns(2)
-                with col3:
-                    fig_hotspot_o = plot_hotspot(filtered_overspeed, "Overspeed")
-                    chart_card("Top 10 Lokasi Overspeed", fig_hotspot_o)
+                fig_o = plot_tren_generic(df_overspeed, title="Tren Bulanan Kasus Overspeed", color="#f59e0b")
+                if fig_o:
+                    st.plotly_chart(fig_o, use_container_width=True)
+                else:
+                    st.info("Tidak ada data overspeed")
+
+                fig_total = plot_tren_generic(df, title="Tren Bulanan Total Seluruh Alarm FMS", color="#2563eb")
+                if fig_total:
+                    st.plotly_chart(fig_total, use_container_width=True)
+                else:
+                    st.info("Tidak ada data alarm")
+
+                st.markdown("---")
+                
+                c1, c2 = st.columns(2)
+                with c1:
+                    fig = plot_shift_comparison(df_fatigue)
+                    if fig:
+                        st.plotly_chart(fig, use_container_width=True)
+                    else:
+                        st.info("Tidak ada data shift")
+                
+                with c2:
+                    fig = plot_alarm_distribution(df_fatigue)
+                    if fig:
+                        st.plotly_chart(fig, use_container_width=True)
+                    else:
+                        st.info("Tidak ada data alarm")
             
-            # ========== TAB 2: DRIVER & UNIT ==========
+            # ========== TAB 2: TREN MINGGUAN (WEEK 1-52) ==========
             with tab2:
-                fig_demo = plot_demografi(filtered_fatigue, filtered_overspeed, age_labels)
-                chart_card("Demografi Umur Driver", fig_demo)
+                st.markdown("### 📅 Analisis Tren Fatigue Mingguan (Week 1 - 52)")
+                st.caption("Dilengkapi dengan Garis Tren (Trendline) untuk melihat arah perkembangan kasus sepanjang tahun.")
                 
-                col1, col2 = st.columns(2)
-                with col1:
-                    fig_driver = plot_top_driver(filtered_fatigue)
-                    chart_card("Top 20 Driver Fatigue", fig_driver)
+                fig_week, trend_status = plot_weekly_trend_with_trendline(df_fatigue)
+                if fig_week:
+                    st.markdown(f"#### status Tren Keseluruhan: **{trend_status}**")
+                    st.plotly_chart(fig_week, use_container_width=True)
+                    st.info("💡 **Tips Navigasi:** Gunakan slider di bawah sumbu X grafik untuk menggeser/zoom rentang minggu tertentu (misal: Week 1–13).")
+                else:
+                    st.warning("Data minggu tidak mencukupi untuk menampilkan grafik.")
+
+            # ========== TAB 3: LOKASI & WAKTU ==========
+            with tab3:
+                fig = plot_jam_distribution(df_fatigue, order_2h)
+                if fig:
+                    st.plotly_chart(fig, use_container_width=True)
+                else:
+                    st.warning("Tidak ada data jam")
                 
-                with col2:
-                    if not filtered_df.empty:
-                        unit = filtered_df['Unit'].value_counts().head(10).reset_index()
+                st.markdown("---")
+                
+                if not df_overspeed.empty:
+                    rj_o = df_overspeed['Jam_Range'].value_counts().reindex(order_2h, fill_value=0)
+                    rj_o = rj_o[rj_o > 0].reset_index()
+                    rj_o.columns = ['Jam', 'Total']
+                    if not rj_o.empty:
+                        max_o_val = rj_o['Total'].max()
+                        colors_o = ['#b45309' if v == max_o_val else '#f59e0b' for v in rj_o['Total']]
+                        
+                        fig = px.bar(
+                            rj_o, x='Jam', y='Total',
+                            title='Distribusi Jam Overspeed', text='Total'
+                        )
+                        fig.update_traces(marker_color=colors_o, textposition='outside', textfont=dict(size=11, weight='bold'))
+                        fig.update_layout(
+                            plot_bgcolor='white', paper_bgcolor='white',
+                            font=dict(family='Inter', size=12),
+                            xaxis=dict(showgrid=False, tickangle=45),
+                            yaxis=dict(showgrid=True, gridcolor='#e2e8f0', gridwidth=0.5, range=[0, max_o_val * 1.25]),
+                            margin=dict(l=20, r=20, t=40, b=20),
+                            showlegend=False
+                        )
+                        st.plotly_chart(fig, use_container_width=True)
+                        st.caption("💡 Overspeed umumnya terjadi pada jam operasional puncak")
+                
+                st.markdown("---")
+                
+                c1, c2 = st.columns(2)
+                with c1:
+                    fig = plot_hotspot(df_fatigue, "Fatigue")
+                    if fig:
+                        st.plotly_chart(fig, use_container_width=True)
+                    else:
+                        st.info("Tidak ada data lokasi fatigue")
+                
+                with c2:
+                    fig = plot_hotspot(df_overspeed, "Overspeed")
+                    if fig:
+                        st.plotly_chart(fig, use_container_width=True)
+                    else:
+                        st.info("Tidak ada data lokasi overspeed")
+            
+            # ========== TAB 4: DRIVER & UNIT ==========
+            with tab4:
+                fig = plot_demografi(df_fatigue, df_overspeed, age_labels)
+                st.plotly_chart(fig, use_container_width=True)
+                
+                st.markdown("---")
+                
+                c1, c2 = st.columns(2)
+                with c1:
+                    fig = plot_top_driver(df_fatigue)
+                    if fig:
+                        st.plotly_chart(fig, use_container_width=True)
+                    else:
+                        st.info("Tidak ada data driver")
+                
+                with c2:
+                    if not df.empty:
+                        unit = df['Unit'].value_counts().head(10).reset_index()
                         unit.columns = ['Unit', 'Total']
                         unit = unit.sort_values('Total', ascending=True)
                         
                         max_u = unit['Total'].max()
                         colors_u = ['#1d4ed8' if v == max_u else '#3b82f6' for v in unit['Total']]
                         
-                        fig_unit = px.bar(
+                        fig = px.bar(
                             unit, x='Total', y='Unit', orientation='h',
-                            title='Top 10 Unit dengan Temuan', text='Total'
+                            title='Top 10 Unit dengan Temuan Berulang', text='Total'
                         )
-                        fig_unit.update_traces(marker_color=colors_u, textposition='outside', textfont=dict(size=11, weight='bold'))
-                        fig_unit.update_layout(
+                        fig.update_traces(marker_color=colors_u, textposition='outside', textfont=dict(size=11, weight='bold'))
+                        fig.update_layout(
                             plot_bgcolor='white', paper_bgcolor='white',
                             font=dict(family='Inter', size=11),
                             xaxis=dict(showgrid=True, gridcolor='#e2e8f0', gridwidth=0.5, range=[0, max_u * 1.2]),
                             yaxis=dict(showgrid=False),
                             margin=dict(l=20, r=20, t=40, b=20),
-                            showlegend=False,
-                            height=400
+                            showlegend=False, height=450
                         )
-                        chart_card("Top 10 Unit dengan Temuan", fig_unit)
+                        st.plotly_chart(fig, use_container_width=True)
+                    else:
+                        st.info("Tidak ada data unit")
+                
+                st.markdown("---")
+                
+                st.markdown("#### 🔥 Heatmap Driver per Bulan")
+                col_h1, col_h2, col_h3 = st.columns(3)
+                with col_h1:
+                    top_n = st.slider("Jumlah Driver", 5, 30, 15, key="hm_top")
+                with col_h2:
+                    shift_filter = st.selectbox(
+                        "Shift", ["Semua"] + sorted(df_fatigue['Shift'].unique().tolist()),
+                        key="hm_shift"
+                    )
+                with col_h3:
+                    type_filter = st.selectbox(
+                        "Jenis Alarm", ["Semua"] + sorted(df_fatigue['Type'].unique().tolist()),
+                        key="hm_type"
+                    )
+                
+                hm_df = df_fatigue.copy()
+                if shift_filter != "Semua":
+                    hm_df = hm_df[hm_df['Shift'] == shift_filter]
+                if type_filter != "Semua":
+                    hm_df = hm_df[hm_df['Type'] == type_filter]
+                
+                fig = plot_heatmap(hm_df, order_months, top_n)
+                if fig:
+                    st.plotly_chart(fig, use_container_width=True)
+                    top_driver = hm_df['Driver'].value_counts().index[0] if not hm_df.empty else None
+                    if top_driver:
+                        st.caption(f"💡 Insight: Driver **{top_driver}** memiliki kasus terbanyak")
+                else:
+                    st.warning("Data tidak cukup untuk heatmap")
             
-            # ========== TAB 3: DATA LOGS ==========
-            with tab3:
+            # ========== TAB 5: DATA LOGS ==========
+            with tab5:
                 st.markdown("### 📋 Data Logs")
                 
-                col1, col2, col3, col4 = st.columns(4)
-                with col1:
+                c1, c2, c3 = st.columns([2, 1, 1])
+                with c1:
                     search = st.text_input("🔍 Cari", placeholder="Driver / Unit / Lokasi")
-                with col2:
-                    f_month = st.selectbox("Bulan", ["Semua"] + [m for m in order_months if m in filtered_df['Bulan'].unique()])
-                with col3:
-                    f_type = st.selectbox("Jenis", ["Semua"] + list(filtered_df['Type'].unique()))
-                with col4:
-                    st.markdown("####")
-                    download_all = st.button("📥 Download Excel", use_container_width=True)
+                with c2:
+                    f_month = st.selectbox("Bulan", ["Semua"] + [m for m in order_months if m in df['Bulan'].unique()])
+                with c3:
+                    f_type = st.selectbox("Jenis", ["Semua"] + list(df['Type'].unique()))
                 
-                # Search filter
-                search_df = filtered_df.copy()
+                filtered = df.copy()
                 if search.strip():
                     s = search.strip().lower()
-                    search_df = search_df[
-                        search_df['Driver'].str.lower().str.contains(s, na=False) |
-                        search_df['Unit'].str.lower().str.contains(s, na=False) |
-                        search_df['Lokasi'].str.lower().str.contains(s, na=False)
+                    filtered = filtered[
+                        filtered['Driver'].str.lower().str.contains(s, na=False) |
+                        filtered['Unit'].str.lower().str.contains(s, na=False) |
+                        filtered['Lokasi'].str.lower().str.contains(s, na=False)
                     ]
                 if f_month != "Semua":
-                    search_df = search_df[search_df['Bulan'] == f_month]
+                    filtered = filtered[filtered['Bulan'] == f_month]
                 if f_type != "Semua":
-                    search_df = search_df[search_df['Type'] == f_type]
+                    filtered = filtered[filtered['Type'] == f_type]
                 
-                st.caption(f"📊 {fmt_num(len(search_df))} baris data")
-                
-                if not search_df.empty:
+                if filtered.empty:
+                    st.warning("Tidak ada data yang cocok")
+                else:
+                    st.markdown(f"**{fmt_num(len(filtered))} baris**")
                     cols_show = [cols['date'], cols['time'], 'Bulan', 'Week', 'Shift', 'Driver', 'Umur', 'Unit', 'Type', 'Lokasi']
-                    cols_show = [c for c in cols_show if c in search_df.columns]
-                    show = search_df[cols_show].copy()
+                    cols_show = [c for c in cols_show if c in filtered.columns]
+                    show = filtered[cols_show].copy()
                     show[cols['date']] = show[cols['date']].dt.strftime('%d-%m-%Y')
                     show = show.rename(columns={
                         cols['date']: 'Tanggal', cols['time']: 'Jam', 'Bulan': 'Bulan',
@@ -1263,93 +1070,95 @@ else:
                     })
                     st.dataframe(show, use_container_width=True, hide_index=True, height=400)
                     
-                    # Export options
-                    col1, col2, col3 = st.columns(3)
-                    with col1:
-                        csv = show.to_csv(index=False).encode('utf-8')
-                        st.download_button(
-                            label="📥 Download CSV",
-                            data=csv,
-                            file_name=f"fms_data_{datetime.now().strftime('%Y%m%d')}.csv",
-                            mime='text/csv'
-                        )
-                    with col2:
-                        # Excel download
-                        output = BytesIO()
-                        with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
-                            show.to_excel(writer, sheet_name='Data', index=False)
-                        excel_data = output.getvalue()
-                        st.download_button(
-                            label="📥 Download Excel",
-                            data=excel_data,
-                            file_name=f"fms_data_{datetime.now().strftime('%Y%m%d')}.xlsx",
-                            mime='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-                        )
-                    with col3:
-                        st.metric("Jumlah Data", fmt_num(len(show)))
-                else:
-                    st.warning("Tidak ada data yang cocok")
+                    csv = show.to_csv(index=False).encode('utf-8')
+                    st.download_button(
+                        label="📥 Download CSV",
+                        data=csv,
+                        file_name=f"data_fms_{datetime.now().strftime('%Y%m%d_%H%M')}.csv",
+                        mime='text/csv'
+                    )
             
-            # ========== TAB 4: FORECAST ==========
-            with tab4:
-                st.markdown("### 🔮 Forecast & Prediksi")
+            # ========== TAB 6: ANALISIS LANJUTAN ==========
+            with tab6:
+                st.markdown("## 🧠 Analisis Lanjutan untuk Pencegahan")
+                st.caption("Analisis ini membantu mengidentifikasi pola dan risiko untuk tindakan preventif")
+                st.markdown("---")
                 
-                fig_forecast, forecast_data = plot_forecast(filtered_fatigue)
-                if fig_forecast:
-                    chart_card("Prediksi 3 Bulan ke Depan", fig_forecast)
+                st.markdown("### 📈 Prediksi Tren")
+                fig = plot_forecast(df_fatigue)
+                if fig:
+                    st.plotly_chart(fig, use_container_width=True)
                     
-                    col1, col2, col3 = st.columns(3)
-                    with col1:
-                        st.metric("Confidence", f"{forecast_data['confidence']:.0f}%")
-                    with col2:
-                        st.metric("Prediksi", forecast_data['trend'])
-                    with col3:
-                        st.metric("Status", forecast_data['need_action'])
+                    if not df_fatigue.empty:
+                        monthly = df_fatigue.groupby('Month_Num').size()
+                        if len(monthly) >= 3:
+                            current = int(monthly.iloc[-1])
+                            x = monthly.index.values
+                            y = monthly.values
+                            x_mean = np.mean(x)
+                            y_mean = np.mean(y)
+                            slope = np.sum((x - x_mean) * (y - y_mean)) / np.sum((x - x_mean) ** 2)
+                            intercept = y_mean - slope * x_mean
+                            next_pred = max(0, int(slope * (x[-1] + 1) + intercept))
+                            pct = ((next_pred - current) / current * 100) if current > 0 else 0
+                            
+                            col1, col2, col3 = st.columns(3)
+                            with col1:
+                                st.metric("📊 Bulan Ini", f"{current} kasus")
+                            with col2:
+                                st.metric("📈 Prediksi Depan", f"{next_pred} kasus", f"{pct:+.1f}%")
+                            with col3:
+                                if pct > 10:
+                                    st.warning("⚠️ Prediksi peningkatan >10%")
+                                elif pct < -10:
+                                    st.success("✅ Prediksi penurunan >10%")
+                                else:
+                                    st.info("📊 Prediksi stabil")
                 else:
                     st.warning("Data kurang dari 3 bulan untuk prediksi")
                 
                 st.markdown("---")
                 
-                # Recommendation Cards
-                st.markdown("### ✅ Rekomendasi Prioritas")
+                st.markdown("### 🔄 Fatigue vs Overspeed")
+                fig = plot_fatigue_vs_overspeed(df_fatigue, df_overspeed)
+                if fig:
+                    st.plotly_chart(fig, use_container_width=True)
+                else:
+                    st.info("Data tidak cukup")
+                
+                st.markdown("---")
+                
+                st.markdown("### ✅ Rekomendasi Otomatis")
                 
                 recs = []
-                if not filtered_fatigue.empty:
-                    top_d = filtered_fatigue['Driver'].value_counts()
+                if not df_fatigue.empty:
+                    top_d = df_fatigue['Driver'].value_counts()
                     if not top_d.empty and top_d.iloc[0] > 5:
-                        recs.append(("🔴 PRIORITAS", "👤", f"Coaching Driver: {top_d.index[0]} ({top_d.iloc[0]} kasus)"))
+                        recs.append(("🔴 PRIORITAS", "👤", f"Coaching Personal: Driver {top_d.index[0]} memiliki {top_d.iloc[0]} kasus"))
                     
-                    shift_counts = filtered_fatigue['Shift'].value_counts()
+                    shift_counts = df_fatigue['Shift'].value_counts()
                     if 'Shift 2' in shift_counts.index and 'Shift 1' in shift_counts.index:
                         ratio = shift_counts['Shift 2'] / shift_counts['Shift 1'] if shift_counts['Shift 1'] > 0 else 0
                         if ratio > 2:
-                            recs.append(("🟠 EVALUASI", "🌙", f"Shift Malam: {ratio:.1f}x lebih tinggi"))
+                            recs.append(("🔴 PRIORITAS", "🌙", f"Rotasi Shift: {ratio:.1f}x lebih tinggi di Shift Malam"))
                     
-                    jam_counts = filtered_fatigue['Jam_Range'].value_counts()
+                    jam_counts = df_fatigue['Jam_Range'].value_counts()
                     if not jam_counts.empty:
                         top_j = jam_counts.index[0]
                         if any(j in top_j for j in ['02:00', '03:00', '04:00']):
-                            recs.append(("🟡 INSPEKSI", "☕", f"Istirahat Terjadwal: Puncak jam {top_j}"))
+                            recs.append(("🟡 PENTING", "☕", f"Istirahat Terjadwal: Puncak fatigue di jam {top_j}"))
                     
-                    unit_counts = filtered_df['Unit'].value_counts()
+                    unit_counts = df['Unit'].value_counts()
                     if not unit_counts.empty and unit_counts.iloc[0] > 5:
-                        recs.append(("🟢 MONITOR", "🚗", f"Inspeksi Unit: {unit_counts.index[0]}"))
+                        recs.append(("🟡 PENTING", "🚗", f"Inspeksi Unit: {unit_counts.index[0]} ({unit_counts.iloc[0]} temuan)"))
                 
                 if recs:
                     for rec in recs:
-                        bg = '#fef2f2' if 'PRIORITAS' in rec[0] else ('#fffbeb' if 'EVALUASI' in rec[0] else ('#fefce8' if 'INSPEKSI' in rec[0] else '#f0fdf4'))
-                        border = '#ef4444' if 'PRIORITAS' in rec[0] else ('#f59e0b' if 'EVALUASI' in rec[0] else ('#eab308' if 'INSPEKSI' in rec[0] else '#22c55e'))
-                        st.markdown(f"""
-                        <div style="background:{bg}; padding:12px 16px; border-radius:10px; border-left:5px solid {border}; margin:6px 0;">
-                            <span style="font-weight:600; font-size:14px;">{rec[0]}</span> 
-                            <span style="font-size:18px;">{rec[1]}</span> 
-                            <span style="font-size:13px; color:#1e293b;">{rec[2]}</span>
-                        </div>
-                        """, unsafe_allow_html=True)
+                        rec_card(rec[0], rec[1], rec[2])
                 else:
                     st.success("✅ Tidak ada rekomendasi prioritas saat ini")
             
-            st.sidebar.success(f"✅ {fmt_num(len(filtered_df))} data valid")
+            st.sidebar.success(f"✅ {fmt_num(len(df))} data valid")
 
         except Exception as e:
             st.error(f"❌ Error saat memproses data: {str(e)}")
@@ -1358,13 +1167,5 @@ else:
                 st.code(traceback.format_exc())
 
 # ==================== FOOTER ====================
-st.markdown("""
-<div class="footer">
-    <span>🚛 Dashboard v4.0</span>
-    <span>Last Update: {}</span>
-    <span>Developer: FMS Team</span>
-    <span>Version: 4.0.1</span>
-    <span>Data Source: Live Database</span>
-    <span>© 2026 PT. Bumiputera Maha Terpercaya</span>
-</div>
-""".format(datetime.now().strftime('%d/%m/%Y %H:%M')), unsafe_allow_html=True)
+st.markdown("---")
+st.caption("© 2026 PT. Bumiputera Maha Terpercaya | Dashboard FMS v3.0")
