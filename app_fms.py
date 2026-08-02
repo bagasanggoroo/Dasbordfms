@@ -719,11 +719,9 @@ else:
             top_loc = loc_counts.index[0] if not loc_counts.empty else "N/A"
             top_loc_val = loc_counts.iloc[0] if not loc_counts.empty else 0
             
-            safety_score = max(0, min(100, 100 - (total_f * 0.3)))
-            
-            # ========== KPI CARDS ==========
+            # ========== KPI CARDS (DIBAGI RATA 4 KOLOM) ==========
             st.markdown("### 📊 Ringkasan")
-            c1, c2, c3, c4, c5 = st.columns(5)
+            c1, c2, c3, c4 = st.columns(4)
             
             with c1:
                 kpi("Total Alarm", fmt_num(total_alarm), "Semua jenis alarm", "🚨", "#ef4444")
@@ -732,9 +730,7 @@ else:
             with c3:
                 kpi("Overspeed", fmt_num(total_o), "Kasus overspeed", "🚗", "#3b82f6")
             with c4:
-                kpi("Hotspot", top_loc, f"{top_loc_val} kasus", "📍", "#8b5cf6")
-            with c5:
-                kpi("Safety Score", f"{safety_score:.0f}/100", "Semakin tinggi semakin baik", "🛡️", "#22c55e")
+                kpi("Lokasi Rawan (Hotspot)", top_loc, f"{top_loc_val} kasus", "📍", "#8b5cf6")
             
             st.markdown("---")
             
@@ -778,7 +774,7 @@ else:
                     if top_val > 5:
                         insight("#fee2e2", "Unit Bermasalah", f"{top_unit} ({top_val} temuan) — inspeksi!")
                     else:
-                        insight("#dbeafe", "Unit Bermasafeh", f"{top_unit} ({top_val} temuan)")
+                        insight("#dbeafe", "Unit Bermasalah", f"{top_unit} ({top_val} temuan)")
             
             st.markdown("---")
             
