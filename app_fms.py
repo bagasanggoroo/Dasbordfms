@@ -289,69 +289,46 @@ def header(title, subtitle):
     """, unsafe_allow_html=True)
 
 # ==================== CHART FUNCTIONS ====================
-def plot_tren_gabungan(df, df_fatigue, df_overspeed, order_months):
+def plot_tren_generic(df_target, title="Tren Bulanan", color="#2563eb"):
     """
-    Membuat 1 Grafik Gabungan Multi-Line untuk Fatigue, Overspeed, dan Total Alarm
-    sehingga langsung terlihat perbandingannya tanpa perlu pencet tab.
+    Fungsi universal untuk grafik tren bulanan terpisah.
     """
-    if df.empty:
+    if df_target.empty or 'Month_Num' not in df_target.columns:
         return None
-
-    # Hitung jumlah per bulan untuk masing-masing kategori
-    t_fatigue = df_fatigue.groupby(['Month_Num', 'Bulan']).size().reset_index(name='Fatigue')
-    t_overspeed = df_overspeed.groupby(['Month_Num', 'Bulan']).size().reset_index(name='Overspeed')
-    t_total = df.groupby(['Month_Num', 'Bulan']).size().reset_index(name='Total Alarm')
-
-    # Merge data
-    merged = pd.merge(t_total, t_fatigue, on=['Month_Num', 'Bulan'], how='left').fillna(0)
-    merged = pd.merge(merged, t_overspeed, on=['Month_Num', 'Bulan'], how='left').fillna(0)
     
-    # Filter & urutkan berdasarkan order_months yang ada di data
-    avail_months = [m for m in order_months if m in merged['Bulan'].unique()]
-    merged['Month_Num'] = pd.Categorical(merged['Bulan'], categories=avail_months, ordered=True)
-    merged = merged.sort_values('Month_Num')
-
-    fig = go.Figure()
-
-    # 1. Line Total Alarm
-    fig.add_trace(go.Scatter(
-        x=merged['Bulan'], y=merged['Total Alarm'],
-        mode='lines+markers+text', name='Total Alarm FMS',
-        line=dict(color='#2563eb', width=3), marker=dict(size=8),
-        text=merged['Total Alarm'].astype(int), textposition='top center',
-        textfont=dict(size=11, color='#2563eb', weight='bold')
-    ))
-
-    # 2. Line Fatigue
-    fig.add_trace(go.Scatter(
-        x=merged['Bulan'], y=merged['Fatigue'],
-        mode='lines+markers+text', name='Fatigue',
-        line=dict(color='#ef4444', width=3), marker=dict(size=8),
-        text=merged['Fatigue'].astype(int), textposition='top center',
-        textfont=dict(size=11, color='#ef4444', weight='bold')
-    ))
-
-    # 3. Line Overspeed
-    fig.add_trace(go.Scatter(
-        x=merged['Bulan'], y=merged['Overspeed'],
-        mode='lines+markers+text', name='Overspeed',
-        line=dict(color='#f59e0b', width=3, dash='dash'), marker=dict(size=8),
-        text=merged['Overspeed'].astype(int), textposition='top center',
-        textfont=dict(size=11, color='#b45309', weight='bold')
-    ))
-
-    max_val = merged['Total Alarm'].max() if not merged.empty else 10
-
+    trend = df_target.groupby(['Month_Num', 'Bulan']).size().reset_index(name='Total').sort_values('Month_Num')
+    if trend.empty:
+        return None
+    
+    max_val = trend['Total'].max()
+    
+    fig = px.line(
+        trend, x='Bulan', y='Total',
+        markers=True, title=title,
+        color_discrete_sequence=[color]
+    )
+    fig.update_traces(line=dict(width=3), marker=dict(size=10))
     fig.update_layout(
-        title='📉 Tren Bulanan Temuan FMS (Fatigue vs Overspeed vs Total)',
         plot_bgcolor='white', paper_bgcolor='white',
         font=dict(family='Inter', size=12),
         xaxis=dict(showgrid=False),
-        yaxis=dict(showgrid=True, gridcolor='#e2e8f0', gridwidth=0.5, range=[0, max_val * 1.3]),
+        yaxis=dict(showgrid=True, gridcolor='#e2e8f0', gridwidth=0.5, range=[0, max_val * 1.35]),
         hovermode='x unified',
-        legend=dict(orientation='h', yanchor='bottom', y=1.02, xanchor='center', x=0.5),
-        margin=dict(l=20, r=20, t=50, b=20)
+        margin=dict(l=20, r=20, t=40, b=20)
     )
+    
+    # Highlight Titik Tertinggi (Peak)
+    for i, row in trend.iterrows():
+        is_max = bool(row['Total'] == max_val)
+        fig.add_annotation(
+            x=row['Bulan'], y=row['Total'],
+            text=f"🔥 {row['Total']}" if is_max else str(row['Total']),
+            showarrow=is_max, arrowhead=1, arrowcolor=color,
+            yshift=14 if is_max else 10,
+            font=dict(size=12 if is_max else 11, weight='bold', color=color if is_max else '#0f172a'),
+            bgcolor='#fee2e2' if is_max and color=='#ef4444' else ('#fef3c7' if is_max and color=='#f59e0b' else None),
+            bordercolor=color if is_max else None, borderwidth=1 if is_max else 0
+        )
     return fig
 
 def plot_shift_comparison(df_fatigue):
@@ -801,7 +778,7 @@ else:
                     if top_val > 5:
                         insight("#fee2e2", "Unit Bermasalah", f"{top_unit} ({top_val} temuan) — inspeksi!")
                     else:
-                        insight("#dbeafe", "Unit Bermasalah", f"{top_unit} ({top_val} temuan)")
+                        insight("#dbeafe", "Unit Bermasafeh", f"{top_unit} ({top_val} temuan)")
             
             st.markdown("---")
             
@@ -816,15 +793,32 @@ else:
             
             # ========== TAB 1: OVERVIEW ==========
             with tab1:
-                # 1 GRAFIK TREN TERPADU (TANPA TAB LAGEE)
-                fig_gabungan = plot_tren_gabungan(df, df_fatigue, df_overspeed, order_months)
-                if fig_gabungan:
-                    st.plotly_chart(fig_gabungan, use_container_width=True)
+                st.markdown("### 📉 Tren Temuan FMS Bulanan")
+                
+                # 1. Grafik Tren Fatigue Bulanan (Merah)
+                fig_f = plot_tren_generic(df_fatigue, title="Tren Bulanan Kasus Fatigue", color="#ef4444")
+                if fig_f:
+                    st.plotly_chart(fig_f, use_container_width=True)
                 else:
-                    st.info("Data tidak cukup untuk menampilkan grafik tren")
+                    st.info("Tidak ada data fatigue")
+                
+                # 2. Grafik Tren Overspeed Bulanan (Kuning/Oranye)
+                fig_o = plot_tren_generic(df_overspeed, title="Tren Bulanan Kasus Overspeed", color="#f59e0b")
+                if fig_o:
+                    st.plotly_chart(fig_o, use_container_width=True)
+                else:
+                    st.info("Tidak ada data overspeed")
+
+                # 3. Grafik Tren Total Alarm FMS Bulanan (Biru)
+                fig_total = plot_tren_generic(df, title="Tren Bulanan Total Seluruh Alarm FMS", color="#2563eb")
+                if fig_total:
+                    st.plotly_chart(fig_total, use_container_width=True)
+                else:
+                    st.info("Tidak ada data alarm")
 
                 st.markdown("---")
                 
+                # Perbandingan Shift & Jenis Alarm
                 c1, c2 = st.columns(2)
                 with c1:
                     fig = plot_shift_comparison(df_fatigue)
