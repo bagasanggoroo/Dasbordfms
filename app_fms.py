@@ -226,10 +226,12 @@ def load_and_process_data(file):
     df[cols['date']] = pd.to_datetime(df[cols['date']], errors='coerce')
     df = df.dropna(subset=[cols['date']])
     
+    # Kolom Bulan & Minggu (Week 1-52)
     df['Month_Num'] = df[cols['date']].dt.month
     bulan_map = {1:'Jan',2:'Feb',3:'Mar',4:'Apr',5:'Mei',6:'Jun',
                  7:'Jul',8:'Ags',9:'Sep',10:'Okt',11:'Nov',12:'Des'}
     df['Bulan'] = df['Month_Num'].map(bulan_map)
+    df['Week'] = df[cols['date']].dt.isocalendar().week
     
     df['Driver'] = df[cols['driver']].astype(str).str.replace('_', ' ').str.strip().str.title()
     df['Unit'] = df[cols['unit']].astype(str).str.strip().str.upper() if cols['unit'] else "N/A"
@@ -331,6 +333,69 @@ def plot_tren_generic(df_target, title="Tren Bulanan", color="#2563eb"):
             bordercolor=color if is_max else None, borderwidth=1 if is_max else 0
         )
     return fig
+
+# FUNGSI GRAFIK TREN MINGGUAN (WEEK 1-52) DENGAN GARIS TREN (TRENDLINE)
+def plot_weekly_trend_with_trendline(df_fatigue):
+    if df_fatigue.empty or 'Week' not in df_fatigue.columns:
+        return None, "Data Kosong"
+    
+    weekly = df_fatigue.groupby('Week').size().reset_index(name='Total').sort_values('Week')
+    if len(weekly) < 2:
+        return None, "Data Tidak Cukup"
+    
+    x = weekly['Week'].values.astype(float)
+    y = weekly['Total'].values.astype(float)
+    
+    # Hitung Garis Tren Regresi Linier (y = mx + c)
+    slope, intercept = np.polyfit(x, y, 1)
+    trendline_y = slope * x + intercept
+    
+    # Tentukan Arah Tren
+    if slope > 0.1:
+        trend_status = "⚠️ CENDERUNG NAIK (Memburuk)"
+        trend_color = "#ef4444"
+    elif slope < -0.1:
+        trend_status = "✅ CENDERUNG TURUN (Membaik)"
+        trend_color = "#22c55e"
+    else:
+        trend_status = "➡️ STABIL"
+        trend_color = "#3b82f6"
+
+    fig = go.Figure()
+    
+    # Plot Data Mingguan
+    fig.add_trace(go.Scatter(
+        x=weekly['Week'], y=weekly['Total'],
+        mode='lines+markers',
+        name='Temuan Fatigue Mingguan',
+        line=dict(color='#ef4444', width=2.5),
+        marker=dict(size=6),
+        hovertemplate='<b>Week %{x}</b>: %{y} kasus<extra></extra>'
+    ))
+    
+    # Plot Garis Tren (Trendline)
+    fig.add_trace(go.Scatter(
+        x=weekly['Week'], y=trendline_y,
+        mode='lines',
+        name=f'Garis Tren ({trend_status})',
+        line=dict(color=trend_color, width=3, dash='dash')
+    ))
+
+    fig.update_layout(
+        title='📊 Tren Temuan Fatigue Mingguan (Week 1–52) + Garis Tren',
+        plot_bgcolor='white', paper_bgcolor='white',
+        font=dict(family='Inter', size=12),
+        xaxis=dict(
+            title="Minggu Ke- (Week)", showgrid=True, gridcolor='#edf2f7',
+            dtick=1, rangeslider=dict(visible=True)  # Tambahkan Slider Navigasi
+        ),
+        yaxis=dict(title="Jumlah Temuan", showgrid=True, gridcolor='#e2e8f0'),
+        hovermode='x unified',
+        legend=dict(orientation='h', yanchor='bottom', y=1.02, xanchor='center', x=0.5),
+        margin=dict(l=20, r=20, t=50, b=20)
+    )
+    
+    return fig, trend_status
 
 def plot_shift_comparison(df_fatigue):
     if df_fatigue.empty:
@@ -657,7 +722,7 @@ with st.sidebar:
     st.markdown("---")
     st.caption("© 2026 PT. Bumiputera Maha Terpercaya")
 
-# ==================== HEADER DENGAN LOGO (IMAGE.PNG) ====================
+# ==================== HEADER DENGAN LOGO ====================
 header_with_logo(
     "🚛 Fleet Management System",
     "PT. Bumiputera Maha Terpercaya<br>Monitoring Fatigue • Overspeed • Safety Analytics",
@@ -773,22 +838,23 @@ else:
                     top_unit = unit_counts.index[0]
                     top_val = unit_counts.iloc[0]
                     if top_val > 5:
-                        insight("#fee2e2", "Unit Dengan Temuan Berulang", f"{top_unit} ({top_val} temuan) — inspeksi!")
+                        insight("#fee2e2", "Unit dengan Temuan Berulang", f"{top_unit} ({top_val} temuan) — inspeksi!")
                     else:
-                        insight("#dbeafe", "Unit Dengan Temuan Berulang", f"{top_unit} ({top_val} temuan)")
+                        insight("#dbeafe", "Unit dengan Temuan Berulang", f"{top_unit} ({top_val} temuan)")
             
             st.markdown("---")
             
             # ========== TABS UTAMA ==========
-            tab1, tab2, tab3, tab4, tab5 = st.tabs([
-                "📊 Overview",
+            tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs([
+                "📊 Overview Bulanan",
+                "📅 Tren Mingguan (Week 1-52)",
                 "🗺️ Lokasi & Waktu",
                 "👥 Driver & Unit",
                 "📋 Data Logs",
                 "🧠 Analisis Lanjutan"
             ])
             
-            # ========== TAB 1: OVERVIEW ==========
+            # ========== TAB 1: OVERVIEW BULANAN ==========
             with tab1:
                 st.markdown("### 📉 Tren Temuan FMS Bulanan")
                 
@@ -827,8 +893,21 @@ else:
                     else:
                         st.info("Tidak ada data alarm")
             
-            # ========== TAB 2: LOKASI & WAKTU ==========
+            # ========== TAB 2: TREN MINGGUAN (WEEK 1-52) ==========
             with tab2:
+                st.markdown("### 📅 Analisis Tren Fatigue Mingguan (Week 1 - 52)")
+                st.caption("Dilengkapi dengan Garis Tren (Trendline) untuk melihat arah perkembangan kasus sepanjang tahun.")
+                
+                fig_week, trend_status = plot_weekly_trend_with_trendline(df_fatigue)
+                if fig_week:
+                    st.markdown(f"#### status Tren Keseluruhan: **{trend_status}**")
+                    st.plotly_chart(fig_week, use_container_width=True)
+                    st.info("💡 **Tips Navigasi:** Gunakan slider di bawah sumbu X grafik untuk menggeser/zoom rentang minggu tertentu (misal: Week 1–13).")
+                else:
+                    st.warning("Data minggu tidak mencukupi untuk menampilkan grafik.")
+
+            # ========== TAB 3: LOKASI & WAKTU ==========
+            with tab3:
                 fig = plot_jam_distribution(df_fatigue, order_2h)
                 if fig:
                     st.plotly_chart(fig, use_container_width=True)
@@ -878,8 +957,8 @@ else:
                     else:
                         st.info("Tidak ada data lokasi overspeed")
             
-            # ========== TAB 3: DRIVER & UNIT ==========
-            with tab3:
+            # ========== TAB 4: DRIVER & UNIT ==========
+            with tab4:
                 fig = plot_demografi(df_fatigue, df_overspeed, age_labels)
                 st.plotly_chart(fig, use_container_width=True)
                 
@@ -904,7 +983,7 @@ else:
                         
                         fig = px.bar(
                             unit, x='Total', y='Unit', orientation='h',
-                            title='Top 10 Unit Dengan Temuan Berulang', text='Total'
+                            title='Top 10 Unit dengan Temuan Berulang', text='Total'
                         )
                         fig.update_traces(marker_color=colors_u, textposition='outside', textfont=dict(size=11, weight='bold'))
                         fig.update_layout(
@@ -951,8 +1030,8 @@ else:
                 else:
                     st.warning("Data tidak cukup untuk heatmap")
             
-            # ========== TAB 4: DATA LOGS ==========
-            with tab4:
+            # ========== TAB 5: DATA LOGS ==========
+            with tab5:
                 st.markdown("### 📋 Data Logs")
                 
                 c1, c2, c3 = st.columns([2, 1, 1])
@@ -980,13 +1059,13 @@ else:
                     st.warning("Tidak ada data yang cocok")
                 else:
                     st.markdown(f"**{fmt_num(len(filtered))} baris**")
-                    cols_show = [cols['date'], cols['time'], 'Bulan', 'Shift', 'Driver', 'Umur', 'Unit', 'Type', 'Lokasi']
+                    cols_show = [cols['date'], cols['time'], 'Bulan', 'Week', 'Shift', 'Driver', 'Umur', 'Unit', 'Type', 'Lokasi']
                     cols_show = [c for c in cols_show if c in filtered.columns]
                     show = filtered[cols_show].copy()
                     show[cols['date']] = show[cols['date']].dt.strftime('%d-%m-%Y')
                     show = show.rename(columns={
                         cols['date']: 'Tanggal', cols['time']: 'Jam', 'Bulan': 'Bulan',
-                        'Shift': 'Shift', 'Driver': 'Driver', 'Umur': 'Umur',
+                        'Week': 'Week', 'Shift': 'Shift', 'Driver': 'Driver', 'Umur': 'Umur',
                         'Unit': 'Unit', 'Type': 'Jenis', 'Lokasi': 'Lokasi'
                     })
                     st.dataframe(show, use_container_width=True, hide_index=True, height=400)
@@ -999,8 +1078,8 @@ else:
                         mime='text/csv'
                     )
             
-            # ========== TAB 5: ANALISIS LANJUTAN ==========
-            with tab5:
+            # ========== TAB 6: ANALISIS LANJUTAN ==========
+            with tab6:
                 st.markdown("## 🧠 Analisis Lanjutan untuk Pencegahan")
                 st.caption("Analisis ini membantu mengidentifikasi pola dan risiko untuk tindakan preventif")
                 st.markdown("---")
