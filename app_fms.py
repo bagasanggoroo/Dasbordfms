@@ -4,6 +4,7 @@ import numpy as np
 import plotly.express as px
 import plotly.graph_objects as go
 from datetime import datetime
+import base64
 
 # ==================== KONFIGURASI HALAMAN ====================
 st.set_page_config(
@@ -28,24 +29,6 @@ html, body, [class*="css"] {
     padding-left: 2rem;
     padding-right: 2rem;
     max-width: 1600px;
-}
-
-/* HEADER */
-.dashboard-header {
-    background: linear-gradient(135deg, #0f172a, #1d4ed8);
-    padding: 30px;
-    border-radius: 22px;
-    color: white;
-    box-shadow: 0 15px 35px rgba(0,0,0,.12);
-}
-.dashboard-header h1 {
-    margin: 0;
-    font-size: 34px;
-    font-weight: 700;
-}
-.dashboard-header p {
-    margin-top: 6px;
-    opacity: .8;
 }
 
 /* KPI CARDS */
@@ -134,20 +117,19 @@ div[data-testid="stDataFrame"] thead tr th {
 .js-plotly-plot .plotly .main-svg {
     border-radius: 12px;
 }
-
-/* RESPONSIVE DESIGN */
-@media (max-width: 768px) {
-    .dashboard-header { padding: 20px; }
-    .dashboard-header h1 { font-size: 24px; }
-    .kpi { padding: 16px; }
-    .kpi-value { font-size: 26px; }
-}
 </style>
 """, unsafe_allow_html=True)
 
 # ==================== HELPER FUNCTIONS ====================
 def fmt_num(n):
     return f"{n:,}".replace(',', '.')
+
+def get_image_base64(path):
+    try:
+        with open(path, "rb") as image_file:
+            return base64.b64encode(image_file.read()).decode()
+    except:
+        return ""
 
 def cat_time(t):
     if pd.isna(t):
@@ -186,6 +168,41 @@ def get_order_months():
 def get_order_2h():
     return [f"{i:02d}:00-{i+1:02d}:59" for i in range(0, 24, 2)]
 
+# ==================== HEADER BARU DENGAN INTEGRASI LOGO ====================
+def header_with_logo(title, subtitle, logo_path="image.png"):
+    img_b64 = get_image_base64(logo_path)
+    logo_html = f'<img src="data:image/png;base64,{img_b64}" style="height: 55px; object-fit: contain;">' if img_b64 else '<span style="font-size:30px;">🚛</span>'
+    
+    st.markdown(f"""
+    <div style="
+        background: linear-gradient(135deg, #0f172a, #1d4ed8);
+        padding: 24px 30px;
+        border-radius: 20px;
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.12);
+        margin-bottom: 25px;
+    ">
+        <div>
+            <h1 style="margin: 0; font-size: 30px; font-weight: 700; color: white;">{title}</h1>
+            <p style="margin: 6px 0 0 0; opacity: 0.85; font-size: 14px; line-height: 1.4;">{subtitle}</p>
+        </div>
+        <div style="
+            background: white;
+            padding: 8px 16px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        ">
+            {logo_html}
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+
 # ==================== DATA PROCESSING WITH CACHE ====================
 @st.cache_data
 def load_and_process_data(file):
@@ -209,7 +226,6 @@ def load_and_process_data(file):
     df[cols['date']] = pd.to_datetime(df[cols['date']], errors='coerce')
     df = df.dropna(subset=[cols['date']])
     
-    # Kolom Turunan
     df['Month_Num'] = df[cols['date']].dt.month
     bulan_map = {1:'Jan',2:'Feb',3:'Mar',4:'Apr',5:'Mei',6:'Jun',
                  7:'Jul',8:'Ags',9:'Sep',10:'Okt',11:'Nov',12:'Des'}
@@ -225,7 +241,6 @@ def load_and_process_data(file):
     else:
         df['Pengawas'] = 'Tidak Diketahui'
     
-    # RENTANG USIA 5 TAHUN
     if cols['age']:
         df['Umur'] = pd.to_numeric(df[cols['age']], errors='coerce')
         bins = [0, 25, 30, 35, 40, 45, 50, 55, 100]
@@ -242,7 +257,6 @@ def load_and_process_data(file):
     
     df['Jam_Range'] = df[cols['time']].apply(cat_time) if cols['time'] else 'Unknown'
     
-    # Filter Data Outlier
     df = df[~df['Lokasi'].isin(['OUT OF HAULING'])]
     df = df[~df['Driver'].isin(['Unknown'])]
     df = df[~df['Driver'].str.contains('Ba Minergo', case=False, na=False)]
@@ -279,36 +293,8 @@ def rec_card(priority, icon, text):
     </div>
     """, unsafe_allow_html=True)
 
-# HEADER BARU DENGAN INTEGRASI LOGO DENGAN KARTU SAMA SAMA GRADIENT
-def header_with_logo(title, subtitle, logo_path="logo.png"):
-    col_text, col_logo = st.columns([3.5, 1])
-    
-    with col_text:
-        st.markdown(f"""
-        <div class="dashboard-header">
-            <h1>{title}</h1>
-            <p>{subtitle}</p>
-        </div>
-        """, unsafe_allow_html=True)
-        
-    with col_logo:
-        st.markdown("""
-        <div style="background: linear-gradient(135deg, #0f172a, #1d4ed8); 
-                    padding: 15px; border-radius: 22px; text-align: center; 
-                    display: flex; align-items: center; justify-content: center; height: 100%;
-                    box-shadow: 0 15px 35px rgba(0,0,0,.12);">
-        """, unsafe_allow_html=True)
-        try:
-            st.image(logo_path, width=180)
-        except:
-            st.markdown("🚛")
-        st.markdown("</div>", unsafe_allow_html=True)
-
 # ==================== CHART FUNCTIONS ====================
 def plot_tren_generic(df_target, title="Tren Bulanan", color="#2563eb"):
-    """
-    Fungsi universal untuk grafik tren bulanan terpisah.
-    """
     if df_target.empty or 'Month_Num' not in df_target.columns:
         return None
     
@@ -333,7 +319,6 @@ def plot_tren_generic(df_target, title="Tren Bulanan", color="#2563eb"):
         margin=dict(l=20, r=20, t=40, b=20)
     )
     
-    # Highlight Titik Tertinggi (Peak)
     for i, row in trend.iterrows():
         is_max = bool(row['Total'] == max_val)
         fig.add_annotation(
@@ -672,14 +657,12 @@ with st.sidebar:
     st.markdown("---")
     st.caption("© 2026 PT. Bumiputera Maha Terpercaya")
 
-# ==================== HEADER DENGAN LOGO ====================
+# ==================== HEADER DENGAN LOGO (IMAGE.PNG) ====================
 header_with_logo(
     "🚛 Fleet Management System",
     "PT. Bumiputera Maha Terpercaya<br>Monitoring Fatigue • Overspeed • Safety Analytics",
     "image.png"
 )
-
-st.markdown("<br>", unsafe_allow_html=True)
 
 # ==================== MAIN ====================
 if uploaded_file is None:
@@ -725,7 +708,6 @@ else:
             order_months = get_order_months()
             order_2h = get_order_2h()
             
-            # ========== HITUNG METRIK ==========
             total_f = len(df_fatigue)
             total_o = len(df_overspeed)
             total_alarm = total_f + total_o
@@ -738,7 +720,7 @@ else:
             top_loc = loc_counts.index[0] if not loc_counts.empty else "N/A"
             top_loc_val = loc_counts.iloc[0] if not loc_counts.empty else 0
             
-            # ========== KPI CARDS (DIBAGI RATA 4 KOLOM) ==========
+            # ========== KPI CARDS ==========
             st.markdown("### 📊 Ringkasan")
             c1, c2, c3, c4 = st.columns(4)
             
@@ -810,21 +792,18 @@ else:
             with tab1:
                 st.markdown("### 📉 Tren Temuan FMS Bulanan")
                 
-                # 1. Grafik Tren Fatigue Bulanan (Merah)
                 fig_f = plot_tren_generic(df_fatigue, title="Tren Bulanan Kasus Fatigue", color="#ef4444")
                 if fig_f:
                     st.plotly_chart(fig_f, use_container_width=True)
                 else:
                     st.info("Tidak ada data fatigue")
                 
-                # 2. Grafik Tren Overspeed Bulanan (Kuning/Oranye)
                 fig_o = plot_tren_generic(df_overspeed, title="Tren Bulanan Kasus Overspeed", color="#f59e0b")
                 if fig_o:
                     st.plotly_chart(fig_o, use_container_width=True)
                 else:
                     st.info("Tidak ada data overspeed")
 
-                # 3. Grafik Tren Total Alarm FMS Bulanan (Biru)
                 fig_total = plot_tren_generic(df, title="Tren Bulanan Total Seluruh Alarm FMS", color="#2563eb")
                 if fig_total:
                     st.plotly_chart(fig_total, use_container_width=True)
@@ -833,7 +812,6 @@ else:
 
                 st.markdown("---")
                 
-                # Perbandingan Shift & Jenis Alarm
                 c1, c2 = st.columns(2)
                 with c1:
                     fig = plot_shift_comparison(df_fatigue)
