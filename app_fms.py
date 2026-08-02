@@ -201,9 +201,10 @@ def load_and_process_data(file):
     df.columns = [str(c).strip() for c in df.columns]
 
     cols = detect_columns(df)
+    labels = ['<25', '26-30', '31-35', '36-40', '41-45', '46-50', '51-55', '>55']
     
     if not all([cols['date'], cols['type'], cols['driver']]):
-        return None, cols, ['<25', '26-30', '31-35', '36-40', '41-45', '46-50', '51-55', '>55']
+        return None, cols, labels
 
     df = df.dropna(subset=[cols['date'], cols['type'], cols['driver']]).copy()
     df[cols['date']] = pd.to_datetime(df[cols['date']], errors='coerce')
@@ -225,8 +226,7 @@ def load_and_process_data(file):
     else:
         df['Pengawas'] = 'Tidak Diketahui'
     
-    # RENTANG USIA 5 TAHUN (GRANULAR & LEBIH DETAIL)
-    labels = ['<25', '26-30', '31-35', '36-40', '41-45', '46-50', '51-55', '>55']
+    # RENTANG USIA 5 TAHUN
     if cols['age']:
         df['Umur'] = pd.to_numeric(df[cols['age']], errors='coerce')
         bins = [0, 25, 30, 35, 40, 45, 50, 55, 100]
@@ -290,10 +290,7 @@ def header(title, subtitle):
 
 # ==================== CHART FUNCTIONS ====================
 def plot_tren_generic(df_target, title="Tren Bulanan", color="#2563eb"):
-    """
-    Fungsi universal untuk membuat grafik tren bulanan terpisah 
-    (bisa untuk Fatigue, Overspeed, atau Total Alarm).
-    """
+    """Fungsi fleksibel untuk grafik tren bulanan terpisah."""
     if df_target.empty or 'Month_Num' not in df_target.columns:
         return None
     
@@ -318,7 +315,6 @@ def plot_tren_generic(df_target, title="Tren Bulanan", color="#2563eb"):
         margin=dict(l=20, r=20, t=40, b=20)
     )
     
-    # Highlight Titik Tertinggi (Peak)
     for i, row in trend.iterrows():
         is_max = bool(row['Total'] == max_val)
         fig.add_annotation(
@@ -330,6 +326,31 @@ def plot_tren_generic(df_target, title="Tren Bulanan", color="#2563eb"):
             bgcolor='#fee2e2' if is_max else None,
             bordercolor='#ef4444' if is_max else None, borderwidth=1 if is_max else 0
         )
+    return fig
+
+def plot_shift_comparison(df_fatigue):
+    if df_fatigue.empty:
+        return None
+    
+    shift_df = df_fatigue.groupby(['Bulan', 'Shift']).size().reset_index(name='Total')
+    if shift_df.empty:
+        return None
+    
+    fig = px.line(
+        shift_df, x='Bulan', y='Total', color='Shift',
+        markers=True, title='Perbandingan Shift',
+        color_discrete_map={'Shift 1': '#3b82f6', 'Shift 2': '#8b5cf6'}
+    )
+    fig.update_traces(line=dict(width=2.5), marker=dict(size=8))
+    fig.update_layout(
+        plot_bgcolor='white', paper_bgcolor='white',
+        font=dict(family='Inter', size=12),
+        xaxis=dict(showgrid=False),
+        yaxis=dict(showgrid=True, gridcolor='#e2e8f0', gridwidth=0.5),
+        hovermode='x unified',
+        legend=dict(orientation='h', yanchor='bottom', y=1.02, xanchor='center', x=0.5),
+        margin=dict(l=20, r=20, t=40, b=20)
+    )
     return fig
 
 def plot_alarm_distribution(df_fatigue):
@@ -670,7 +691,6 @@ if uploaded_file is None:
 else:
     with st.spinner("🔄 Memproses data..."):
         try:
-            # MEMANGGIL DENGAN CACHING
             df, cols, age_labels = load_and_process_data(uploaded_file)
             
             if df is None:
@@ -770,12 +790,36 @@ else:
             
             # ========== TAB 1: OVERVIEW ==========
             with tab1:
-                fig = plot_tren(df_fatigue, order_months)
-                if fig:
-                    st.plotly_chart(fig, use_container_width=True)
-                else:
-                    st.warning("Tidak ada data fatigue")
+                st.markdown("### 📉 Tren Temuan FMS Bulanan")
                 
+                # Sub-tab untuk grafik tren terpisah
+                sub_tab1, sub_tab2, sub_tab3 = st.tabs([
+                    "😴 Tren Fatigue", 
+                    "🚗 Tren Overspeed", 
+                    "🚨 Tren Total Alarm"
+                ])
+                
+                with sub_tab1:
+                    fig_f = plot_tren_generic(df_fatigue, title="Tren Bulanan Kasus Fatigue", color="#ef4444")
+                    if fig_f:
+                        st.plotly_chart(fig_f, use_container_width=True)
+                    else:
+                        st.info("Tidak ada data fatigue")
+                        
+                with sub_tab2:
+                    fig_o = plot_tren_generic(df_overspeed, title="Tren Bulanan Kasus Overspeed", color="#f59e0b")
+                    if fig_o:
+                        st.plotly_chart(fig_o, use_container_width=True)
+                    else:
+                        st.info("Tidak ada data overspeed")
+
+                with sub_tab3:
+                    fig_total = plot_tren_generic(df, title="Tren Bulanan Total Seluruh Alarm FMS", color="#2563eb")
+                    if fig_total:
+                        st.plotly_chart(fig_total, use_container_width=True)
+                    else:
+                        st.info("Tidak ada data alarm")
+
                 st.markdown("---")
                 
                 c1, c2 = st.columns(2)
