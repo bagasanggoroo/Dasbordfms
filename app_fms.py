@@ -122,6 +122,14 @@ div[data-testid="stDataFrame"] thead tr th {
 </style>
 """, unsafe_allow_html=True)
 
+# ==================== INISIALISASI SESSION STATE MEMORI AI ====================
+if 'res_eksekutif' not in st.session_state:
+    st.session_state['res_eksekutif'] = None
+if 'res_jam' not in st.session_state:
+    st.session_state['res_jam'] = None
+if 'res_driver' not in st.session_state:
+    st.session_state['res_driver'] = None
+
 # ==================== HELPER FUNCTIONS ====================
 def fmt_num(n):
     return f"{n:,}".replace(',', '.')
@@ -705,13 +713,11 @@ def plot_fatigue_vs_overspeed(df_fatigue, df_overspeed):
 # ==================== FUNGSI INTEGRASI GEMINI AI GENERIK ====================
 def generate_gemini_analysis(api_key, prompt_text):
     try:
-        # Inisialisasi client resmi GenAI v1
         client = genai.Client(
             api_key=api_key,
             http_options={'api_version': 'v1'}
         )
         
-        # Ambil daftar model aktif
         available_models = []
         try:
             for m in client.models.list():
@@ -915,12 +921,15 @@ else:
 
                         Berikan poin-poin analisis singkat mengenai potensi risiko operasional serta 3 rekomendasi pencegahan praktis untuk tim K3/Safety.
                         """
-                        ai_result = generate_gemini_analysis(user_api_key, prompt_eksekutif)
-                        st.markdown(f"""
-                        <div style="background:white; padding:20px; border-radius:16px; border-left:5px solid #2563eb; box-shadow:0 4px 15px rgba(0,0,0,0.05);">
-                            {ai_result}
-                        </div>
-                        """, unsafe_allow_html=True)
+                        st.session_state['res_eksekutif'] = generate_gemini_analysis(user_api_key, prompt_eksekutif)
+                
+                # TAMPILKAN HASIL DARI MEMORI SESSION STATE
+                if st.session_state['res_eksekutif']:
+                    st.markdown(f"""
+                    <div style="background:white; padding:20px; border-radius:16px; border-left:5px solid #2563eb; box-shadow:0 4px 15px rgba(0,0,0,0.05);">
+                        {st.session_state['res_eksekutif']}
+                    </div>
+                    """, unsafe_allow_html=True)
             else:
                 st.info("💡 Tempel Gemini API Key di sidebar untuk mengaktifkan pembuat laporan narasi AI otomatis.")
             
@@ -996,7 +1005,7 @@ else:
                 else:
                     st.warning("Tidak ada data jam")
                 
-                # FITUR AI KHUSUS GRAFIK JAM RAWAN FATIGUE (SOLUSI PROAKTIF DENGANKAN HEADER/FOOTER MEMO)
+                # FITUR AI KHUSUS GRAFIK JAM RAWAN FATIGUE
                 if user_api_key:
                     with st.expander("💡 Rekomendasi AI: Solusi Proaktif & Strategi Jam Rawan (PT. BMT)", expanded=False):
                         if st.button("✨ Generate Temporal Preventive Strategy"):
@@ -1028,8 +1037,11 @@ else:
 
                                 Gunakan bahasa yang padat, lugas, langsung ke solusi, dan profesional.
                                 """
-                                res_jam = generate_gemini_analysis(user_api_key, prompt_jam_rawan)
-                                st.info(res_jam)
+                                st.session_state['res_jam'] = generate_gemini_analysis(user_api_key, prompt_jam_rawan)
+                        
+                        # TAMPILKAN HASIL DARI MEMORI SESSION STATE
+                        if st.session_state['res_jam']:
+                            st.info(st.session_state['res_jam'])
                 
                 st.markdown("---")
                 
@@ -1115,12 +1127,11 @@ else:
                     else:
                         st.info("Tidak ada data unit")
                 
-                # FITUR AI KHUSUS TOP DRIVER (SOLUSI PROAKTIF TANPA HEADER/FOOTER MEMO)
+                # FITUR AI KHUSUS TOP DRIVER
                 if user_api_key:
                     with st.expander("👤 Rekomendasi AI: Solusi Proaktif & Action Plan Driver (PT. BMT)", expanded=False):
                         if st.button("✨ Generate Strategy & Preventive Plan"):
                             with st.spinner("🧠 AI sedang menyusun strategi pencegahan proaktif..."):
-                                # Memuat data driver berisiko beserta rincian jenis alarmnya
                                 driver_breakdown = df_fatigue.groupby(['Driver', 'Type']).size().unstack(fill_value=0)
                                 driver_summary = driver_breakdown.head(5).to_dict()
                                 
@@ -1151,8 +1162,11 @@ else:
 
                                 Gunakan bahasa yang padat, lugas, langsung ke solusi, dan profesional.
                                 """
-                                res_driver = generate_gemini_analysis(user_api_key, prompt_top_driver)
-                                st.success(res_driver)
+                                st.session_state['res_driver'] = generate_gemini_analysis(user_api_key, prompt_top_driver)
+                        
+                        # TAMPILKAN HASIL DARI MEMORI SESSION STATE
+                        if st.session_state['res_driver']:
+                            st.success(st.session_state['res_driver'])
 
                 st.markdown("---")
                 
