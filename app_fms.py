@@ -1112,38 +1112,34 @@ else:
                     else:
                         st.info("Tidak ada data unit")
                 
-                # FITUR AI KHUSUS TOP DRIVER (SOP PENANGANAN DRIVER BERISIKO PT. BMT)
+                # FITUR AI KHUSUS TOP DRIVER (PREVENTIVE ACTION PLAN & STRATEGI PENCEGAHAN PT. BMT)
                 if user_api_key:
-                    with st.expander("👤 Rekomendasi AI: Protokol Pembinaan & Action Plan Driver (SOP BMT)", expanded=False):
-                        if st.button("✨ Generate Protokol Pembinaan Driver"):
-                            with st.spinner("🧠 AI sedang menyusun instruksi penanganan driver sesuai SOP BMT..."):
+                    with st.expander("👤 Rekomendasi AI: Analisis Proaktif & Arah Tindakan Pencegahan (PT. BMT)", expanded=False):
+                        if st.button("✨ Generate Strategy & Preventive Plan"):
+                            with st.spinner("🧠 AI sedang menyusun strategi pencegahan proaktif..."):
                                 # Memuat data driver berisiko beserta rincian jenis alarmnya
                                 driver_breakdown = df_fatigue.groupby(['Driver', 'Type']).size().unstack(fill_value=0)
                                 driver_summary = driver_breakdown.head(5).to_dict()
                                 
                                 prompt_top_driver = f"""
                                 Anda adalah Senior Safety Specialist operasional tambang PT. Bumiputera Maha Terpercaya (BMT).
-                                Berdasarkan data driver berisiko tinggi berikut (tipe alarm 'Mata Tertutup' = Microsleep, 'Mengantuk' = Menguap):
+                                Berdasarkan rekapitulasi data driver berisiko tinggi berikut (tipe alarm 'Mata Tertutup' = Microsleep, 'Mengantuk' = Menguap):
                                 {driver_summary}
 
-                                Tolong terapkan **SOP Penanganan Fatigue & Microsleep PT. BMT** secara tegas dengan format berikut:
+                                Tolong berikan **ANALISIS PROAKTIF & ARAH TINDAKAN PENCEGAHAN (PREVENTIVE ACTION PLAN)** agar kasus serupa tidak terulang di masa depan. Format wajib:
 
-                                1. ⚠️ **EVALUASI DRIVER PRIORITAS**:
-                                   - Identifikasi driver dengan kasus 'Mata Tertutup' (Microsleep) dan 'Mengantuk' (Menguap) tertinggi.
+                                📌 1. ANALISIS KECENDERUNGAN RISIKO (BASED ON DATA):
+                                   - Petakan pola risiko utama dari kumpulan driver ini (apakah didominasi faktor individu berulang, kelelahan kumulatif shift, atau kurangnya kualitas istirahat).
 
-                                2. 🚨 **INSTRUKSI PENANGANAN SESUAI SOP BMT**:
-                                   - **Kategori Alarm Mengantuk (Menguap 1x)**: Dispatcher FMS mengarahkan driver ke Rest Area terdekat untuk senam ringan & peregangan tepat di depan kamera ADAS.
-                                   - **Kategori Alarm Mata Tertutup (Microsleep Valid)**:
-                                     * Driver SEGERA MENEPI di Rest Area terdekat & unit standby.
-                                     * Driver dijemput Pengawas Piket untuk diberikan coaching.
-                                     * **TINDAKAN TEGAS**: Driver DILARANG BEROPERASI LAGI pada shift tersebut dan WAJIB DIPULANGKAN.
-                                   - **Tindakan Pelanggaran Berulang (Investigasi HSE)**:
-                                     * Jika driver terdeteksi 'Mata Tertutup' (Microsleep) > 1x dalam 1 minggu, rekomendasikan WAJIB INVESTIGASI KHUSUS oleh Tim HSE sebelum diizinkan bekerja kembali.
+                                🎯 2. ARAH STRATEGI & PENCEGAHAN BERKELANJUTAN (PREVENTIVE ACTIONS):
+                                   - **Pencegahan Lingkungan & Mess**: Arah tindakan untuk evaluasi fasilitas tempat tinggal/mess, kontrol jam istirahat wajib sebelum shift, atau aturan keheningan mess.
+                                   - **Pencegahan Medis & Screening (Fit to Work)**: Pelaksanaan MCU spesifik (skrining kualitas tidur/Sleep Apnea) untuk driver yang menunjukkan tren berulang.
+                                   - **Pencegahan Operasional**: Strategi pembatasan jam kerja kumulatif, penataan ulang jadwal rotasi shift (misal: Shift Malam ke Shift Siang), atau program pendampingan (1-on-1 Health & Safety Counseling).
 
-                                3. 👥 **PENANGGUNG JAWAB (PIC)**:
-                                   - Dispatcher FMS, Pengawas Piket, dan Tim Investigasi HSE.
+                                🚀 3. REKOMENDASI TANGGUNG JAWAB TIM K3/HSE (ARAH KE DEPAN):
+                                   - Langkah konkret yang harus diambil Tim HSE & HR dalam 1-2 minggu ke depan untuk menekan angka fatigue hingga Zero Incident.
 
-                                Gunakan bahasa yang tegas, instruktif, dan siap dieksekusi oleh tim keselamatan kerja di lapangan.
+                                Gunakan bahasa yang analitis, visioner, berorientasi pencegahan (proaktif), dan profesional.
                                 """
                                 res_driver = generate_gemini_analysis(user_api_key, prompt_top_driver)
                                 st.success(res_driver)
