@@ -702,11 +702,17 @@ def plot_fatigue_vs_overspeed(df_fatigue, df_overspeed):
     )
     return fig
 
-# FUNGSI INTEGRASI GEMINI AI TERBARU (SDK google-genai)
+# FUNGSI INTEGRASI GEMINI AI DENGAN MULTI-MODEL FALLBACK (SDK google-genai)
 def generate_gemini_analysis(api_key, df_fatigue, df_overspeed, total_alarm, top_loc, top_jam):
     try:
-        # Inisialisasi client resmi Google GenAI
         client = genai.Client(api_key=api_key)
+        
+        # Daftar model yang otomatis dicoba berurutan
+        candidate_models = [
+            'gemini-2.0-flash',
+            'gemini-1.5-flash',
+            'gemini-1.5-pro'
+        ]
         
         total_f = len(df_fatigue)
         total_o = len(df_overspeed)
@@ -727,16 +733,22 @@ def generate_gemini_analysis(api_key, df_fatigue, df_overspeed, total_alarm, top
         Berikan poin-poin analisis singkat mengenai potensi risiko operasional serta 3 rekomendasi pencegahan praktis untuk tim K3/Safety.
         """
         
-        # Pemanggilan model Gemini 2.5 Flash yang stabil dan resmi
-        response = client.models.generate_content(
-            model='gemini-2.5-flash',
-            contents=prompt,
-        )
-        
-        return response.text
+        last_error = ""
+        for model_id in candidate_models:
+            try:
+                response = client.models.generate_content(
+                    model=model_id,
+                    contents=prompt,
+                )
+                return response.text
+            except Exception as e:
+                last_error = str(e)
+                continue
+                
+        return f"❌ Gagal menghasilkan analisis AI dari semua model. Error terakhir: {last_error}"
         
     except Exception as e:
-        return f"❌ Gagal menghasilkan analisis AI: {str(e)}"
+        return f"❌ Gagal mengonfigurasi Gemini API: {str(e)}"
 
 # ==================== SIDEBAR ====================
 with st.sidebar:
