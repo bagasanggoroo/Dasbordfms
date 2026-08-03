@@ -900,7 +900,7 @@ else:
                     else:
                         insight("#dbeafe", "Unit dengan Temuan Berulang", f"{top_unit} ({top_val} temuan)")
 
-            # SEKSI AI NARRATIVE GENERATOR (RINGKASAN UTUH MANAGEMENT)
+            # SEKSI AI NARRATIVE GENERATOR (LAPORAN EKSEKUTIF TANPA HEADER MEMO)
             st.markdown("#### 🤖 Laporan Narasi Otomatis (Gemini AI)")
             if user_api_key:
                 if st.button("✨ Generate Narasi Laporan Eksekutif dengan Gemini AI"):
@@ -910,8 +910,14 @@ else:
                         
                         prompt_eksekutif = f"""
                         Anda adalah Senior Safety Specialist di perusahaan tambang PT. Bumiputera Maha Terpercaya (BMT).
-                        Analisis data Fleet Management System (FMS) berikut dan buatkan Laporan Ringkasan Eksekutif resmi yang singkat, padat, dan profesional (maksimal 3 paragraf):
+                        Analisis data Fleet Management System (FMS) berikut dan buatkan Laporan Ringkasan Eksekutif secara langsung tanpa basa-basi.
 
+                        DILARANG MEMBUAT:
+                        - Header Memorandum (seperti KEPADA, DARI, PERIHAL, INTERNAL MEMORANDUM, dll).
+                        - Pembuka paragraf formalitas/salam.
+                        - Penutup/Tanda Tangan/Hormat Saya di akhir.
+
+                        DATA UTAMA FMS:
                         - Total Seluruh Alarm: {total_alarm} kasus
                         - Total Kasus Fatigue: {total_f} kasus
                         - Total Kasus Overspeed: {total_o} kasus
@@ -919,7 +925,20 @@ else:
                         - Jam Puncak Rawan Fatigue: {top_jam}
                         - Driver Berisiko Tertinggi: {top_driver_name} ({top_driver_val} kasus)
 
-                        Berikan poin-poin analisis singkat mengenai potensi risiko operasional serta 3 rekomendasi pencegahan praktis untuk tim K3/Safety.
+                        LANGSUNG TAMPILKAN FORMAT BERIKUT:
+
+                        📌 **1. RINGKASAN SITUASI & DIAGNOSIS RISIKO UTAMA**
+                           - Uraikan ringkasan temuan FMS, bahaya micro-sleep pada jam kritis & lokasi hotspot, serta dampaknya pada operasional tambang.
+
+                        🎯 **2. ANALISIS POTENSI RISIKO OPERASIONAL**
+                           - Risiko Fatalitas (Collision / Run-off-road).
+                           - Risiko Geografis & Titik Hotspot.
+                           - Risiko Human Error & Driver Berisiko Tinggi.
+
+                        🚀 **3. REKOMENDASI PENCEGAHAN PRAKTIS UNTUK TIM K3/SAFETY**
+                           - 3 Langkah taktis pencegahan utama yang siap dieksekusi minggu ini.
+
+                        Gunakan bahasa yang padat, lugas, profesional, dan berorientasi pada pencegahan kecelakaan.
                         """
                         st.session_state['res_eksekutif'] = generate_gemini_analysis(user_api_key, prompt_eksekutif)
                 
