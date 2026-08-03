@@ -782,7 +782,7 @@ with st.sidebar:
 
 # ==================== HEADER DENGAN LOGO ====================
 header_with_logo(
-    "🚛 Fleet Management System",
+    "🚛 Driver Management System",
     "PT. Bumiputera Maha Terpercaya<br>Monitoring Fatigue • Overspeed • Safety Analytics",
     "image.png"
 )
