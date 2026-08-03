@@ -706,7 +706,7 @@ def plot_fatigue_vs_overspeed(df_fatigue, df_overspeed):
 def generate_gemini_analysis(api_key, df_fatigue, df_overspeed, total_alarm, top_loc, top_jam):
     try:
         genai.configure(api_key=api_key)
-        model = genai.GenerativeModel("gemini-1.5-flash")
+        model = genai.GenerativeModel("gemini-2.5-flash")
         
         # Penyiapan ringkasan data
         total_f = len(df_fatigue)
