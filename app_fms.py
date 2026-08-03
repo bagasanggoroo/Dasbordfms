@@ -702,14 +702,13 @@ def plot_fatigue_vs_overspeed(df_fatigue, df_overspeed):
     )
     return fig
 
-# FUNGSI INTEGRASI GEMINI AI DENGAN CLIENT V1 (Dukungan API Key Baru AQ...)
+from google import genai
+
+# FUNGSI INTEGRASI GEMINI AI DENGAN DETEKSI MODEL OTOMATIS & FALLBACK
 def generate_gemini_analysis(api_key, df_fatigue, df_overspeed, total_alarm, top_loc, top_jam):
     try:
-        # Menggunakan client v1 untuk API Key format baru
-        client = genai.Client(
-            api_key=api_key,
-            http_options={'api_version': 'v1'}
-        )
+        # Inisialisasi client resmi Google GenAI
+        client = genai.Client(api_key=api_key)
         
         total_f = len(df_fatigue)
         total_o = len(df_overspeed)
@@ -730,14 +729,44 @@ def generate_gemini_analysis(api_key, df_fatigue, df_overspeed, total_alarm, top
         Berikan poin-poin analisis singkat mengenai potensi risiko operasional serta 3 rekomendasi pencegahan praktis untuk tim K3/Safety.
         """
         
-        response = client.models.generate_content(
-            model='gemini-1.5-flash',
-            contents=prompt,
-        )
-        return response.text
+        # 1. Ambil daftar model yang didukung akun API Key ini secara otomatis
+        available_models = []
+        try:
+            for m in client.models.list():
+                # Cek jika model mendukung metode generateContent
+                if hasattr(m, 'supported_actions') and 'generateContent' in m.supported_actions:
+                    available_models.append(m.name)
+                elif hasattr(m, 'supported_generation_methods') and 'generateContent' in m.supported_generation_methods:
+                    available_models.append(m.name)
+        except Exception:
+            pass
+
+        # 2. Urutan prioritas model jika list gagal didapat
+        candidate_models = available_models if available_models else [
+            'models/gemini-2.0-flash',
+            'models/gemini-1.5-flash',
+            'models/gemini-1.5-pro',
+            'gemini-2.0-flash',
+            'gemini-1.5-flash'
+        ]
+
+        # 3. Coba panggil model yang tersedia satu per satu
+        last_err = ""
+        for model_name in candidate_models:
+            try:
+                response = client.models.generate_content(
+                    model=model_name,
+                    contents=prompt,
+                )
+                return response.text
+            except Exception as err:
+                last_err = str(err)
+                continue
+
+        return f"❌ Gagal menghasilkan analisis AI. Error: {last_err}"
         
     except Exception as e:
-        return f"❌ Gagal menghasilkan analisis AI: {str(e)}"
+        return f"❌ Gagal mengonfigurasi Gemini Client: {str(e)}"
 
 # ==================== SIDEBAR ====================
 with st.sidebar:
