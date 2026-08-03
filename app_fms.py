@@ -919,10 +919,10 @@ else:
                         """
                         st.session_state['res_eksekutif'] = generate_gemini_analysis(user_api_key, prompt_eksekutif)
                 
-                # TAMPILKAN HASIL DARI MEMORI SESSION STATE
+                # TAMPILKAN HASIL DARI MEMORI SESSION STATE (DENGAN COLOR WARNA TEKS DITEGASKAN GELAP)
                 if st.session_state['res_eksekutif']:
                     st.markdown(f"""
-                    <div style="background:var(--background-secondary-color, white); padding:20px; border-radius:16px; border-left:5px solid #2563eb; box-shadow:0 4px 15px rgba(0,0,0,0.05);">
+                    <div style="background:white; color:#0f172a; padding:20px; border-radius:16px; border-left:5px solid #2563eb; box-shadow:0 4px 15px rgba(0,0,0,0.05); line-height:1.6;">
                         {st.session_state['res_eksekutif']}
                     </div>
                     """, unsafe_allow_html=True)
@@ -1034,10 +1034,10 @@ else:
                                 """
                                 st.session_state['res_jam'] = generate_gemini_analysis(user_api_key, prompt_jam_rawan)
                         
-                        # TAMPILKAN HASIL DARI MEMORI SESSION STATE
+                        # TAMPILKAN HASIL DARI MEMORI SESSION STATE (DENGAN COLOR WARNA TEKS DITEGASKAN GELAP)
                         if st.session_state['res_jam']:
                             st.markdown(f"""
-                            <div style="background:var(--background-secondary-color, white); padding:20px; border-radius:16px; border-left:5px solid #2563eb; box-shadow:0 4px 15px rgba(0,0,0,0.05);">
+                            <div style="background:white; color:#0f172a; padding:20px; border-radius:16px; border-left:5px solid #2563eb; box-shadow:0 4px 15px rgba(0,0,0,0.05); line-height:1.6;">
                                 {st.session_state['res_jam']}
                             </div>
                             """, unsafe_allow_html=True)
@@ -1162,10 +1162,10 @@ else:
                                 """
                                 st.session_state['res_driver'] = generate_gemini_analysis(user_api_key, prompt_top_driver)
                         
-                        # TAMPILKAN HASIL DARI MEMORI SESSION STATE
+                        # TAMPILKAN HASIL DARI MEMORI SESSION STATE (DENGAN COLOR WARNA TEKS DITEGASKAN GELAP)
                         if st.session_state['res_driver']:
                             st.markdown(f"""
-                            <div style="background:var(--background-secondary-color, white); padding:20px; border-radius:16px; border-left:5px solid #2563eb; box-shadow:0 4px 15px rgba(0,0,0,0.05);">
+                            <div style="background:white; color:#0f172a; padding:20px; border-radius:16px; border-left:5px solid #2563eb; box-shadow:0 4px 15px rgba(0,0,0,0.05); line-height:1.6;">
                                 {st.session_state['res_driver']}
                             </div>
                             """, unsafe_allow_html=True)
