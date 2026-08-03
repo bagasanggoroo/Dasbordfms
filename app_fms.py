@@ -703,10 +703,19 @@ def plot_fatigue_vs_overspeed(df_fatigue, df_overspeed):
     return fig
 
 # FUNGSI INTEGRASI GEMINI AI UNTUK NARASI LAPORAN
+# FUNGSI INTEGRASI GEMINI AI UNTUK NARASI LAPORAN (WITH AUTO-FALLBACK MODEL)
 def generate_gemini_analysis(api_key, df_fatigue, df_overspeed, total_alarm, top_loc, top_jam):
     try:
         genai.configure(api_key=api_key)
-        model = genai.GenerativeModel("gemini-1.5-flash")
+        
+        # Daftar nama model yang dicoba berurutan jika ada error 404
+        available_models = [
+            "gemini-2.0-flash",
+            "gemini-2.5-flash",
+            "gemini-1.5-flash",
+            "gemini-1.5-pro",
+            "gemini-1.0-pro"
+        ]
         
         # Penyiapan ringkasan data
         total_f = len(df_fatigue)
@@ -728,12 +737,21 @@ def generate_gemini_analysis(api_key, df_fatigue, df_overspeed, total_alarm, top
         Berikan poin-poin analisis singkat mengenai potensi risiko operasional serta 3 rekomendasi pencegahan praktis untuk tim K3/Safety.
         """
         
-        response = model.generate_content(prompt)
-        return response.text
+        # Coba generate menggunakan daftar model satu per satu
+        last_error = ""
+        for model_name in available_models:
+            try:
+                model = genai.GenerativeModel(model_name)
+                response = model.generate_content(prompt)
+                return f"*(Di-generate menggunakan model: {model_name})*\n\n" + response.text
+            except Exception as e:
+                last_error = str(e)
+                continue # Lanjut coba model berikutnya jika 404
+                
+        return f"❌ Gagal menghasilkan analisis AI dari semua model. Error terakhir: {last_error}"
+        
     except Exception as e:
-        return f"❌ Gagal menghasilkan analisis AI: {str(e)}"
-
-# ==================== SIDEBAR ====================
+        return f"❌ Gagal mengonfigurasi Gemini API: {str(e)}"# ==================== SIDEBAR ====================
 with st.sidebar:
     st.markdown("""
     <div style="text-align:center; padding:10px 0 20px 0;">
