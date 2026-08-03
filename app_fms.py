@@ -5,7 +5,7 @@ import plotly.express as px
 import plotly.graph_objects as go
 from datetime import datetime
 import base64
-import google.generativeai as genai
+from google import genai
 
 # ==================== KONFIGURASI HALAMAN ====================
 st.set_page_config(
@@ -702,21 +702,12 @@ def plot_fatigue_vs_overspeed(df_fatigue, df_overspeed):
     )
     return fig
 
-# FUNGSI INTEGRASI GEMINI AI UNTUK NARASI LAPORAN (WITH AUTO-FALLBACK MODEL)
+# FUNGSI INTEGRASI GEMINI AI TERBARU (SDK google-genai)
 def generate_gemini_analysis(api_key, df_fatigue, df_overspeed, total_alarm, top_loc, top_jam):
     try:
-        genai.configure(api_key=api_key)
+        # Inisialisasi client resmi Google GenAI
+        client = genai.Client(api_key=api_key)
         
-        # Daftar nama model yang dicoba berurutan jika ada error 404
-        available_models = [
-            "gemini-2.0-flash",
-            "gemini-2.5-flash",
-            "gemini-1.5-flash",
-            "gemini-1.5-pro",
-            "gemini-1.0-pro"
-        ]
-        
-        # Penyiapan ringkasan data
         total_f = len(df_fatigue)
         total_o = len(df_overspeed)
         top_driver = df_fatigue['Driver'].value_counts().index[0] if not df_fatigue.empty else "N/A"
@@ -736,21 +727,16 @@ def generate_gemini_analysis(api_key, df_fatigue, df_overspeed, total_alarm, top
         Berikan poin-poin analisis singkat mengenai potensi risiko operasional serta 3 rekomendasi pencegahan praktis untuk tim K3/Safety.
         """
         
-        # Coba generate menggunakan daftar model satu per satu
-        last_error = ""
-        for model_name in available_models:
-            try:
-                model = genai.GenerativeModel(model_name)
-                response = model.generate_content(prompt)
-                return f"*(Di-generate menggunakan model: {model_name})*\n\n" + response.text
-            except Exception as e:
-                last_error = str(e)
-                continue # Lanjut coba model berikutnya jika 404
-                
-        return f"❌ Gagal menghasilkan analisis AI dari semua model. Error terakhir: {last_error}"
+        # Pemanggilan model Gemini 2.5 Flash yang stabil dan resmi
+        response = client.models.generate_content(
+            model='gemini-2.5-flash',
+            contents=prompt,
+        )
+        
+        return response.text
         
     except Exception as e:
-        return f"❌ Gagal mengonfigurasi Gemini API: {str(e)}"
+        return f"❌ Gagal menghasilkan analisis AI: {str(e)}"
 
 # ==================== SIDEBAR ====================
 with st.sidebar:
@@ -769,7 +755,6 @@ with st.sidebar:
     st.markdown("---")
     st.markdown("### 🤖 Config Gemini AI")
     
-    # Ambil API key otomatis dari Streamlit Secrets jika ada, jika tidak minta input dari user
     secret_key = st.secrets.get("GEMINI_API_KEY", "")
     if secret_key:
         user_api_key = secret_key
