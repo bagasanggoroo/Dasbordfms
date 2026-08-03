@@ -5,7 +5,7 @@ import plotly.express as px
 import plotly.graph_objects as go
 from datetime import datetime
 import base64
-from google import genai
+import google.generativeai as genai
 
 # ==================== KONFIGURASI HALAMAN ====================
 st.set_page_config(
@@ -702,11 +702,10 @@ def plot_fatigue_vs_overspeed(df_fatigue, df_overspeed):
     )
     return fig
 
-# FUNGSI INTEGRASI GEMINI AI DENGAN PENYESUAIAN API VERSION (v1alpha & LIST MODELS AUTOMATION)
+# FUNGSI INTEGRASI GEMINI AI DENGAN DUKUNGAN GEMINI 1.5 FLASH STABIL
 def generate_gemini_analysis(api_key, df_fatigue, df_overspeed, total_alarm, top_loc, top_jam):
     try:
-        # Gunakan v1alpha agar mendukung model terbaru
-        client = genai.Client(api_key=api_key, http_options={'api_version': 'v1alpha'})
+        genai.configure(api_key=api_key)
         
         total_f = len(df_fatigue)
         total_o = len(df_overspeed)
@@ -727,41 +726,13 @@ def generate_gemini_analysis(api_key, df_fatigue, df_overspeed, total_alarm, top
         Berikan poin-poin analisis singkat mengenai potensi risiko operasional serta 3 rekomendasi pencegahan praktis untuk tim K3/Safety.
         """
         
-        # Cari model yang benar-benar aktif di akun user secara otomatis
-        target_model = None
-        try:
-            active_models = [m.name for m in client.models.list() if 'generateContent' in m.supported_actions]
-            # Prioritaskan model flash
-            for m_name in active_models:
-                if 'flash' in m_name:
-                    target_model = m_name
-                    break
-            if not target_model and active_models:
-                target_model = active_models[0]
-        except:
-            target_model = "gemini-2.0-flash-exp"
-
-        if not target_model:
-            target_model = "gemini-1.5-flash-latest"
-
-        # Pemanggilan model AI
-        response = client.models.generate_content(
-            model=target_model,
-            contents=prompt,
-        )
+        # Penggunaan Model Gemini Standar yang Terjamin Aktif di API v1
+        model = genai.GenerativeModel("gemini-1.5-flash")
+        response = model.generate_content(prompt)
         return response.text
         
     except Exception as e:
-        # Fallback cadangan menggunakan format model standar jika cara pertama gagal
-        try:
-            client_fallback = genai.Client(api_key=api_key)
-            response = client_fallback.models.generate_content(
-                model='gemini-2.0-flash-exp',
-                contents=prompt,
-            )
-            return response.text
-        except Exception as e2:
-            return f"❌ Gagal menghasilkan analisis AI: {str(e2)}"
+        return f"❌ Gagal menghasilkan analisis AI: {str(e)}"
 
 # ==================== SIDEBAR ====================
 with st.sidebar:
