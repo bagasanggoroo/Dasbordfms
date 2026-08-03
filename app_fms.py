@@ -9,12 +9,12 @@ from google import genai
 
 # ==================== KONFIGURASI HALAMAN ====================
 st.set_page_config(
-    page_title="Dashboard FMS - PT. Bumiputera",
+    page_title="Dashboard FMS - PT. Bumiputera Maha Terpercaya",
     page_icon="🚛",
     layout="wide"
 )
 
-# ==================== CSS CUSTOM STYLING (THEME-ADAPTIVE) ====================
+# ==================== CSS CUSTOM STYLING (THEME-ADAPTIVE & DARK/LIGHT FIX) ====================
 st.markdown("""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
@@ -280,7 +280,7 @@ def rec_card(priority, icon, text):
     </div>
     """, unsafe_allow_html=True)
 
-# ==================== CHART FUNCTIONS (TRANSPARENT & ADAPTIVE) ====================
+# ==================== CHART FUNCTIONS ====================
 def plot_tren_generic(df_target, title="Tren Bulanan", color="#2563eb"):
     if df_target.empty or 'Month_Num' not in df_target.columns:
         return None
@@ -844,7 +844,7 @@ else:
                     top_val = jam_counts.iloc[0]
                     pct = top_val / jam_counts.sum() * 100
                     if any(j in top_jam for j in ['00:00','01:00','02:00','03:00','04:00','05:00']):
-                        insight("#fee2e2", "Jam Kritis", f"Puncak fatigue di {top_jam} ({top_val} kasus, {pct:.1f}%) — waspada!")
+                        insight("#fee2e2", "Jam Kritis Sirkadian (BIB PPO-035)", f"Puncak fatigue di {top_jam} ({top_val} kasus, {pct:.1f}%) — Masuk jam rawan utama 02.00–06.00 WITA!")
                     else:
                         insight("#dbeafe", "Jam Rawan", f"{top_jam} ({top_val} kasus, {pct:.1f}%)")
                 
@@ -854,7 +854,7 @@ else:
                     if s1 > 0:
                         ratio = s2 / s1
                         if ratio > 2:
-                            insight("#fee2e2", "Shift Malam", f"{ratio:.1f}x lebih tinggi ({s2} vs {s1}) — evaluasi!")
+                            insight("#fee2e2", "Shift Malam (Kritis)", f"{ratio:.1f}x lebih tinggi ({s2} vs {s1}) — tingkatkan Wake Up Call!")
                         elif ratio > 1.2:
                             insight("#fef3c7", "Shift Malam", f"{ratio:.1f}x lebih tinggi ({s2} vs {s1})")
                         else:
@@ -865,34 +865,42 @@ else:
                 if not driver_counts.empty:
                     top_driver = driver_counts.index[0]
                     top_val = driver_counts.iloc[0]
-                    insight("#fef3c7", "Driver Berisiko", f"{top_driver} ({top_val} kasus) — perlu monitoring")
+                    if top_val >= 4:
+                        insight("#fee2e2", "Driver Risk High (SOP BMT 011)", f"{top_driver} ({top_val} kasus/minggu) — Batas threshold SP1 & Lubang 1!")
+                    else:
+                        insight("#fef3c7", "Driver Berisiko", f"{top_driver} ({top_val} kasus) — perlu monitoring")
                 
                 unit_counts = df['Unit'].value_counts()
                 if not unit_counts.empty:
                     top_unit = unit_counts.index[0]
                     top_val = unit_counts.iloc[0]
                     if top_val > 5:
-                        insight("#fee2e2", "Unit dengan Temuan Berulang", f"{top_unit} ({top_val} temuan) — inspeksi!")
+                        insight("#fee2e2", "Unit Temuan Berulang", f"{top_unit} ({top_val} temuan) — Jadwalkan Turing / Perbaikan Teknisi!")
                     else:
-                        insight("#dbeafe", "Unit dengan Temuan Berulang", f"{top_unit} ({top_val} temuan)")
+                        insight("#dbeafe", "Unit Temuan Berulang", f"{top_unit} ({top_val} temuan)")
 
-            # SEKSI AI NARRATIVE GENERATOR (LAPORAN EKSEKUTIF)
-            st.markdown("#### 🤖 Laporan Narasi Otomatis (Gemini AI)")
+            # SEKSI AI NARRATIVE GENERATOR (LAPORAN EKSEKUTIF - PATUH SOP BMT & PPO BIB)
+            st.markdown("#### 🤖 Laporan Narasi Otomatis (Gemini AI - Standard Compliance)")
             if user_api_key:
                 if st.button("✨ Generate Narasi Laporan Eksekutif dengan Gemini AI"):
-                    with st.spinner("🧠 AI sedang menganalisis data FMS..."):
+                    with st.spinner("🧠 AI sedang menganalisis data berdasarkan SOP BMT 011 & PPO BIB 035..."):
                         top_driver_name = df_fatigue['Driver'].value_counts().index[0] if not df_fatigue.empty else "N/A"
                         top_driver_val = df_fatigue['Driver'].value_counts().iloc[0] if not df_fatigue.empty else 0
                         
                         prompt_eksekutif = f"""
-                        Anda adalah Senior Safety Specialist di perusahaan tambang PT. Bumiputera Maha Terpercaya (BMT).
-                        Analisis data Fleet Management System (FMS) berikut dan buatkan Laporan Ringkasan Eksekutif secara langsung tanpa basa-basi.
+                        Anda adalah Senior Safety Specialist di PT. Bumiputera Maha Terpercaya (BMT) untuk operasional tambang PT Borneo Indobara (BIB).
+                        Analisis data Fleet Management System (FMS) berikut dan buatkan Laporan Ringkasan Eksekutif K3 yang SEPENUHNYA PATUH pada SOP BMT-CHL-SOP 011 dan BIB-HSE-PPO-035.
 
-                        DILARANG MEMBUAT:
-                        - Header Memorandum (seperti KEPADA, DARI, PERIHAL, INTERNAL MEMORANDUM, dll).
-                        - Pembuka paragraf formalitas/salam.
-                        - Penutup/Tanda Tangan/Hormat Saya di akhir.
+                        RULES PENULISAN (SANGAT KETAT):
+                        - DILARANG MEMBUAT Header Memorandum (KEPADA, DARI, PERIHAL, dll).
+                        - DILARANG MEMBUAT pembuka formalitas atau salam/penutup/tanda tangan.
                         - DILARANG MENGGUNAKAN TANDA BINTANG (*) SAMA SEKALI DALAM TEKS OUTPUT.
+
+                        ACUAN STANDAR REGULASI:
+                        1. Threshold Fatigue Valid BMT/BIB: Maksimal 4x temuan/minggu. Jika >=4x dikenakan sanksi bertingkat (SP1+Lubang 1).
+                        2. Jam Rawan Utama PPO BIB-035: Pukul 02.00 - 06.00 WITA (Wajib intensifkan Wake Up Call kata sandi).
+                        3. Intervensi Driver Fatigue Valid: Kecepatan maks 30 kph, hazard ON, dikawal (escorted) ke Rest Area/Office, dan verifikasi ADAS dengan handbrake & wheel chock.
+                        4. Kampanye 7B: Berhenti, Beritahu, Bernafas, Beristirahat, Bekerja kembali, Berolahraga ringan, Berdoa.
 
                         DATA UTAMA FMS:
                         - Total Seluruh Alarm: {total_alarm} kasus
@@ -904,22 +912,22 @@ else:
 
                         LANGSUNG TAMPILKAN FORMAT BERIKUT (Gunakan tag HTML <b> untuk judul):
 
-                        <b>📌 1. RINGKASAN SITUASI & DIAGNOSIS RISIKO UTAMA</b><br>
-                        Uraikan ringkasan temuan FMS, bahaya micro-sleep pada jam kritis & lokasi hotspot, serta dampaknya secara singkat.
+                        <b>📌 1. RINGKASAN SITUASI & EVALUASI COMPLIANCE SAFETY</b><br>
+                        Uraikan ringkasan temuan FMS, bahaya micro-sleep di jam rawan sirkadian BIB (02.00-06.00 WITA), serta evaluasi kepatuhan driver terhadap threshold 4x fatigue/minggu.
 
-                        <br><b>🎯 2. ANALISIS POTENSI RISIKO OPERASIONAL</b><br>
-                        - Risiko Fatalitas (Collision / Run-off-road).<br>
-                        - Risiko Geografis & Titik Hotspot.<br>
-                        - Risiko Human Error & Driver Berisiko Tinggi.
+                        <br><b>🎯 2. PENILAIAN RISIKO OPERASIONAL & AUDIT ATRIBUT</b><br>
+                        - Risiko Fatalitas (Collision / Run-off-road) di area Hotspot.<br>
+                        - Audit Atribut Driver (Evaluasi larangan kacamata hitam, topi, dan penutup mulut/masker sesuai SOP 011).<br>
+                        - Driver Berisiko Tinggi & Sanksi Bertingkat (SP1/SP2/SP3).
 
-                        <br><b>🚀 3. REKOMENDASI PENCEGAHAN PRAKTIS UNTUK TIM K3/SAFETY</b><br>
-                        Berikan 3 langkah taktis pencegahan utama yang siap dieksekusi minggu ini.
+                        <br><b>🚀 3. ACTION PLAN TAKTIS TIM K3/SAFETY (BERDASARKAN KAMPANYE 7B & SOP 011)</b><br>
+                        Berikan 3 langkah taktis instruksi kerja tim Safety/CCR (Pengawalan ke rest area, pergantian driver spare, dan verifikasi fisik ADAS).
 
-                        Gunakan bahasa yang padat, lugas, profesional, dan berorientasi pada pencegahan kecelakaan.
+                        Gunakan bahasa yang padat, lugas, tegas, berorientasi K3 pertambangan, dan profesional.
                         """
                         st.session_state['res_eksekutif'] = generate_gemini_analysis(user_api_key, prompt_eksekutif)
                 
-                # TAMPILKAN HASIL DARI MEMORI SESSION STATE (DENGAN COLOR WARNA TEKS DITEGASKAN GELAP)
+                # TAMPILKAN HASIL DARI MEMORI SESSION STATE (WARNA TEKS GELAP BIAR TERBACA DI DARK MODE)
                 if st.session_state['res_eksekutif']:
                     st.markdown(f"""
                     <div style="background:white; color:#0f172a; padding:20px; border-radius:16px; border-left:5px solid #2563eb; box-shadow:0 4px 15px rgba(0,0,0,0.05); line-height:1.6;">
@@ -1001,40 +1009,45 @@ else:
                 else:
                     st.warning("Tidak ada data jam")
                 
-                # FITUR AI KHUSUS GRAFIK JAM RAWAN FATIGUE
+                # FITUR AI KHUSUS GRAFIK JAM RAWAN FATIGUE (BERDASARKAN PPO BIB-035)
                 if user_api_key:
-                    with st.expander("💡 Rekomendasi AI: Solusi Proaktif & Strategi Jam Rawan (PT. BMT)", expanded=False):
+                    with st.expander("💡 Rekomendasi AI: Solusi Proaktif & Strategi Jam Rawan (PPO BIB-035)", expanded=False):
                         if st.button("✨ Generate Temporal Preventive Strategy"):
-                            with st.spinner("🧠 AI sedang menganalisis pola jam rawan dan solusi proaktif..."):
+                            with st.spinner("🧠 AI sedang menganalisis pola jam rawan berdasarkan PPO BIB-035..."):
                                 jam_data = df_fatigue['Jam_Range'].value_counts().head(5).to_dict()
                                 prompt_jam_rawan = f"""
-                                Anda adalah Senior Safety Specialist operasional tambang PT. Bumiputera Maha Terpercaya (BMT).
+                                Anda adalah Senior Safety Specialist operasional tambang PT. BMT (Mitra Kerja PT Borneo Indobara).
                                 Berdasarkan rekapitulasi data distribusi jam puncak rawan fatigue berikut: {jam_data}
 
-                                Tolong berikan SOLUSI PROAKTIF & STRATEGI PENCEGAHAN TEMPORAL secara langsung tanpa basa-basi. 
+                                Berikan STRATEGI PENCEGAHAN TEMPORAL yang patuh pada BIB-HSE-PPO-035 secara langsung tanpa basa-basi.
 
                                 DILARANG MEMBUAT:
                                 - Header Memorandum, pembuka formalitas, maupun tanda tangan di akhir.
                                 - DILARANG MENGGUNAKAN TANDA BINTANG (*) SAMA SEKALI DALAM TEKS OUTPUT.
 
+                                ACUAN ATURAN:
+                                - Puncak Sirkadian Rendah: Jam 02.00 - 06.00 WITA. Wajib pemantauan Wake Up Call (kata sandi radio) maks 3x panggilan.
+                                - Jam Rawan Acak: 14.00-16.00 (Shift 1) & 23.00-02.00 (Shift 2).
+                                - Istirahat Fleksibel Hauling: Minimal 1 jam di workshop/rest area per shift.
+
                                 LANGSUNG TAMPILKAN FORMAT BERIKUT (Gunakan tag HTML <b> untuk judul):
 
-                                <b>📌 1. ANALISIS POLA WAKTU & RITME BIOLOGIS (BASED ON DATA)</b><br>
-                                Uraikan kecenderungan jam kritis berdasarkan data dan risiko operasionalnya secara singkat.
+                                <b>📌 1. ANALISIS POLA WAKTU & RITME SIRKADIAN (BIB-035)</b><br>
+                                Uraikan kecenderungan jam kritis FMS vs jam rawan resmi BIB (02.00 - 06.00 WITA).
 
-                                <br><b>🎯 2. ARAH STRATEGI & PENCEGAHAN BERKELANJUTAN</b><br>
-                                - <b>Shift Engineering</b>: Arah kebijakan penetapan jam istirahat resmi.<br>
-                                - <b>Program Internal BMT</b>: Strategi pengoptimalan Intercom Web FMS dan Senam Fatigue.<br>
-                                - <b>Manajemen Sarana</b>: Rekomendasi penerangan jalur dan rest area.
+                                <br><b>🎯 2. ARAH STRATEGI & PENCEGAHAN TEMPORAL</b><br>
+                                - <b>Program Wake Up Call Radio</b>: Pengoperasian kata sandi harian per shift di jam kritis.<br>
+                                - <b>Manajemen Rest Area</b>: Pengaturan istirahat tidur minimal 1 jam di workshop/rest area.<br>
+                                - <b>Inspeksi Fisik & Mental</b>: Pelaksanaan fatigue check acak pada shift 1 & 2.
 
-                                <br><b>🚀 3. REKOMENDASI TANGGUNG JAWAB TIM K3/SAFETY</b><br>
-                                Langkah konkret yang harus diambil Tim Safety dalam 1-2 minggu ke depan.
+                                <br><b>🚀 3. REKOMENDASI INTERVENSI PENGAWAS CCR/FMS</b><br>
+                                Langkah intervensi cepat jika driver tidak merespon Wake Up Call atau terdeteksi fatigue valid.
 
                                 Gunakan bahasa yang padat, lugas, langsung ke solusi, dan profesional.
                                 """
                                 st.session_state['res_jam'] = generate_gemini_analysis(user_api_key, prompt_jam_rawan)
                         
-                        # TAMPILKAN HASIL DARI MEMORI SESSION STATE (DENGAN COLOR WARNA TEKS DITEGASKAN GELAP)
+                        # TAMPILKAN HASIL DARI MEMORI SESSION STATE (WARNA TEKS GELAP)
                         if st.session_state['res_jam']:
                             st.markdown(f"""
                             <div style="background:white; color:#0f172a; padding:20px; border-radius:16px; border-left:5px solid #2563eb; box-shadow:0 4px 15px rgba(0,0,0,0.05); line-height:1.6;">
@@ -1126,43 +1139,49 @@ else:
                     else:
                         st.info("Tidak ada data unit")
                 
-                # FITUR AI KHUSUS TOP DRIVER
+                # FITUR AI KHUSUS TOP DRIVER (BERDASARKAN SOP BMT 011)
                 if user_api_key:
-                    with st.expander("👤 Rekomendasi AI: Solusi Proaktif & Action Plan Driver (PT. BMT)", expanded=False):
+                    with st.expander("👤 Rekomendasi AI: Action Plan Driver & Disiplin (SOP BMT 011)", expanded=False):
                         if st.button("✨ Generate Strategy & Preventive Plan"):
-                            with st.spinner("🧠 AI sedang menyusun strategi pencegahan proaktif..."):
+                            with st.spinner("🧠 AI sedang menyusun action plan disiplin driver..."):
                                 driver_breakdown = df_fatigue.groupby(['Driver', 'Type']).size().unstack(fill_value=0)
                                 driver_summary = driver_breakdown.head(5).to_dict()
                                 
                                 prompt_top_driver = f"""
-                                Anda adalah Senior Safety Specialist operasional tambang PT. Bumiputera Maha Terpercaya (BMT).
-                                Berdasarkan rekapitulasi data driver berisiko tinggi berikut:
-                                {driver_summary}
+                                Anda adalah Senior Safety Specialist operasional tambang PT. BMT.
+                                Berdasarkan data driver berisiko tinggi berikut: {driver_summary}
 
-                                Tolong berikan SOLUSI PROAKTIF & ARAH TINDAKAN PENCEGAHAN DRIVER secara langsung tanpa basa-basi.
+                                Susun ACTION PLAN DISIPLIN DRIVER yang patuh pada BMT-CHL-SOP 011 secara langsung tanpa basa-basi.
 
                                 DILARANG MEMBUAT:
                                 - Header Memorandum, pembuka formalitas, maupun tanda tangan di akhir.
                                 - DILARANG MENGGUNAKAN TANDA BINTANG (*) SAMA SEKALI DALAM TEKS OUTPUT.
 
+                                ATURAN SANKSI BERTIANAT BMT 011:
+                                - Batas Fatigue Valid: Maksimal 4x / minggu.
+                                - Minggu 1 (4x fatigue): SP1 + Lubang 1.
+                                - Minggu 2 (4x fatigue): SP2 + Lubang 2 + Dirumahkan 3 Hari + Pemanggilan Keluarga ke Office.
+                                - Minggu 3 (4x fatigue): SP3 + Lubang 3.
+                                - Sanksi Pengawas: Jika terjadi pembiaran fatigue driver, SIMPER/Mine Permit Pengawas dicabut PERMANEN.
+
                                 LANGSUNG TAMPILKAN FORMAT BERIKUT (Gunakan tag HTML <b> untuk judul):
 
-                                <b>📌 1. ANALISIS KECENDERUNGAN RISIKO INDIVIDU</b><br>
-                                Petakan pola risiko utama dari kumpulan driver berisiko tinggi ini secara singkat.
+                                <b>📌 1. EVALUASI TINGKAT RISIKO & COMPLIANCE THRESHOLD</b><br>
+                                Petakan driver yang telah menyentuh atau mendekati threshold 4x fatigue valid per minggu.
 
-                                <br><b>🎯 2. ARAH STRATEGI & PENCEGAHAN BERKELANJUTAN</b><br>
-                                - <b>Pencegahan Lingkungan & Mess</b>: Evaluasi tempat tinggal dan kontrol jam istirahat.<br>
-                                - <b>Pencegahan Medis (Fit to Work)</b>: Skrining kesehatan/Sleep Apnea untuk driver berulang.<br>
-                                - <b>Pencegahan Operasional</b>: Pembatasan jam kerja kumulatif dan rotasi shift.
+                                <br><b>🎯 2. ACTION PLAN TANDAK LANJUT DISIPLIN & SANKSI</b><br>
+                                - <b>Penegakan Sanksi Bertingkat</b>: Rekomendasi penerbitan SP1/SP2/SP3 & Pemanggilan keluarga.<br>
+                                - <b>Pemeriksaan Fit to Work</b>: Verifikasi jam tidur (<4 jam dilarang bekerja) & konsumsi obat.<br>
+                                - <b>Prosedur Pengawalan Lapangan</b>: Prosedur penjemputan driver ke office oleh Safety Patrol & penyiapan driver spare.
 
-                                <br><b>🚀 3. REKOMENDASI ACTION PLAN TIM K3/HSE</b><br>
-                                Langkah konkret Tim HSE & HR dalam 1-2 minggu ke depan.
+                                <br><b>🚀 3. PENGAWASAN KEPADA PENGAWAS LAPANGAN</b><br>
+                                Peringatan komitmen kepengawasan untuk mencegah pembiaran fatigue (Ancaman pencabutan SIMPER permanen).
 
-                                Gunakan bahasa yang padat, lugas, langsung ke solusi, dan profesional.
+                                Gunakan bahasa yang padat, lugas, langsung ke solusi, dan tegas.
                                 """
                                 st.session_state['res_driver'] = generate_gemini_analysis(user_api_key, prompt_top_driver)
                         
-                        # TAMPILKAN HASIL DARI MEMORI SESSION STATE (DENGAN COLOR WARNA TEKS DITEGASKAN GELAP)
+                        # TAMPILKAN HASIL DARI MEMORI SESSION STATE (WARNA TEKS GELAP)
                         if st.session_state['res_driver']:
                             st.markdown(f"""
                             <div style="background:white; color:#0f172a; padding:20px; border-radius:16px; border-left:5px solid #2563eb; box-shadow:0 4px 15px rgba(0,0,0,0.05); line-height:1.6;">
@@ -1300,29 +1319,29 @@ else:
                 
                 st.markdown("---")
                 
-                st.markdown("### ✅ Rekomendasi Otomatis")
+                st.markdown("### ✅ Rekomendasi Otomatis (Compliance BMT & BIB)")
                 
                 recs = []
                 if not df_fatigue.empty:
                     top_d = df_fatigue['Driver'].value_counts()
-                    if not top_d.empty and top_d.iloc[0] > 5:
-                        recs.append(("🔴 PRIORITAS", "👤", f"Coaching Personal: Driver {top_d.index[0]} memiliki {top_d.iloc[0]} kasus"))
+                    if not top_d.empty and top_d.iloc[0] >= 4:
+                        recs.append(("🔴 PRIORITAS HIGH", "🚨", f"Penegakan Sanksi BMT 011: Driver {top_d.index[0]} mencapai {top_d.iloc[0]} kasus/minggu (SP1 + Lubang 1)"))
                     
                     shift_counts = df_fatigue['Shift'].value_counts()
                     if 'Shift 2' in shift_counts.index and 'Shift 1' in shift_counts.index:
                         ratio = shift_counts['Shift 2'] / shift_counts['Shift 1'] if shift_counts['Shift 1'] > 0 else 0
-                        if ratio > 2:
-                            recs.append(("🔴 PRIORITAS", "🌙", f"Rotasi Shift: {ratio:.1f}x lebih tinggi di Shift Malam"))
+                        if ratio > 1.5:
+                            recs.append(("🔴 PRIORITAS", "📻", f"Wake Up Call Radio (BIB 035): Intensifkan pemanggilan kata sandi jam 02.00–06.00 WITA"))
                     
                     jam_counts = df_fatigue['Jam_Range'].value_counts()
                     if not jam_counts.empty:
                         top_j = jam_counts.index[0]
-                        if any(j in top_j for j in ['02:00', '03:00', '04:00']):
-                            recs.append(("🟡 PENTING", "☕", f"Istirahat Terjadwal: Puncak fatigue di jam {top_j}"))
+                        if any(j in top_j for j in ['02:00', '03:00', '04:00', '05:00']):
+                            recs.append(("🟡 PENTING", "☕", f"Istirahat Fleksibel: Puncak fatigue di jam sirkadian {top_j}. Instruksikan istirahat 1 jam di rest area"))
                     
                     unit_counts = df['Unit'].value_counts()
                     if not unit_counts.empty and unit_counts.iloc[0] > 5:
-                        recs.append(("🟡 PENTING", "🚗", f"Inspeksi Unit: {unit_counts.index[0]} ({unit_counts.iloc[0]} temuan)"))
+                        recs.append(("🟡 PENTING", "🔧", f"Laporan Turing Minergo: Unit {unit_counts.index[0]} ({unit_counts.iloc[0]} temuan). Cek kebersihan lensa & sudut DSM"))
                 
                 if recs:
                     for rec in recs:
@@ -1340,4 +1359,4 @@ else:
 
 # ==================== FOOTER ====================
 st.markdown("---")
-st.caption("© 2026 PT. Bumiputera Maha Terpercaya | Dashboard FMS v3.0")
+st.caption("© 2026 PT. Bumiputera Maha Terpercaya | Dashboard FMS v3.0 (Patuh SOP BMT 011 & BIB 035)")
