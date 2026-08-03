@@ -996,31 +996,37 @@ else:
                 else:
                     st.warning("Tidak ada data jam")
                 
-                # FITUR AI KHUSUS GRAFIK JAM RAWAN FATIGUE (ANALISIS PROAKTIF & PENCEGAHAN TEMPORAL PT. BMT)
+                # FITUR AI KHUSUS GRAFIK JAM RAWAN FATIGUE (SOLUSI PROAKTIF DENGANKAN HEADER/FOOTER MEMO)
                 if user_api_key:
-                    with st.expander("💡 Rekomendasi AI: Analisis Proaktif & Strategi Jam Rawan (PT. BMT)", expanded=False):
+                    with st.expander("💡 Rekomendasi AI: Solusi Proaktif & Strategi Jam Rawan (PT. BMT)", expanded=False):
                         if st.button("✨ Generate Temporal Preventive Strategy"):
-                            with st.spinner("🧠 AI sedang menganalisis pola jam rawan dan strategi pencegahan..."):
+                            with st.spinner("🧠 AI sedang menganalisis pola jam rawan dan solusi proaktif..."):
                                 jam_data = df_fatigue['Jam_Range'].value_counts().head(5).to_dict()
                                 prompt_jam_rawan = f"""
                                 Anda adalah Senior Safety Specialist operasional tambang PT. Bumiputera Maha Terpercaya (BMT).
                                 Berdasarkan rekapitulasi data distribusi jam puncak rawan fatigue berikut: {jam_data}
 
-                                Tolong berikan **ANALISIS PROAKTIF & STRATEGI PENCEGAHAN TEMPORAL (TEMPORAL SAFETY MITIGATION PLAN)** agar tren kasus pada jam rawan tersebut dapat ditekan secara signifikan di masa depan. Format wajib:
+                                Tolong berikan **SOLUSI PROAKTIF & STRATEGI PENCEGAHAN TEMPORAL** secara langsung tanpa basa-basi. 
 
-                                📌 1. ANALISIS POLA WAKTU & RITME BIOLOGIS (BASED ON DATA):
-                                   - Uraikan kecenderungan jam kritis berdasarkan data (misal: konsentrasi fatigue di jam dini hari/ritme sirkadian).
-                                   - Petakan risiko operasional jika pola waktu rawan ini tidak diintervensi secara sistemik.
+                                DILARANG MEMBUAT:
+                                - Header Memorandum (seperti KEPADA, DARI, PERIHAL, dll).
+                                - Pembuka paragraf formalitas.
+                                - Penutup/Tanda Tangan/Hormat Saya di akhir.
 
-                                🎯 2. ARAH STRATEGI & PENCEGAHAN BERKELANJUTAN (STRATEGIC PREVENTIVE ACTIONS):
+                                LANGSUNG TAMPILKAN FORMAT BERIKUT:
+
+                                📌 **1. ANALISIS POLA WAKTU & RITME BIOLOGIS (BASED ON DATA)**
+                                   - Uraikan kecenderungan jam kritis berdasarkan data dan risiko operasionalnya secara singkat.
+
+                                🎯 **2. ARAH STRATEGI & PENCEGAHAN BERKELANJUTAN (STRATEGIC PREVENTIVE ACTIONS)**
                                    - **Rekayasa Jam Kerja & Istirahat (Shift Engineering)**: Arah kebijakan penetapan jam istirahat resmi (*Scheduled Fatigue Break*) atau evaluasi durasi Shift Malam.
-                                   - **Penguatan Program Internal BMT**: Strategi pengoptimalan penggunaan Intercom Web FMS dan Senam Fatigue di Pool BMT agar tidak sekadar rutinitas, melainkan menjadi intervensi yang efektif.
-                                   - **Manajemen Sarana & Lingkungan Kerja**: Rekomendasi peningkatan kualitas penerangan di jalur hauling, penyediaan fasilitas rest area yang memadai, atau dukungan nutrisi/suplemen pencegah fatigue.
+                                   - **Penguatan Program Internal BMT**: Strategi pengoptimalan penggunaan Intercom Web FMS dan Senam Fatigue di Pool BMT.
+                                   - **Manajemen Sarana & Lingkungan Kerja**: Rekomendasi penerangan jalur, rest area, dan dukungan nutrisi.
 
-                                🚀 3. REKOMENDASI TANGGUNG JAWAB TIM K3/SAFETY (ARAH KE DEPAN):
-                                   - Langkah evaluasi berkala yang harus dilakukan Tim Safety & Fleet Operation dalam 1-2 minggu ke depan untuk mengukur efektivitas pencegahan pada jam rawan tersebut.
+                                🚀 **3. REKOMENDASI TANGGUNG JAWAB TIM K3/SAFETY**
+                                   - Langkah konkret yang harus diambil Tim Safety dalam 1-2 minggu ke depan.
 
-                                Gunakan bahasa yang analitis, visioner, berorientasi pencegahan (proaktif), dan profesional.
+                                Gunakan bahasa yang padat, lugas, langsung ke solusi, dan profesional.
                                 """
                                 res_jam = generate_gemini_analysis(user_api_key, prompt_jam_rawan)
                                 st.info(res_jam)
@@ -1109,9 +1115,9 @@ else:
                     else:
                         st.info("Tidak ada data unit")
                 
-                # FITUR AI KHUSUS TOP DRIVER (PREVENTIVE ACTION PLAN & STRATEGI PENCEGAHAN PT. BMT)
+                # FITUR AI KHUSUS TOP DRIVER (SOLUSI PROAKTIF TANPA HEADER/FOOTER MEMO)
                 if user_api_key:
-                    with st.expander("👤 Rekomendasi AI: Analisis Proaktif & Arah Tindakan Pencegahan (PT. BMT)", expanded=False):
+                    with st.expander("👤 Rekomendasi AI: Solusi Proaktif & Action Plan Driver (PT. BMT)", expanded=False):
                         if st.button("✨ Generate Strategy & Preventive Plan"):
                             with st.spinner("🧠 AI sedang menyusun strategi pencegahan proaktif..."):
                                 # Memuat data driver berisiko beserta rincian jenis alarmnya
@@ -1123,20 +1129,27 @@ else:
                                 Berdasarkan rekapitulasi data driver berisiko tinggi berikut (tipe alarm 'Mata Tertutup' = Microsleep, 'Mengantuk' = Menguap):
                                 {driver_summary}
 
-                                Tolong berikan **ANALISIS PROAKTIF & ARAH TINDAKAN PENCEGAHAN (PREVENTIVE ACTION PLAN)** agar kasus serupa tidak terulang di masa depan. Format wajib:
+                                Tolong berikan **SOLUSI PROAKTIF & ARAH TINDAKAN PENCEGAHAN DRIVER** secara langsung tanpa basa-basi.
 
-                                📌 1. ANALISIS KECENDERUNGAN RISIKO (BASED ON DATA):
-                                   - Petakan pola risiko utama dari kumpulan driver ini (apakah didominasi faktor individu berulang, kelelahan kumulatif shift, atau kurangnya kualitas istirahat).
+                                DILARANG MEMBUAT:
+                                - Header Memorandum (seperti KEPADA, DARI, PERIHAL, dll).
+                                - Pembuka paragraf formalitas.
+                                - Penutup/Tanda Tangan/Hormat Saya di akhir.
 
-                                🎯 2. ARAH STRATEGI & PENCEGAHAN BERKELANJUTAN (PREVENTIVE ACTIONS):
-                                   - **Pencegahan Lingkungan & Mess**: Arah tindakan untuk evaluasi fasilitas tempat tinggal/mess, kontrol jam istirahat wajib sebelum shift, atau aturan keheningan mess.
-                                   - **Pencegahan Medis & Screening (Fit to Work)**: Pelaksanaan MCU spesifik (skrining kualitas tidur/Sleep Apnea) untuk driver yang menunjukkan tren berulang.
-                                   - **Pencegahan Operasional**: Strategi pembatasan jam kerja kumulatif, penataan ulang jadwal rotasi shift (misal: Shift Malam ke Shift Siang), atau program pendampingan (1-on-1 Health & Safety Counseling).
+                                LANGSUNG TAMPILKAN FORMAT BERIKUT:
 
-                                🚀 3. REKOMENDASI TANGGUNG JAWAB TIM K3/HSE (ARAH KE DEPAN):
-                                   - Langkah konkret yang harus diambil Tim HSE & HR dalam 1-2 minggu ke depan untuk menekan angka fatigue hingga Zero Incident.
+                                📌 **1. ANALISIS KECENDERUNGAN RISIKO INDIVIDU**
+                                   - Petakan pola risiko utama dari kumpulan driver berisiko tinggi ini secara singkat.
 
-                                Gunakan bahasa yang analitis, visioner, berorientasi pencegahan (proaktif), dan profesional.
+                                🎯 **2. ARAH STRATEGI & PENCEGAHAN BERKELANJUTAN**
+                                   - **Pencegahan Lingkungan & Mess**: Evaluasi tempat tinggal, kontrol jam istirahat sebelum shift.
+                                   - **Pencegahan Medis & Screening (Fit to Work)**: MCU spesifik (skrining Sleep Apnea) untuk driver berulang.
+                                   - **Pencegahan Operasional**: Pembatasan jam kerja kumulatif dan rotasi shift.
+
+                                🚀 **3. REKOMENDASI ACTION PLAN TIM K3/HSE**
+                                   - Langkah konkret Tim HSE & HR dalam 1-2 minggu ke depan.
+
+                                Gunakan bahasa yang padat, lugas, langsung ke solusi, dan profesional.
                                 """
                                 res_driver = generate_gemini_analysis(user_api_key, prompt_top_driver)
                                 st.success(res_driver)
