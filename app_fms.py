@@ -996,34 +996,31 @@ else:
                 else:
                     st.warning("Tidak ada data jam")
                 
-                # FITUR AI KHUSUS GRAFIK JAM RAWAN FATIGUE (SOP BMT)
+                # FITUR AI KHUSUS GRAFIK JAM RAWAN FATIGUE (ANALISIS PROAKTIF & PENCEGAHAN TEMPORAL PT. BMT)
                 if user_api_key:
-                    with st.expander("💡 Rekomendasi AI: Rencana Intercom Web FMS & Senam Pool BMT", expanded=False):
-                        if st.button("✨ Generate Instruksi Taktis Jam Rawan"):
-                            with st.spinner("🧠 AI sedang menyusun jadwal Intercom & Senam Pool BMT..."):
+                    with st.expander("💡 Rekomendasi AI: Analisis Proaktif & Strategi Jam Rawan (PT. BMT)", expanded=False):
+                        if st.button("✨ Generate Temporal Preventive Strategy"):
+                            with st.spinner("🧠 AI sedang menganalisis pola jam rawan dan strategi pencegahan..."):
                                 jam_data = df_fatigue['Jam_Range'].value_counts().head(5).to_dict()
                                 prompt_jam_rawan = f"""
                                 Anda adalah Senior Safety Specialist operasional tambang PT. Bumiputera Maha Terpercaya (BMT).
-                                Berdasarkan data 5 rentang jam puncak rawan fatigue berikut: {jam_data}
+                                Berdasarkan rekapitulasi data distribusi jam puncak rawan fatigue berikut: {jam_data}
 
-                                Perusahaan memiliki program internal yang WAJIB dieksekusi:
-                                1. Panggilan/Intercom Fatigue Check via Web FMS langsung ke unit di jam rawan sampai akhir shift.
-                                2. Program Cek Fatigue & Senam Ringan di Pool BMT.
+                                Tolong berikan **ANALISIS PROAKTIF & STRATEGI PENCEGAHAN TEMPORAL (TEMPORAL SAFETY MITIGATION PLAN)** agar tren kasus pada jam rawan tersebut dapat ditekan secara signifikan di masa depan. Format wajib:
 
-                                Tolong buatkan **Rencana Operasional Taktis K3** dengan format tegas berikut:
+                                📌 1. ANALISIS POLA WAKTU & RITME BIOLOGIS (BASED ON DATA):
+                                   - Uraikan kecenderungan jam kritis berdasarkan data (misal: konsentrasi fatigue di jam dini hari/ritme sirkadian).
+                                   - Petakan risiko operasional jika pola waktu rawan ini tidak diintervensi secara sistemik.
 
-                                1. 🚨 **ANALISIS JAM KRITIS**:
-                                   - Tentukan rentang jam paling rawan kecelakaan dan jelaskan alasan operasionalnya.
+                                🎯 2. ARAH STRATEGI & PENCEGAHAN BERKELANJUTAN (STRATEGIC PREVENTIVE ACTIONS):
+                                   - **Rekayasa Jam Kerja & Istirahat (Shift Engineering)**: Arah kebijakan penetapan jam istirahat resmi (*Scheduled Fatigue Break*) atau evaluasi durasi Shift Malam.
+                                   - **Penguatan Program Internal BMT**: Strategi pengoptimalan penggunaan Intercom Web FMS dan Senam Fatigue di Pool BMT agar tidak sekadar rutinitas, melainkan menjadi intervensi yang efektif.
+                                   - **Manajemen Sarana & Lingkungan Kerja**: Rekomendasi peningkatan kualitas penerangan di jalur hauling, penyediaan fasilitas rest area yang memadai, atau dukungan nutrisi/suplemen pencegah fatigue.
 
-                                2. ⚡ **INSTRUKSI EKSEKUSI PROGRAM BMT**:
-                                   - **Intercom Web FMS (Radio/Panggilan Langsung)**: Tentukan jam berapa Dispatcher FMS wajib mengaktifkan intervensi intercom per unit dan kalimat pengingat apa yang disampaikan.
-                                   - **Senam Fatigue di Pool BMT**: Tentukan jam berapa driver wajib diarahkan masuk ke Pool BMT untuk senam ringan & tes fisik sebelum/di tengah jam kritis.
-                                   - **Pengawasan Lapangan**: Langkah patroli tambahan untuk pengawas shift malam di area hotspot.
+                                🚀 3. REKOMENDASI TANGGUNG JAWAB TIM K3/SAFETY (ARAH KE DEPAN):
+                                   - Langkah evaluasi berkala yang harus dilakukan Tim Safety & Fleet Operation dalam 1-2 minggu ke depan untuk mengukur efektivitas pencegahan pada jam rawan tersebut.
 
-                                3. 👥 **EVALUASI & PIC**:
-                                   - Penanggung jawab (Dispatcher FMS / Supervisor Hauling / Safety Officer).
-
-                                Gunakan bahasa yang tegas, praktis, dan berorientasi pada eksekusi program site BMT.
+                                Gunakan bahasa yang analitis, visioner, berorientasi pencegahan (proaktif), dan profesional.
                                 """
                                 res_jam = generate_gemini_analysis(user_api_key, prompt_jam_rawan)
                                 st.info(res_jam)
