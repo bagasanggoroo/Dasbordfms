@@ -916,6 +916,7 @@ else:
                         - Header Memorandum (seperti KEPADA, DARI, PERIHAL, INTERNAL MEMORANDUM, dll).
                         - Pembuka paragraf formalitas/salam.
                         - Penutup/Tanda Tangan/Hormat Saya di akhir.
+                        - DILARANG MENGGUNAKAN TANDA BINTANG (*) SAMA SEKALI DALAM TEKS OUTPUT.
 
                         DATA UTAMA FMS:
                         - Total Seluruh Alarm: {total_alarm} kasus
@@ -925,17 +926,17 @@ else:
                         - Jam Puncak Rawan Fatigue: {top_jam}
                         - Driver Berisiko Tertinggi: {top_driver_name} ({top_driver_val} kasus)
 
-                        LANGSUNG TAMPILKAN FORMAT BERIKUT:
+                        LANGSUNG TAMPILKAN FORMAT BERIKUT (Gunakan tag HTML <b> untuk judul):
 
                         <b>📌 1. RINGKASAN SITUASI & DIAGNOSIS RISIKO UTAMA</b><br>
                         Uraikan ringkasan temuan FMS, bahaya micro-sleep pada jam kritis & lokasi hotspot, serta dampaknya secara singkat.
 
-                        <b>🎯 2. ANALISIS POTENSI RISIKO OPERASIONAL</b><br>
+                        <br><b>🎯 2. ANALISIS POTENSI RISIKO OPERASIONAL</b><br>
                         - Risiko Fatalitas (Collision / Run-off-road).<br>
                         - Risiko Geografis & Titik Hotspot.<br>
                         - Risiko Human Error & Driver Berisiko Tinggi.
 
-                        <b>🚀 3. REKOMENDASI PENCEGAHAN PRAKTIS UNTUK TIM K3/SAFETY</b><br>
+                        <br><b>🚀 3. REKOMENDASI PENCEGAHAN PRAKTIS UNTUK TIM K3/SAFETY</b><br>
                         Berikan 3 langkah taktis pencegahan utama yang siap dieksekusi minggu ini.
 
                         Gunakan bahasa yang padat, lugas, profesional, dan berorientasi pada pencegahan kecelakaan.
@@ -1034,22 +1035,23 @@ else:
                                 Anda adalah Senior Safety Specialist operasional tambang PT. Bumiputera Maha Terpercaya (BMT).
                                 Berdasarkan rekapitulasi data distribusi jam puncak rawan fatigue berikut: {jam_data}
 
-                                Tolong berikan **SOLUSI PROAKTIF & STRATEGI PENCEGAHAN TEMPORAL** secara langsung tanpa basa-basi. 
+                                Tolong berikan SOLUSI PROAKTIF & STRATEGI PENCEGAHAN TEMPORAL secara langsung tanpa basa-basi. 
 
                                 DILARANG MEMBUAT:
                                 - Header Memorandum, pembuka formalitas, maupun tanda tangan di akhir.
+                                - DILARANG MENGGUNAKAN TANDA BINTANG (*) SAMA SEKALI DALAM TEKS OUTPUT.
 
-                                LANGSUNG TAMPILKAN FORMAT BERIKUT:
+                                LANGSUNG TAMPILKAN FORMAT BERIKUT (Gunakan tag HTML <b> untuk judul):
 
                                 <b>📌 1. ANALISIS POLA WAKTU & RITME BIOLOGIS (BASED ON DATA)</b><br>
                                 Uraikan kecenderungan jam kritis berdasarkan data dan risiko operasionalnya secara singkat.
 
-                                <b>🎯 2. ARAH STRATEGI & PENCEGAHAN BERKELANJUTAN</b><br>
+                                <br><b>🎯 2. ARAH STRATEGI & PENCEGAHAN BERKELANJUTAN</b><br>
                                 - <b>Shift Engineering</b>: Arah kebijakan penetapan jam istirahat resmi.<br>
                                 - <b>Program Internal BMT</b>: Strategi pengoptimalan Intercom Web FMS dan Senam Fatigue.<br>
                                 - <b>Manajemen Sarana</b>: Rekomendasi penerangan jalur dan rest area.
 
-                                <b>🚀 3. REKOMENDASI TANGGUNG JAWAB TIM K3/SAFETY</b><br>
+                                <br><b>🚀 3. REKOMENDASI TANGGUNG JAWAB TIM K3/SAFETY</b><br>
                                 Langkah konkret yang harus diambil Tim Safety dalam 1-2 minggu ke depan.
 
                                 Gunakan bahasa yang padat, lugas, langsung ke solusi, dan profesional.
@@ -1161,22 +1163,23 @@ else:
                                 Berdasarkan rekapitulasi data driver berisiko tinggi berikut:
                                 {driver_summary}
 
-                                Tolong berikan **SOLUSI PROAKTIF & ARAH TINDAKAN PENCEGAHAN DRIVER** secara langsung tanpa basa-basi.
+                                Tolong berikan SOLUSI PROAKTIF & ARAH TINDAKAN PENCEGAHAN DRIVER secara langsung tanpa basa-basi.
 
                                 DILARANG MEMBUAT:
                                 - Header Memorandum, pembuka formalitas, maupun tanda tangan di akhir.
+                                - DILARANG MENGGUNAKAN TANDA BINTANG (*) SAMA SEKALI DALAM TEKS OUTPUT.
 
-                                LANGSUNG TAMPILKAN FORMAT BERIKUT:
+                                LANGSUNG TAMPILKAN FORMAT BERIKUT (Gunakan tag HTML <b> untuk judul):
 
                                 <b>📌 1. ANALISIS KECENDERUNGAN RISIKO INDIVIDU</b><br>
                                 Petakan pola risiko utama dari kumpulan driver berisiko tinggi ini secara singkat.
 
-                                <b>🎯 2. ARAH STRATEGI & PENCEGAHAN BERKELANJUTAN</b><br>
+                                <br><b>🎯 2. ARAH STRATEGI & PENCEGAHAN BERKELANJUTAN</b><br>
                                 - <b>Pencegahan Lingkungan & Mess</b>: Evaluasi tempat tinggal dan kontrol jam istirahat.<br>
                                 - <b>Pencegahan Medis (Fit to Work)</b>: Skrining kesehatan/Sleep Apnea untuk driver berulang.<br>
                                 - <b>Pencegahan Operasional</b>: Pembatasan jam kerja kumulatif dan rotasi shift.
 
-                                <b>🚀 3. REKOMENDASI ACTION PLAN TIM K3/HSE</b><br>
+                                <br><b>🚀 3. REKOMENDASI ACTION PLAN TIM K3/HSE</b><br>
                                 Langkah konkret Tim HSE & HR dalam 1-2 minggu ke depan.
 
                                 Gunakan bahasa yang padat, lugas, langsung ke solusi, dan profesional.
