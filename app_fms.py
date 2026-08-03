@@ -170,7 +170,7 @@ def get_order_months():
 def get_order_2h():
     return [f"{i:02d}:00-{i+1:02d}:59" for i in range(0, 24, 2)]
 
-# ==================== HEADER BARU DENGAN INTEGRASI LOGO ====================
+# ==================== HEADER DENGAN INTEGRASI LOGO ====================
 def header_with_logo(title, subtitle, logo_path="image.png"):
     img_b64 = get_image_base64(logo_path)
     logo_html = f'<img src="data:image/png;base64,{img_b64}" style="height: 55px; object-fit: contain;">' if img_b64 else '<span style="font-size:30px;">🚛</span>'
@@ -702,38 +702,19 @@ def plot_fatigue_vs_overspeed(df_fatigue, df_overspeed):
     )
     return fig
 
-from google import genai
-
-# FUNGSI INTEGRASI GEMINI AI DENGAN DETEKSI MODEL OTOMATIS & FALLBACK
-def generate_gemini_analysis(api_key, df_fatigue, df_overspeed, total_alarm, top_loc, top_jam):
+# ==================== FUNGSI INTEGRASI GEMINI AI GENERIK ====================
+def generate_gemini_analysis(api_key, prompt_text):
     try:
-        # Inisialisasi client resmi Google GenAI
-        client = genai.Client(api_key=api_key)
+        # Inisialisasi client resmi GenAI v1
+        client = genai.Client(
+            api_key=api_key,
+            http_options={'api_version': 'v1'}
+        )
         
-        total_f = len(df_fatigue)
-        total_o = len(df_overspeed)
-        top_driver = df_fatigue['Driver'].value_counts().index[0] if not df_fatigue.empty else "N/A"
-        top_driver_val = df_fatigue['Driver'].value_counts().iloc[0] if not df_fatigue.empty else 0
-        
-        prompt = f"""
-        Anda adalah Senior Safety Specialist di perusahaan tambang PT. Bumiputera Maha Terpercaya.
-        Analisis data Fleet Management System (FMS) berikut dan buatkan Laporan Ringkasan Eksekutif resmi yang singkat, padat, dan profesional (maksimal 3 paragraf):
-
-        - Total Seluruh Alarm: {total_alarm} kasus
-        - Total Kasus Fatigue: {total_f} kasus
-        - Total Kasus Overspeed: {total_o} kasus
-        - Lokasi Rawan (Hotspot) Utama: {top_loc}
-        - Jam Puncak Rawan Fatigue: {top_jam}
-        - Driver Berisiko Tertinggi: {top_driver} ({top_driver_val} kasus)
-
-        Berikan poin-poin analisis singkat mengenai potensi risiko operasional serta 3 rekomendasi pencegahan praktis untuk tim K3/Safety.
-        """
-        
-        # 1. Ambil daftar model yang didukung akun API Key ini secara otomatis
+        # Ambil daftar model aktif
         available_models = []
         try:
             for m in client.models.list():
-                # Cek jika model mendukung metode generateContent
                 if hasattr(m, 'supported_actions') and 'generateContent' in m.supported_actions:
                     available_models.append(m.name)
                 elif hasattr(m, 'supported_generation_methods') and 'generateContent' in m.supported_generation_methods:
@@ -741,7 +722,6 @@ def generate_gemini_analysis(api_key, df_fatigue, df_overspeed, total_alarm, top
         except Exception:
             pass
 
-        # 2. Urutan prioritas model jika list gagal didapat
         candidate_models = available_models if available_models else [
             'models/gemini-2.0-flash',
             'models/gemini-1.5-flash',
@@ -750,13 +730,12 @@ def generate_gemini_analysis(api_key, df_fatigue, df_overspeed, total_alarm, top
             'gemini-1.5-flash'
         ]
 
-        # 3. Coba panggil model yang tersedia satu per satu
         last_err = ""
         for model_name in candidate_models:
             try:
                 response = client.models.generate_content(
                     model=model_name,
-                    contents=prompt,
+                    contents=prompt_text,
                 )
                 return response.text
             except Exception as err:
@@ -915,12 +894,28 @@ else:
                     else:
                         insight("#dbeafe", "Unit dengan Temuan Berulang", f"{top_unit} ({top_val} temuan)")
 
-            # SEKSI AI NARRATIVE GENERATOR
+            # SEKSI AI NARRATIVE GENERATOR (RINGKASAN UTUH MANAGEMENT)
             st.markdown("#### 🤖 Laporan Narasi Otomatis (Gemini AI)")
             if user_api_key:
                 if st.button("✨ Generate Narasi Laporan Eksekutif dengan Gemini AI"):
                     with st.spinner("🧠 AI sedang menganalisis data FMS..."):
-                        ai_result = generate_gemini_analysis(user_api_key, df_fatigue, df_overspeed, total_alarm, top_loc, top_jam)
+                        top_driver_name = df_fatigue['Driver'].value_counts().index[0] if not df_fatigue.empty else "N/A"
+                        top_driver_val = df_fatigue['Driver'].value_counts().iloc[0] if not df_fatigue.empty else 0
+                        
+                        prompt_eksekutif = f"""
+                        Anda adalah Senior Safety Specialist di perusahaan tambang PT. Bumiputera Maha Terpercaya (BMT).
+                        Analisis data Fleet Management System (FMS) berikut dan buatkan Laporan Ringkasan Eksekutif resmi yang singkat, padat, dan profesional (maksimal 3 paragraf):
+
+                        - Total Seluruh Alarm: {total_alarm} kasus
+                        - Total Kasus Fatigue: {total_f} kasus
+                        - Total Kasus Overspeed: {total_o} kasus
+                        - Lokasi Rawan (Hotspot) Utama: {top_loc}
+                        - Jam Puncak Rawan Fatigue: {top_jam}
+                        - Driver Berisiko Tertinggi: {top_driver_name} ({top_driver_val} kasus)
+
+                        Berikan poin-poin analisis singkat mengenai potensi risiko operasional serta 3 rekomendasi pencegahan praktis untuk tim K3/Safety.
+                        """
+                        ai_result = generate_gemini_analysis(user_api_key, prompt_eksekutif)
                         st.markdown(f"""
                         <div style="background:white; padding:20px; border-radius:16px; border-left:5px solid #2563eb; box-shadow:0 4px 15px rgba(0,0,0,0.05);">
                             {ai_result}
@@ -1000,6 +995,38 @@ else:
                     st.plotly_chart(fig, use_container_width=True)
                 else:
                     st.warning("Tidak ada data jam")
+                
+                # FITUR AI KHUSUS GRAFIK JAM RAWAN FATIGUE (SOP BMT)
+                if user_api_key:
+                    with st.expander("💡 Rekomendasi AI: Rencana Intercom Web FMS & Senam Pool BMT", expanded=False):
+                        if st.button("✨ Generate Instruksi Taktis Jam Rawan"):
+                            with st.spinner("🧠 AI sedang menyusun jadwal Intercom & Senam Pool BMT..."):
+                                jam_data = df_fatigue['Jam_Range'].value_counts().head(5).to_dict()
+                                prompt_jam_rawan = f"""
+                                Anda adalah Senior Safety Specialist operasional tambang PT. Bumiputera Maha Terpercaya (BMT).
+                                Berdasarkan data 5 rentang jam puncak rawan fatigue berikut: {jam_data}
+
+                                Perusahaan memiliki program internal yang WAJIB dieksekusi:
+                                1. Panggilan/Intercom Fatigue Check via Web FMS langsung ke unit di jam rawan sampai akhir shift.
+                                2. Program Cek Fatigue & Senam Ringan di Pool BMT.
+
+                                Tolong buatkan **Rencana Operasional Taktis K3** dengan format tegas berikut:
+
+                                1. 🚨 **ANALISIS JAM KRITIS**:
+                                   - Tentukan rentang jam paling rawan kecelakaan dan jelaskan alasan operasionalnya.
+
+                                2. ⚡ **INSTRUKSI EKSEKUSI PROGRAM BMT**:
+                                   - **Intercom Web FMS (Radio/Panggilan Langsung)**: Tentukan jam berapa Dispatcher FMS wajib mengaktifkan intervensi intercom per unit dan kalimat pengingat apa yang disampaikan.
+                                   - **Senam Fatigue di Pool BMT**: Tentukan jam berapa driver wajib diarahkan masuk ke Pool BMT untuk senam ringan & tes fisik sebelum/di tengah jam kritis.
+                                   - **Pengawasan Lapangan**: Langkah patroli tambahan untuk pengawas shift malam di area hotspot.
+
+                                3. 👥 **EVALUASI & PIC**:
+                                   - Penanggung jawab (Dispatcher FMS / Supervisor Hauling / Safety Officer).
+
+                                Gunakan bahasa yang tegas, praktis, dan berorientasi pada eksekusi program site BMT.
+                                """
+                                res_jam = generate_gemini_analysis(user_api_key, prompt_jam_rawan)
+                                st.info(res_jam)
                 
                 st.markdown("---")
                 
@@ -1085,6 +1112,42 @@ else:
                     else:
                         st.info("Tidak ada data unit")
                 
+                # FITUR AI KHUSUS TOP DRIVER (SOP PENANGANAN DRIVER BERISIKO PT. BMT)
+                if user_api_key:
+                    with st.expander("👤 Rekomendasi AI: Protokol Pembinaan & Action Plan Driver (SOP BMT)", expanded=False):
+                        if st.button("✨ Generate Protokol Pembinaan Driver"):
+                            with st.spinner("🧠 AI sedang menyusun instruksi penanganan driver sesuai SOP BMT..."):
+                                # Memuat data driver berisiko beserta rincian jenis alarmnya
+                                driver_breakdown = df_fatigue.groupby(['Driver', 'Type']).size().unstack(fill_value=0)
+                                driver_summary = driver_breakdown.head(5).to_dict()
+                                
+                                prompt_top_driver = f"""
+                                Anda adalah Senior Safety Specialist operasional tambang PT. Bumiputera Maha Terpercaya (BMT).
+                                Berdasarkan data driver berisiko tinggi berikut (tipe alarm 'Mata Tertutup' = Microsleep, 'Mengantuk' = Menguap):
+                                {driver_summary}
+
+                                Tolong terapkan **SOP Penanganan Fatigue & Microsleep PT. BMT** secara tegas dengan format berikut:
+
+                                1. ⚠️ **EVALUASI DRIVER PRIORITAS**:
+                                   - Identifikasi driver dengan kasus 'Mata Tertutup' (Microsleep) dan 'Mengantuk' (Menguap) tertinggi.
+
+                                2. 🚨 **INSTRUKSI PENANGANAN SESUAI SOP BMT**:
+                                   - **Kategori Alarm Mengantuk (Menguap 1x)**: Dispatcher FMS mengarahkan driver ke Rest Area terdekat untuk senam ringan & peregangan tepat di depan kamera ADAS.
+                                   - **Kategori Alarm Mata Tertutup (Microsleep Valid)**:
+                                     * Driver SEGERA MENEPI di Rest Area terdekat & unit standby.
+                                     * Driver dijemput Pengawas Piket untuk diberikan coaching.
+                                     * **TINDAKAN TEGAS**: Driver DILARANG BEROPERASI LAGI pada shift tersebut dan WAJIB DIPULANGKAN.
+                                   - **Tindakan Pelanggaran Berulang (Investigasi HSE)**:
+                                     * Jika driver terdeteksi 'Mata Tertutup' (Microsleep) > 1x dalam 1 minggu, rekomendasikan WAJIB INVESTIGASI KHUSUS oleh Tim HSE sebelum diizinkan bekerja kembali.
+
+                                3. 👥 **PENANGGUNG JAWAB (PIC)**:
+                                   - Dispatcher FMS, Pengawas Piket, dan Tim Investigasi HSE.
+
+                                Gunakan bahasa yang tegas, instruktif, dan siap dieksekusi oleh tim keselamatan kerja di lapangan.
+                                """
+                                res_driver = generate_gemini_analysis(user_api_key, prompt_top_driver)
+                                st.success(res_driver)
+
                 st.markdown("---")
                 
                 st.markdown("#### 🔥 Heatmap Driver per Bulan")
