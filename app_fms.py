@@ -5,7 +5,7 @@ import plotly.express as px
 import plotly.graph_objects as go
 from datetime import datetime
 import base64
-import google.generativeai as genai
+from google import genai
 
 # ==================== KONFIGURASI HALAMAN ====================
 st.set_page_config(
@@ -702,13 +702,10 @@ def plot_fatigue_vs_overspeed(df_fatigue, df_overspeed):
     )
     return fig
 
-from google import genai
-from google.genai import types
-
-# FUNGSI INTEGRASI GEMINI AI TERBARU (Menggunakan API Version v1)
+# FUNGSI INTEGRASI GEMINI AI DENGAN CLIENT V1 (Dukungan API Key Baru AQ...)
 def generate_gemini_analysis(api_key, df_fatigue, df_overspeed, total_alarm, top_loc, top_jam):
     try:
-        # Inisialisasi client resmi Google GenAI memaksa API version 'v1'
+        # Menggunakan client v1 untuk API Key format baru
         client = genai.Client(
             api_key=api_key,
             http_options={'api_version': 'v1'}
@@ -733,25 +730,14 @@ def generate_gemini_analysis(api_key, df_fatigue, df_overspeed, total_alarm, top
         Berikan poin-poin analisis singkat mengenai potensi risiko operasional serta 3 rekomendasi pencegahan praktis untuk tim K3/Safety.
         """
         
-        # Pemanggilan model gemini-1.5-flash dengan endpoint v1
         response = client.models.generate_content(
             model='gemini-1.5-flash',
             contents=prompt,
         )
-        
         return response.text
         
     except Exception as e:
-        # Fallback jika model 1.5-flash membutuhkan model alias terbaru
-        try:
-            client_fallback = genai.Client(api_key=api_key)
-            response = client_fallback.models.generate_content(
-                model='gemini-1.5-pro',
-                contents=prompt,
-            )
-            return response.text
-        except Exception as e2:
-            return f"❌ Gagal menghasilkan analisis AI: {str(e2)}"
+        return f"❌ Gagal menghasilkan analisis AI: {str(e)}"
 
 # ==================== SIDEBAR ====================
 with st.sidebar:
