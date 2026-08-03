@@ -702,7 +702,6 @@ def plot_fatigue_vs_overspeed(df_fatigue, df_overspeed):
     )
     return fig
 
-# FUNGSI INTEGRASI GEMINI AI UNTUK NARASI LAPORAN
 # FUNGSI INTEGRASI GEMINI AI UNTUK NARASI LAPORAN (WITH AUTO-FALLBACK MODEL)
 def generate_gemini_analysis(api_key, df_fatigue, df_overspeed, total_alarm, top_loc, top_jam):
     try:
@@ -751,7 +750,9 @@ def generate_gemini_analysis(api_key, df_fatigue, df_overspeed, total_alarm, top
         return f"❌ Gagal menghasilkan analisis AI dari semua model. Error terakhir: {last_error}"
         
     except Exception as e:
-        return f"❌ Gagal mengonfigurasi Gemini API: {str(e)}"# ==================== SIDEBAR ====================
+        return f"❌ Gagal mengonfigurasi Gemini API: {str(e)}"
+
+# ==================== SIDEBAR ====================
 with st.sidebar:
     st.markdown("""
     <div style="text-align:center; padding:10px 0 20px 0;">
