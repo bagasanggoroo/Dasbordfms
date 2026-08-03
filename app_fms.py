@@ -14,14 +14,13 @@ st.set_page_config(
     layout="wide"
 )
 
-# ==================== CSS CUSTOM STYLING ====================
+# ==================== CSS CUSTOM STYLING (THEME-ADAPTIVE) ====================
 st.markdown("""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
 html, body, [class*="css"] {
     font-family: 'Inter', sans-serif;
-    background: #f4f7fb;
 }
 
 .block-container {
@@ -32,14 +31,14 @@ html, body, [class*="css"] {
     max-width: 1600px;
 }
 
-/* KPI CARDS */
+/* KPI CARDS ADAPTIF TEMA */
 .kpi {
-    background: white;
+    background-color: var(--background-secondary-color, rgba(255, 255, 255, 0.05));
     padding: 22px;
     border-radius: 18px;
     box-shadow: 0 5px 20px rgba(0,0,0,.05);
     transition: .25s;
-    border: 1px solid #edf2f7;
+    border: 1px solid var(--border-color, #edf2f7);
     position: relative;
 }
 .kpi:hover {
@@ -52,7 +51,7 @@ html, body, [class*="css"] {
 }
 .kpi-title {
     font-size: 13px;
-    color: #64748b;
+    opacity: 0.8;
     text-transform: uppercase;
     letter-spacing: .8px;
     font-weight: 500;
@@ -60,7 +59,6 @@ html, body, [class*="css"] {
 .kpi-value {
     font-size: 34px;
     font-weight: 700;
-    color: #0f172a;
     margin-top: 6px;
 }
 .kpi-footer {
@@ -69,28 +67,10 @@ html, body, [class*="css"] {
     font-size: 13px;
 }
 
-/* SIDEBAR */
-section[data-testid="stSidebar"] {
-    background: #0f172a;
-}
-section[data-testid="stSidebar"] * {
-    color: white;
-}
-section[data-testid="stSidebar"] .stSelectbox label,
-section[data-testid="stSidebar"] .stFileUploader label,
-section[data-testid="stSidebar"] .stTextInput label {
-    color: #94a3b8 !important;
-}
-section[data-testid="stSidebar"] .stSelectbox div[data-baseweb="select"] {
-    background: rgba(255,255,255,0.06);
-    border-radius: 8px;
-    border: 1px solid rgba(255,255,255,0.08);
-}
-
-/* BUTTON */
+/* BUTTON STYLING */
 .stButton > button {
     background: #2563eb;
-    color: white;
+    color: white !important;
     border-radius: 10px;
     border: none;
     padding: .55rem 1rem;
@@ -99,20 +79,16 @@ section[data-testid="stSidebar"] .stSelectbox div[data-baseweb="select"] {
 }
 .stButton > button:hover {
     background: #1d4ed8;
-    color: white;
+    color: white !important;
     transform: translateY(-2px);
     box-shadow: 0 8px 25px rgba(37,99,235,0.3);
 }
 
-/* DATAFRAME */
+/* DATAFRAME STYLING */
 div[data-testid="stDataFrame"] {
     border-radius: 14px;
-    border: 1px solid #edf2f7;
+    border: 1px solid var(--border-color, #edf2f7);
     overflow: hidden;
-}
-div[data-testid="stDataFrame"] thead tr th {
-    background: #f8fafc !important;
-    font-weight: 600 !important;
 }
 
 /* PLOTLY CONTAINER */
@@ -197,7 +173,7 @@ def header_with_logo(title, subtitle, logo_path="image.png"):
     ">
         <div>
             <h1 style="margin: 0; font-size: 30px; font-weight: 700; color: white;">{title}</h1>
-            <p style="margin: 6px 0 0 0; opacity: 0.85; font-size: 14px; line-height: 1.4;">{subtitle}</p>
+            <p style="margin: 6px 0 0 0; opacity: 0.85; font-size: 14px; line-height: 1.4; color: white;">{subtitle}</p>
         </div>
         <div style="
             background: white;
@@ -287,7 +263,7 @@ def kpi(title, value, footer, icon="📊", color="#2563eb"):
 
 def insight(color, title, text, icon="💡"):
     st.markdown(f"""
-    <div style="background:{color}; padding:16px 20px; border-radius:14px; margin-bottom:10px; border-left:5px solid {color};">
+    <div style="background:{color}; padding:16px 20px; border-radius:14px; margin-bottom:10px; border-left:5px solid {color}; color:#0f172a;">
         <div style="font-weight:600; font-size:0.95rem; color:#0f172a;">{icon} {title}</div>
         <div style="font-size:0.85rem; color:#334155; margin-top:4px;">{text}</div>
     </div>
@@ -297,14 +273,14 @@ def rec_card(priority, icon, text):
     bg = '#fef2f2' if 'PRIORITAS' in priority else '#fffbeb'
     border = '#ef4444' if 'PRIORITAS' in priority else '#f59e0b'
     st.markdown(f"""
-    <div style="background:{bg}; padding:12px 16px; border-radius:12px; border-left:5px solid {border}; margin:6px 0;">
+    <div style="background:{bg}; padding:12px 16px; border-radius:12px; border-left:5px solid {border}; margin:6px 0; color:#1e293b;">
         <span style="font-weight:600; font-size:0.85rem;">{priority}</span> 
         <span style="font-size:1rem;">{icon}</span> 
         <span style="font-size:0.9rem; color:#1e293b;">{text}</span>
     </div>
     """, unsafe_allow_html=True)
 
-# ==================== CHART FUNCTIONS ====================
+# ==================== CHART FUNCTIONS (TRANSPARENT & ADAPTIVE) ====================
 def plot_tren_generic(df_target, title="Tren Bulanan", color="#2563eb"):
     if df_target.empty or 'Month_Num' not in df_target.columns:
         return None
@@ -322,10 +298,10 @@ def plot_tren_generic(df_target, title="Tren Bulanan", color="#2563eb"):
     )
     fig.update_traces(line=dict(width=3), marker=dict(size=10))
     fig.update_layout(
-        plot_bgcolor='white', paper_bgcolor='white',
+        plot_bgcolor='rgba(0,0,0,0)', paper_bgcolor='rgba(0,0,0,0)',
         font=dict(family='Inter', size=12),
         xaxis=dict(showgrid=False),
-        yaxis=dict(showgrid=True, gridcolor='#e2e8f0', gridwidth=0.5, range=[0, max_val * 1.35]),
+        yaxis=dict(showgrid=True, gridcolor='rgba(150,150,150,0.2)', gridwidth=0.5, range=[0, max_val * 1.35]),
         hovermode='x unified',
         margin=dict(l=20, r=20, t=40, b=20)
     )
@@ -337,7 +313,7 @@ def plot_tren_generic(df_target, title="Tren Bulanan", color="#2563eb"):
             text=f"🔥 {row['Total']}" if is_max else str(row['Total']),
             showarrow=is_max, arrowhead=1, arrowcolor=color,
             yshift=14 if is_max else 10,
-            font=dict(size=12 if is_max else 11, weight='bold', color=color if is_max else '#0f172a'),
+            font=dict(size=12 if is_max else 11, weight='bold'),
             bgcolor='#fee2e2' if is_max and color=='#ef4444' else ('#fef3c7' if is_max and color=='#f59e0b' else None),
             bordercolor=color if is_max else None, borderwidth=1 if is_max else 0
         )
@@ -387,13 +363,13 @@ def plot_weekly_trend_with_trendline(df_fatigue):
 
     fig.update_layout(
         title='📊 Tren Temuan Fatigue Mingguan (Week 1–52) + Garis Tren',
-        plot_bgcolor='white', paper_bgcolor='white',
+        plot_bgcolor='rgba(0,0,0,0)', paper_bgcolor='rgba(0,0,0,0)',
         font=dict(family='Inter', size=12),
         xaxis=dict(
-            title="Minggu Ke- (Week)", showgrid=True, gridcolor='#edf2f7',
+            title="Minggu Ke- (Week)", showgrid=True, gridcolor='rgba(150,150,150,0.2)',
             dtick=1, rangeslider=dict(visible=True)
         ),
-        yaxis=dict(title="Jumlah Temuan", showgrid=True, gridcolor='#e2e8f0'),
+        yaxis=dict(title="Jumlah Temuan", showgrid=True, gridcolor='rgba(150,150,150,0.2)'),
         hovermode='x unified',
         legend=dict(orientation='h', yanchor='bottom', y=1.02, xanchor='center', x=0.5),
         margin=dict(l=20, r=20, t=50, b=20)
@@ -416,10 +392,10 @@ def plot_shift_comparison(df_fatigue):
     )
     fig.update_traces(line=dict(width=2.5), marker=dict(size=8))
     fig.update_layout(
-        plot_bgcolor='white', paper_bgcolor='white',
+        plot_bgcolor='rgba(0,0,0,0)', paper_bgcolor='rgba(0,0,0,0)',
         font=dict(family='Inter', size=12),
         xaxis=dict(showgrid=False),
-        yaxis=dict(showgrid=True, gridcolor='#e2e8f0', gridwidth=0.5),
+        yaxis=dict(showgrid=True, gridcolor='rgba(150,150,150,0.2)', gridwidth=0.5),
         hovermode='x unified',
         legend=dict(orientation='h', yanchor='bottom', y=1.02, xanchor='center', x=0.5),
         margin=dict(l=20, r=20, t=40, b=20)
@@ -441,9 +417,9 @@ def plot_alarm_distribution(df_fatigue):
     )
     fig.update_traces(textposition='outside', textfont=dict(size=12, weight='bold'))
     fig.update_layout(
-        plot_bgcolor='white', paper_bgcolor='white',
+        plot_bgcolor='rgba(0,0,0,0)', paper_bgcolor='rgba(0,0,0,0)',
         font=dict(family='Inter', size=12),
-        xaxis=dict(showgrid=True, gridcolor='#e2e8f0', gridwidth=0.5),
+        xaxis=dict(showgrid=True, gridcolor='rgba(150,150,150,0.2)', gridwidth=0.5),
         yaxis=dict(showgrid=False),
         margin=dict(l=20, r=20, t=40, b=20),
         showlegend=False
@@ -487,10 +463,10 @@ def plot_jam_distribution(df_fatigue, order_2h):
     )
     
     fig.update_layout(
-        plot_bgcolor='white', paper_bgcolor='white',
+        plot_bgcolor='rgba(0,0,0,0)', paper_bgcolor='rgba(0,0,0,0)',
         font=dict(family='Inter', size=12),
         xaxis=dict(showgrid=False, tickangle=45),
-        yaxis=dict(showgrid=True, gridcolor='#e2e8f0', gridwidth=0.5, range=[0, max_val * 1.35]),
+        yaxis=dict(showgrid=True, gridcolor='rgba(150,150,150,0.2)', gridwidth=0.5, range=[0, max_val * 1.35]),
         margin=dict(l=20, r=20, t=50, b=20),
         showlegend=False
     )
@@ -515,9 +491,9 @@ def plot_hotspot(df, label="Fatigue"):
     )
     fig.update_traces(marker_color=colors, textposition='outside', textfont=dict(size=11, weight='bold'))
     fig.update_layout(
-        plot_bgcolor='white', paper_bgcolor='white',
+        plot_bgcolor='rgba(0,0,0,0)', paper_bgcolor='rgba(0,0,0,0)',
         font=dict(family='Inter', size=12),
-        xaxis=dict(showgrid=True, gridcolor='#e2e8f0', gridwidth=0.5, range=[0, max_val * 1.2]),
+        xaxis=dict(showgrid=True, gridcolor='rgba(150,150,150,0.2)', gridwidth=0.5, range=[0, max_val * 1.2]),
         yaxis=dict(showgrid=False),
         margin=dict(l=20, r=20, t=40, b=20),
         showlegend=False, height=400
@@ -546,10 +522,10 @@ def plot_demografi(df_fatigue, df_overspeed, labels):
     ))
     fig.update_layout(
         title='Demografi Umur Driver (Rentang 5 Tahun)',
-        plot_bgcolor='white', paper_bgcolor='white',
+        plot_bgcolor='rgba(0,0,0,0)', paper_bgcolor='rgba(0,0,0,0)',
         font=dict(family='Inter', size=12),
         xaxis=dict(showgrid=False, title="Rentang Umur (Tahun)"),
-        yaxis=dict(showgrid=True, gridcolor='#e2e8f0', gridwidth=0.5),
+        yaxis=dict(showgrid=True, gridcolor='rgba(150,150,150,0.2)', gridwidth=0.5),
         barmode='group',
         legend=dict(orientation='h', yanchor='bottom', y=1.02, xanchor='center', x=0.5),
         margin=dict(l=20, r=20, t=40, b=20)
@@ -573,9 +549,9 @@ def plot_top_driver(df_fatigue):
     )
     fig.update_traces(marker_color=colors, textposition='outside', textfont=dict(size=10, weight='bold'))
     fig.update_layout(
-        plot_bgcolor='white', paper_bgcolor='white',
+        plot_bgcolor='rgba(0,0,0,0)', paper_bgcolor='rgba(0,0,0,0)',
         font=dict(family='Inter', size=11),
-        xaxis=dict(showgrid=True, gridcolor='#e2e8f0', gridwidth=0.5, range=[0, max_val * 1.2]),
+        xaxis=dict(showgrid=True, gridcolor='rgba(150,150,150,0.2)', gridwidth=0.5, range=[0, max_val * 1.2]),
         yaxis=dict(showgrid=False),
         margin=dict(l=20, r=20, t=40, b=20),
         showlegend=False, height=500
@@ -606,7 +582,7 @@ def plot_heatmap(df_fatigue, order_months, top_n=15):
         text_auto=True, color_continuous_scale='YlOrRd', aspect='auto'
     )
     fig.update_layout(
-        plot_bgcolor='white', paper_bgcolor='white',
+        plot_bgcolor='rgba(0,0,0,0)', paper_bgcolor='rgba(0,0,0,0)',
         font=dict(family='Inter', size=11),
         xaxis=dict(side='bottom'), yaxis=dict(title='Driver'),
         margin=dict(l=20, r=20, t=40, b=20),
@@ -657,10 +633,10 @@ def plot_forecast(df_fatigue):
     ))
     fig.update_layout(
         title='Prediksi Tren 3 Bulan ke Depan',
-        plot_bgcolor='white', paper_bgcolor='white',
+        plot_bgcolor='rgba(0,0,0,0)', paper_bgcolor='rgba(0,0,0,0)',
         font=dict(family='Inter', size=12),
         xaxis=dict(showgrid=False),
-        yaxis=dict(showgrid=True, gridcolor='#e2e8f0', gridwidth=0.5),
+        yaxis=dict(showgrid=True, gridcolor='rgba(150,150,150,0.2)', gridwidth=0.5),
         hovermode='x unified',
         legend=dict(orientation='h', yanchor='bottom', y=1.02, xanchor='center', x=0.5),
         margin=dict(l=20, r=20, t=40, b=20)
@@ -699,10 +675,10 @@ def plot_fatigue_vs_overspeed(df_fatigue, df_overspeed):
     ))
     fig.update_layout(
         title='Fatigue vs Overspeed per Driver',
-        plot_bgcolor='white', paper_bgcolor='white',
+        plot_bgcolor='rgba(0,0,0,0)', paper_bgcolor='rgba(0,0,0,0)',
         font=dict(family='Inter', size=11),
         xaxis=dict(showgrid=False, tickangle=45),
-        yaxis=dict(showgrid=True, gridcolor='#e2e8f0', gridwidth=0.5),
+        yaxis=dict(showgrid=True, gridcolor='rgba(150,150,150,0.2)', gridwidth=0.5),
         barmode='group',
         legend=dict(orientation='h', yanchor='bottom', y=1.02, xanchor='center', x=0.5),
         margin=dict(l=20, r=20, t=40, b=20),
@@ -794,26 +770,26 @@ if uploaded_file is None:
     col1, col2, col3 = st.columns(3)
     with col1:
         st.markdown("""
-        <div style="background:white; padding:30px; border-radius:18px; text-align:center; border:1px solid #edf2f7;">
+        <div style="background:var(--background-secondary-color, white); padding:30px; border-radius:18px; text-align:center; border:1px solid var(--border-color, #edf2f7);">
             <div style="font-size:40px;">📊</div>
-            <div style="font-weight:600; color:#0f172a;">Analisis Lengkap</div>
-            <div style="font-size:0.85rem; color:#64748b;">Tren fatigue, overspeed, performa</div>
+            <div style="font-weight:600;">Analisis Lengkap</div>
+            <div style="font-size:0.85rem; opacity:0.8;">Tren fatigue, overspeed, performa</div>
         </div>
         """, unsafe_allow_html=True)
     with col2:
         st.markdown("""
-        <div style="background:white; padding:30px; border-radius:18px; text-align:center; border:1px solid #edf2f7;">
+        <div style="background:var(--background-secondary-color, white); padding:30px; border-radius:18px; text-align:center; border:1px solid var(--border-color, #edf2f7);">
             <div style="font-size:40px;">🗺️</div>
-            <div style="font-weight:600; color:#0f172a;">Spatial & Temporal</div>
-            <div style="font-size:0.85rem; color:#64748b;">Hotspot & pola waktu</div>
+            <div style="font-weight:600;">Spatial & Temporal</div>
+            <div style="font-size:0.85rem; opacity:0.8;">Hotspot & pola waktu</div>
         </div>
         """, unsafe_allow_html=True)
     with col3:
         st.markdown("""
-        <div style="background:white; padding:30px; border-radius:18px; text-align:center; border:1px solid #edf2f7;">
+        <div style="background:var(--background-secondary-color, white); padding:30px; border-radius:18px; text-align:center; border:1px solid var(--border-color, #edf2f7);">
             <div style="font-size:40px;">👥</div>
-            <div style="font-weight:600; color:#0f172a;">Driver & Fleet</div>
-            <div style="font-size:0.85rem; color:#64748b;">Demografi & performa</div>
+            <div style="font-weight:600;">Driver & Fleet</div>
+            <div style="font-size:0.85rem; opacity:0.8;">Demografi & performa</div>
         </div>
         """, unsafe_allow_html=True)
 else:
@@ -946,7 +922,7 @@ else:
                 # TAMPILKAN HASIL DARI MEMORI SESSION STATE
                 if st.session_state['res_eksekutif']:
                     st.markdown(f"""
-                    <div style="background:white; padding:20px; border-radius:16px; border-left:5px solid #2563eb; box-shadow:0 4px 15px rgba(0,0,0,0.05);">
+                    <div style="background:var(--background-secondary-color, white); padding:20px; border-radius:16px; border-left:5px solid #2563eb; box-shadow:0 4px 15px rgba(0,0,0,0.05);">
                         {st.session_state['res_eksekutif']}
                     </div>
                     """, unsafe_allow_html=True)
@@ -1061,7 +1037,7 @@ else:
                         # TAMPILKAN HASIL DARI MEMORI SESSION STATE
                         if st.session_state['res_jam']:
                             st.markdown(f"""
-                            <div style="background:white; padding:20px; border-radius:16px; border-left:5px solid #2563eb; box-shadow:0 4px 15px rgba(0,0,0,0.05);">
+                            <div style="background:var(--background-secondary-color, white); padding:20px; border-radius:16px; border-left:5px solid #2563eb; box-shadow:0 4px 15px rgba(0,0,0,0.05);">
                                 {st.session_state['res_jam']}
                             </div>
                             """, unsafe_allow_html=True)
@@ -1082,10 +1058,10 @@ else:
                         )
                         fig.update_traces(marker_color=colors_o, textposition='outside', textfont=dict(size=11, weight='bold'))
                         fig.update_layout(
-                            plot_bgcolor='white', paper_bgcolor='white',
+                            plot_bgcolor='rgba(0,0,0,0)', paper_bgcolor='rgba(0,0,0,0)',
                             font=dict(family='Inter', size=12),
                             xaxis=dict(showgrid=False, tickangle=45),
-                            yaxis=dict(showgrid=True, gridcolor='#e2e8f0', gridwidth=0.5, range=[0, max_o_val * 1.25]),
+                            yaxis=dict(showgrid=True, gridcolor='rgba(150,150,150,0.2)', gridwidth=0.5, range=[0, max_o_val * 1.25]),
                             margin=dict(l=20, r=20, t=40, b=20),
                             showlegend=False
                         )
@@ -1139,9 +1115,9 @@ else:
                         )
                         fig.update_traces(marker_color=colors_u, textposition='outside', textfont=dict(size=11, weight='bold'))
                         fig.update_layout(
-                            plot_bgcolor='white', paper_bgcolor='white',
+                            plot_bgcolor='rgba(0,0,0,0)', paper_bgcolor='rgba(0,0,0,0)',
                             font=dict(family='Inter', size=11),
-                            xaxis=dict(showgrid=True, gridcolor='#e2e8f0', gridwidth=0.5, range=[0, max_u * 1.2]),
+                            xaxis=dict(showgrid=True, gridcolor='rgba(150,150,150,0.2)', gridwidth=0.5, range=[0, max_u * 1.2]),
                             yaxis=dict(showgrid=False),
                             margin=dict(l=20, r=20, t=40, b=20),
                             showlegend=False, height=450
@@ -1189,7 +1165,7 @@ else:
                         # TAMPILKAN HASIL DARI MEMORI SESSION STATE
                         if st.session_state['res_driver']:
                             st.markdown(f"""
-                            <div style="background:white; padding:20px; border-radius:16px; border-left:5px solid #2563eb; box-shadow:0 4px 15px rgba(0,0,0,0.05);">
+                            <div style="background:var(--background-secondary-color, white); padding:20px; border-radius:16px; border-left:5px solid #2563eb; box-shadow:0 4px 15px rgba(0,0,0,0.05);">
                                 {st.session_state['res_driver']}
                             </div>
                             """, unsafe_allow_html=True)
