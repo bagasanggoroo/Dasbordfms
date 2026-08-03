@@ -756,7 +756,7 @@ with st.sidebar:
     st.markdown("---")
     st.caption("© 2026 PT. Bumiputera Maha Terpercaya")
 
-# ==================== HEADER DENGAN LOGO ====================
+# ==================== HEADER DENGAN INTEGRASI LOGO ====================
 header_with_logo(
     "🚛 Driver Management System",
     "PT. Bumiputera Maha Terpercaya<br>Monitoring Fatigue • Overspeed • Safety Analytics",
@@ -770,26 +770,26 @@ if uploaded_file is None:
     col1, col2, col3 = st.columns(3)
     with col1:
         st.markdown("""
-        <div style="background:var(--background-secondary-color, white); padding:30px; border-radius:18px; text-align:center; border:1px solid var(--border-color, #edf2f7);">
+        <div style="background:white; padding:30px; border-radius:18px; text-align:center; border:1px solid #edf2f7; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
             <div style="font-size:40px;">📊</div>
-            <div style="font-weight:600;">Analisis Lengkap</div>
-            <div style="font-size:0.85rem; opacity:0.8;">Tren fatigue, overspeed, performa</div>
+            <div style="font-weight:700; color:#0f172a; font-size:1.1rem; margin-top:8px;">Analisis Lengkap</div>
+            <div style="font-size:0.85rem; color:#475569; margin-top:4px;">Tren fatigue, overspeed, performa</div>
         </div>
         """, unsafe_allow_html=True)
     with col2:
         st.markdown("""
-        <div style="background:var(--background-secondary-color, white); padding:30px; border-radius:18px; text-align:center; border:1px solid var(--border-color, #edf2f7);">
+        <div style="background:white; padding:30px; border-radius:18px; text-align:center; border:1px solid #edf2f7; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
             <div style="font-size:40px;">🗺️</div>
-            <div style="font-weight:600;">Spatial & Temporal</div>
-            <div style="font-size:0.85rem; opacity:0.8;">Hotspot & pola waktu</div>
+            <div style="font-weight:700; color:#0f172a; font-size:1.1rem; margin-top:8px;">Spatial & Temporal</div>
+            <div style="font-size:0.85rem; color:#475569; margin-top:4px;">Hotspot & pola waktu</div>
         </div>
         """, unsafe_allow_html=True)
     with col3:
         st.markdown("""
-        <div style="background:var(--background-secondary-color, white); padding:30px; border-radius:18px; text-align:center; border:1px solid var(--border-color, #edf2f7);">
+        <div style="background:white; padding:30px; border-radius:18px; text-align:center; border:1px solid #edf2f7; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
             <div style="font-size:40px;">👥</div>
-            <div style="font-weight:600;">Driver & Fleet</div>
-            <div style="font-size:0.85rem; opacity:0.8;">Demografi & performa</div>
+            <div style="font-weight:700; color:#0f172a; font-size:1.1rem; margin-top:8px;">Driver & Fleet</div>
+            <div style="font-size:0.85rem; color:#475569; margin-top:4px;">Demografi & performa</div>
         </div>
         """, unsafe_allow_html=True)
 else:
