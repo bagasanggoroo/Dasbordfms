@@ -702,17 +702,11 @@ def plot_fatigue_vs_overspeed(df_fatigue, df_overspeed):
     )
     return fig
 
-# FUNGSI INTEGRASI GEMINI AI DENGAN MULTI-MODEL FALLBACK (SDK google-genai)
+# FUNGSI INTEGRASI GEMINI AI DENGAN PENYESUAIAN API VERSION (v1alpha & LIST MODELS AUTOMATION)
 def generate_gemini_analysis(api_key, df_fatigue, df_overspeed, total_alarm, top_loc, top_jam):
     try:
-        client = genai.Client(api_key=api_key)
-        
-        # Daftar model yang otomatis dicoba berurutan
-        candidate_models = [
-            'gemini-2.0-flash',
-            'gemini-1.5-flash',
-            'gemini-1.5-pro'
-        ]
+        # Gunakan v1alpha agar mendukung model terbaru
+        client = genai.Client(api_key=api_key, http_options={'api_version': 'v1alpha'})
         
         total_f = len(df_fatigue)
         total_o = len(df_overspeed)
@@ -733,22 +727,41 @@ def generate_gemini_analysis(api_key, df_fatigue, df_overspeed, total_alarm, top
         Berikan poin-poin analisis singkat mengenai potensi risiko operasional serta 3 rekomendasi pencegahan praktis untuk tim K3/Safety.
         """
         
-        last_error = ""
-        for model_id in candidate_models:
-            try:
-                response = client.models.generate_content(
-                    model=model_id,
-                    contents=prompt,
-                )
-                return response.text
-            except Exception as e:
-                last_error = str(e)
-                continue
-                
-        return f"❌ Gagal menghasilkan analisis AI dari semua model. Error terakhir: {last_error}"
+        # Cari model yang benar-benar aktif di akun user secara otomatis
+        target_model = None
+        try:
+            active_models = [m.name for m in client.models.list() if 'generateContent' in m.supported_actions]
+            # Prioritaskan model flash
+            for m_name in active_models:
+                if 'flash' in m_name:
+                    target_model = m_name
+                    break
+            if not target_model and active_models:
+                target_model = active_models[0]
+        except:
+            target_model = "gemini-2.0-flash-exp"
+
+        if not target_model:
+            target_model = "gemini-1.5-flash-latest"
+
+        # Pemanggilan model AI
+        response = client.models.generate_content(
+            model=target_model,
+            contents=prompt,
+        )
+        return response.text
         
     except Exception as e:
-        return f"❌ Gagal mengonfigurasi Gemini API: {str(e)}"
+        # Fallback cadangan menggunakan format model standar jika cara pertama gagal
+        try:
+            client_fallback = genai.Client(api_key=api_key)
+            response = client_fallback.models.generate_content(
+                model='gemini-2.0-flash-exp',
+                contents=prompt,
+            )
+            return response.text
+        except Exception as e2:
+            return f"❌ Gagal menghasilkan analisis AI: {str(e2)}"
 
 # ==================== SIDEBAR ====================
 with st.sidebar:
