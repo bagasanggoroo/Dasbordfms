@@ -900,7 +900,7 @@ else:
                     else:
                         insight("#dbeafe", "Unit dengan Temuan Berulang", f"{top_unit} ({top_val} temuan)")
 
-            # SEKSI AI NARRATIVE GENERATOR (LAPORAN EKSEKUTIF TANPA HEADER MEMO)
+            # SEKSI AI NARRATIVE GENERATOR (LAPORAN EKSEKUTIF)
             st.markdown("#### 🤖 Laporan Narasi Otomatis (Gemini AI)")
             if user_api_key:
                 if st.button("✨ Generate Narasi Laporan Eksekutif dengan Gemini AI"):
@@ -925,24 +925,24 @@ else:
                         - Jam Puncak Rawan Fatigue: {top_jam}
                         - Driver Berisiko Tertinggi: {top_driver_name} ({top_driver_val} kasus)
 
-                        LANGSUNG TAMPILKAN FORMAT BERIKUT (Gunakan tag HTML <b> untuk judul):
+                        LANGSUNG TAMPILKAN FORMAT BERIKUT:
 
-                        <b>1. RINGKASAN SITUASI & DIAGNOSIS RISIKO UTAMA</b>
-                           - Uraikan ringkasan temuan FMS, bahaya micro-sleep pada jam kritis & lokasi hotspot, serta dampaknya pada operasional tambang.
+                        <b>📌 1. RINGKASAN SITUASI & DIAGNOSIS RISIKO UTAMA</b><br>
+                        Uraikan ringkasan temuan FMS, bahaya micro-sleep pada jam kritis & lokasi hotspot, serta dampaknya secara singkat.
 
-                        <b>2. ANALISIS POTENSI RISIKO OPERASIONAL</b>
-                           - Risiko Fatalitas (Collision / Run-off-road).
-                           - Risiko Geografis & Titik Hotspot.
-                           - Risiko Human Error & Driver Berisiko Tinggi.
+                        <b>🎯 2. ANALISIS POTENSI RISIKO OPERASIONAL</b><br>
+                        - Risiko Fatalitas (Collision / Run-off-road).<br>
+                        - Risiko Geografis & Titik Hotspot.<br>
+                        - Risiko Human Error & Driver Berisiko Tinggi.
 
-                        <b>3. REKOMENDASI PENCEGAHAN PRAKTIS UNTUK TIM K3/SAFETY</b>
-                           - 3 Langkah taktis pencegahan utama yang siap dieksekusi minggu ini.
+                        <b>🚀 3. REKOMENDASI PENCEGAHAN PRAKTIS UNTUK TIM K3/SAFETY</b><br>
+                        Berikan 3 langkah taktis pencegahan utama yang siap dieksekusi minggu ini.
 
                         Gunakan bahasa yang padat, lugas, profesional, dan berorientasi pada pencegahan kecelakaan.
                         """
                         st.session_state['res_eksekutif'] = generate_gemini_analysis(user_api_key, prompt_eksekutif)
                 
-                # TAMPILKAN HASIL DARI MEMORI SESSION STATE (DENGAN st.markdown agar HTML <b> terbaca)
+                # TAMPILKAN HASIL DARI MEMORI SESSION STATE
                 if st.session_state['res_eksekutif']:
                     st.markdown(f"""
                     <div style="background:white; padding:20px; border-radius:16px; border-left:5px solid #2563eb; box-shadow:0 4px 15px rgba(0,0,0,0.05);">
@@ -1037,28 +1037,26 @@ else:
                                 Tolong berikan **SOLUSI PROAKTIF & STRATEGI PENCEGAHAN TEMPORAL** secara langsung tanpa basa-basi. 
 
                                 DILARANG MEMBUAT:
-                                - Header Memorandum (seperti KEPADA, DARI, PERIHAL, dll).
-                                - Pembuka paragraf formalitas.
-                                - Penutup/Tanda Tangan/Hormat Saya di akhir.
+                                - Header Memorandum, pembuka formalitas, maupun tanda tangan di akhir.
 
-                                LANGSUNG TAMPILKAN FORMAT BERIKUT (Gunakan tag HTML <b> untuk judul):
+                                LANGSUNG TAMPILKAN FORMAT BERIKUT:
 
-                                <b>1. ANALISIS POLA WAKTU & RITME BIOLOGIS (BASED ON DATA)</b>
-                                   - Uraikan kecenderungan jam kritis berdasarkan data dan risiko operasionalnya secara singkat.
+                                <b>📌 1. ANALISIS POLA WAKTU & RITME BIOLOGIS (BASED ON DATA)</b><br>
+                                Uraikan kecenderungan jam kritis berdasarkan data dan risiko operasionalnya secara singkat.
 
-                                <b>2. ARAH STRATEGI & PENCEGAHAN BERKELANJUTAN (STRATEGIC PREVENTIVE ACTIONS)</b>
-                                   - <b>Rekayasa Jam Kerja & Istirahat (Shift Engineering)</b>: Arah kebijakan penetapan jam istirahat resmi (*Scheduled Fatigue Break*) atau evaluasi durasi Shift Malam.
-                                   - <b>Penguatan Program Internal BMT</b>: Strategi pengoptimalan penggunaan Intercom Web FMS dan Senam Fatigue di Pool BMT.
-                                   - <b>Manajemen Sarana & Lingkungan Kerja</b>: Rekomendasi penerangan jalur, rest area, dan dukungan nutrisi.
+                                <b>🎯 2. ARAH STRATEGI & PENCEGAHAN BERKELANJUTAN</b><br>
+                                - <b>Shift Engineering</b>: Arah kebijakan penetapan jam istirahat resmi.<br>
+                                - <b>Program Internal BMT</b>: Strategi pengoptimalan Intercom Web FMS dan Senam Fatigue.<br>
+                                - <b>Manajemen Sarana</b>: Rekomendasi penerangan jalur dan rest area.
 
-                                <b>3. REKOMENDASI TANGGUNG JAWAB TIM K3/SAFETY</b>
-                                   - Langkah konkret yang harus diambil Tim Safety dalam 1-2 minggu ke depan.
+                                <b>🚀 3. REKOMENDASI TANGGUNG JAWAB TIM K3/SAFETY</b><br>
+                                Langkah konkret yang harus diambil Tim Safety dalam 1-2 minggu ke depan.
 
                                 Gunakan bahasa yang padat, lugas, langsung ke solusi, dan profesional.
                                 """
                                 st.session_state['res_jam'] = generate_gemini_analysis(user_api_key, prompt_jam_rawan)
                         
-                        # TAMPILKAN HASIL DARI MEMORI SESSION STATE MENGGUNAKAN st.markdown
+                        # TAMPILKAN HASIL DARI MEMORI SESSION STATE
                         if st.session_state['res_jam']:
                             st.markdown(f"""
                             <div style="background:white; padding:20px; border-radius:16px; border-left:5px solid #2563eb; box-shadow:0 4px 15px rgba(0,0,0,0.05);">
@@ -1160,34 +1158,32 @@ else:
                                 
                                 prompt_top_driver = f"""
                                 Anda adalah Senior Safety Specialist operasional tambang PT. Bumiputera Maha Terpercaya (BMT).
-                                Berdasarkan rekapitulasi data driver berisiko tinggi berikut (tipe alarm 'Mata Tertutup' = Microsleep, 'Mengantuk' = Menguap):
+                                Berdasarkan rekapitulasi data driver berisiko tinggi berikut:
                                 {driver_summary}
 
                                 Tolong berikan **SOLUSI PROAKTIF & ARAH TINDAKAN PENCEGAHAN DRIVER** secara langsung tanpa basa-basi.
 
                                 DILARANG MEMBUAT:
-                                - Header Memorandum (seperti KEPADA, DARI, PERIHAL, dll).
-                                - Pembuka paragraf formalitas.
-                                - Penutup/Tanda Tangan/Hormat Saya di akhir.
+                                - Header Memorandum, pembuka formalitas, maupun tanda tangan di akhir.
 
-                                LANGSUNG TAMPILKAN FORMAT BERIKUT (Gunakan tag HTML <b> untuk judul):
+                                LANGSUNG TAMPILKAN FORMAT BERIKUT:
 
-                                <b>1. ANALISIS KECENDERUNGAN RISIKO INDIVIDU</b>
-                                   - Petakan pola risiko utama dari kumpulan driver berisiko tinggi ini secara singkat.
+                                <b>📌 1. ANALISIS KECENDERUNGAN RISIKO INDIVIDU</b><br>
+                                Petakan pola risiko utama dari kumpulan driver berisiko tinggi ini secara singkat.
 
-                                <b>2. ARAH STRATEGI & PENCEGAHAN BERKELANJUTAN</b>
-                                   - <b>Pencegahan Lingkungan & Mess</b>: Evaluasi tempat tinggal, kontrol jam istirahat sebelum shift.
-                                   - <b>Pencegahan Medis & Screening (Fit to Work)</b>: MCU spesifik (skrining Sleep Apnea) untuk driver berulang.
-                                   - <b>Pencegahan Operasional</b>: Pembatasan jam kerja kumulatif dan rotasi shift.
+                                <b>🎯 2. ARAH STRATEGI & PENCEGAHAN BERKELANJUTAN</b><br>
+                                - <b>Pencegahan Lingkungan & Mess</b>: Evaluasi tempat tinggal dan kontrol jam istirahat.<br>
+                                - <b>Pencegahan Medis (Fit to Work)</b>: Skrining kesehatan/Sleep Apnea untuk driver berulang.<br>
+                                - <b>Pencegahan Operasional</b>: Pembatasan jam kerja kumulatif dan rotasi shift.
 
-                                <b>3. REKOMENDASI ACTION PLAN TIM K3/HSE</b>
-                                   - Langkah konkret Tim HSE & HR dalam 1-2 minggu ke depan.
+                                <b>🚀 3. REKOMENDASI ACTION PLAN TIM K3/HSE</b><br>
+                                Langkah konkret Tim HSE & HR dalam 1-2 minggu ke depan.
 
                                 Gunakan bahasa yang padat, lugas, langsung ke solusi, dan profesional.
                                 """
                                 st.session_state['res_driver'] = generate_gemini_analysis(user_api_key, prompt_top_driver)
                         
-                        # TAMPILKAN HASIL DARI MEMORI SESSION STATE MENGGUNAKAN st.markdown
+                        # TAMPILKAN HASIL DARI MEMORI SESSION STATE
                         if st.session_state['res_driver']:
                             st.markdown(f"""
                             <div style="background:white; padding:20px; border-radius:16px; border-left:5px solid #2563eb; box-shadow:0 4px 15px rgba(0,0,0,0.05);">
