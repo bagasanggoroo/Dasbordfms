@@ -702,7 +702,7 @@ def plot_fatigue_vs_overspeed(df_fatigue, df_overspeed):
     )
     return fig
 
-# FUNGSI INTEGRASI GEMINI AI DENGAN DUKUNGAN GEMINI 1.5 FLASH STABIL
+# FUNGSI INTEGRASI GEMINI AI DENGAN DETEKSI MODEL OTOMATIS
 def generate_gemini_analysis(api_key, df_fatigue, df_overspeed, total_alarm, top_loc, top_jam):
     try:
         genai.configure(api_key=api_key)
@@ -726,8 +726,27 @@ def generate_gemini_analysis(api_key, df_fatigue, df_overspeed, total_alarm, top
         Berikan poin-poin analisis singkat mengenai potensi risiko operasional serta 3 rekomendasi pencegahan praktis untuk tim K3/Safety.
         """
         
-        # Penggunaan Model Gemini Standar yang Terjamin Aktif di API v1
-        model = genai.GenerativeModel("gemini-1.5-flash")
+        # 1. Cari daftar model yang benar-benar didukung dan aktif untuk API Key ini
+        available_models = [
+            m.name for m in genai.list_models() 
+            if 'generateContent' in m.supported_generation_methods
+        ]
+        
+        if not available_models:
+            return "❌ API Key valid, tetapi tidak ada model AI yang aktif pada akun/project Google Cloud ini. Pastikan Generative Language API sudah diaktifkan."
+            
+        # 2. Utamakan model versi 'flash' atau 'pro', jika tidak ada pakai model pertama yang tersedia
+        selected_model_name = None
+        for m in available_models:
+            if 'flash' in m or 'pro' in m:
+                selected_model_name = m
+                break
+                
+        if not selected_model_name:
+            selected_model_name = available_models[0]
+
+        # 3. Inisialisasi dan panggil model yang ditemukan
+        model = genai.GenerativeModel(selected_model_name)
         response = model.generate_content(prompt)
         return response.text
         
