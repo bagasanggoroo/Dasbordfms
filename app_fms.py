@@ -925,24 +925,24 @@ else:
                         - Jam Puncak Rawan Fatigue: {top_jam}
                         - Driver Berisiko Tertinggi: {top_driver_name} ({top_driver_val} kasus)
 
-                        LANGSUNG TAMPILKAN FORMAT BERIKUT:
+                        LANGSUNG TAMPILKAN FORMAT BERIKUT (Gunakan tag HTML <b> untuk judul):
 
-                        📌 **1. RINGKASAN SITUASI & DIAGNOSIS RISIKO UTAMA**
+                        <b>1. RINGKASAN SITUASI & DIAGNOSIS RISIKO UTAMA</b>
                            - Uraikan ringkasan temuan FMS, bahaya micro-sleep pada jam kritis & lokasi hotspot, serta dampaknya pada operasional tambang.
 
-                        🎯 **2. ANALISIS POTENSI RISIKO OPERASIONAL**
+                        <b>2. ANALISIS POTENSI RISIKO OPERASIONAL</b>
                            - Risiko Fatalitas (Collision / Run-off-road).
                            - Risiko Geografis & Titik Hotspot.
                            - Risiko Human Error & Driver Berisiko Tinggi.
 
-                        🚀 **3. REKOMENDASI PENCEGAHAN PRAKTIS UNTUK TIM K3/SAFETY**
+                        <b>3. REKOMENDASI PENCEGAHAN PRAKTIS UNTUK TIM K3/SAFETY</b>
                            - 3 Langkah taktis pencegahan utama yang siap dieksekusi minggu ini.
 
                         Gunakan bahasa yang padat, lugas, profesional, dan berorientasi pada pencegahan kecelakaan.
                         """
                         st.session_state['res_eksekutif'] = generate_gemini_analysis(user_api_key, prompt_eksekutif)
                 
-                # TAMPILKAN HASIL DARI MEMORI SESSION STATE
+                # TAMPILKAN HASIL DARI MEMORI SESSION STATE (DENGAN st.markdown agar HTML <b> terbaca)
                 if st.session_state['res_eksekutif']:
                     st.markdown(f"""
                     <div style="background:white; padding:20px; border-radius:16px; border-left:5px solid #2563eb; box-shadow:0 4px 15px rgba(0,0,0,0.05);">
@@ -1041,26 +1041,30 @@ else:
                                 - Pembuka paragraf formalitas.
                                 - Penutup/Tanda Tangan/Hormat Saya di akhir.
 
-                                LANGSUNG TAMPILKAN FORMAT BERIKUT:
+                                LANGSUNG TAMPILKAN FORMAT BERIKUT (Gunakan tag HTML <b> untuk judul):
 
-                                📌 **1. ANALISIS POLA WAKTU & RITME BIOLOGIS (BASED ON DATA)**
+                                <b>1. ANALISIS POLA WAKTU & RITME BIOLOGIS (BASED ON DATA)</b>
                                    - Uraikan kecenderungan jam kritis berdasarkan data dan risiko operasionalnya secara singkat.
 
-                                🎯 **2. ARAH STRATEGI & PENCEGAHAN BERKELANJUTAN (STRATEGIC PREVENTIVE ACTIONS)**
-                                   - **Rekayasa Jam Kerja & Istirahat (Shift Engineering)**: Arah kebijakan penetapan jam istirahat resmi (*Scheduled Fatigue Break*) atau evaluasi durasi Shift Malam.
-                                   - **Penguatan Program Internal BMT**: Strategi pengoptimalan penggunaan Intercom Web FMS dan Senam Fatigue di Pool BMT.
-                                   - **Manajemen Sarana & Lingkungan Kerja**: Rekomendasi penerangan jalur, rest area, dan dukungan nutrisi.
+                                <b>2. ARAH STRATEGI & PENCEGAHAN BERKELANJUTAN (STRATEGIC PREVENTIVE ACTIONS)</b>
+                                   - <b>Rekayasa Jam Kerja & Istirahat (Shift Engineering)</b>: Arah kebijakan penetapan jam istirahat resmi (*Scheduled Fatigue Break*) atau evaluasi durasi Shift Malam.
+                                   - <b>Penguatan Program Internal BMT</b>: Strategi pengoptimalan penggunaan Intercom Web FMS dan Senam Fatigue di Pool BMT.
+                                   - <b>Manajemen Sarana & Lingkungan Kerja</b>: Rekomendasi penerangan jalur, rest area, dan dukungan nutrisi.
 
-                                🚀 **3. REKOMENDASI TANGGUNG JAWAB TIM K3/SAFETY**
+                                <b>3. REKOMENDASI TANGGUNG JAWAB TIM K3/SAFETY</b>
                                    - Langkah konkret yang harus diambil Tim Safety dalam 1-2 minggu ke depan.
 
                                 Gunakan bahasa yang padat, lugas, langsung ke solusi, dan profesional.
                                 """
                                 st.session_state['res_jam'] = generate_gemini_analysis(user_api_key, prompt_jam_rawan)
                         
-                        # TAMPILKAN HASIL DARI MEMORI SESSION STATE
+                        # TAMPILKAN HASIL DARI MEMORI SESSION STATE MENGGUNAKAN st.markdown
                         if st.session_state['res_jam']:
-                            st.info(st.session_state['res_jam'])
+                            st.markdown(f"""
+                            <div style="background:white; padding:20px; border-radius:16px; border-left:5px solid #2563eb; box-shadow:0 4px 15px rgba(0,0,0,0.05);">
+                                {st.session_state['res_jam']}
+                            </div>
+                            """, unsafe_allow_html=True)
                 
                 st.markdown("---")
                 
@@ -1166,26 +1170,30 @@ else:
                                 - Pembuka paragraf formalitas.
                                 - Penutup/Tanda Tangan/Hormat Saya di akhir.
 
-                                LANGSUNG TAMPILKAN FORMAT BERIKUT:
+                                LANGSUNG TAMPILKAN FORMAT BERIKUT (Gunakan tag HTML <b> untuk judul):
 
-                                📌 **1. ANALISIS KECENDERUNGAN RISIKO INDIVIDU**
+                                <b>1. ANALISIS KECENDERUNGAN RISIKO INDIVIDU</b>
                                    - Petakan pola risiko utama dari kumpulan driver berisiko tinggi ini secara singkat.
 
-                                🎯 **2. ARAH STRATEGI & PENCEGAHAN BERKELANJUTAN**
-                                   - **Pencegahan Lingkungan & Mess**: Evaluasi tempat tinggal, kontrol jam istirahat sebelum shift.
-                                   - **Pencegahan Medis & Screening (Fit to Work)**: MCU spesifik (skrining Sleep Apnea) untuk driver berulang.
-                                   - **Pencegahan Operasional**: Pembatasan jam kerja kumulatif dan rotasi shift.
+                                <b>2. ARAH STRATEGI & PENCEGAHAN BERKELANJUTAN</b>
+                                   - <b>Pencegahan Lingkungan & Mess</b>: Evaluasi tempat tinggal, kontrol jam istirahat sebelum shift.
+                                   - <b>Pencegahan Medis & Screening (Fit to Work)</b>: MCU spesifik (skrining Sleep Apnea) untuk driver berulang.
+                                   - <b>Pencegahan Operasional</b>: Pembatasan jam kerja kumulatif dan rotasi shift.
 
-                                🚀 **3. REKOMENDASI ACTION PLAN TIM K3/HSE**
+                                <b>3. REKOMENDASI ACTION PLAN TIM K3/HSE</b>
                                    - Langkah konkret Tim HSE & HR dalam 1-2 minggu ke depan.
 
                                 Gunakan bahasa yang padat, lugas, langsung ke solusi, dan profesional.
                                 """
                                 st.session_state['res_driver'] = generate_gemini_analysis(user_api_key, prompt_top_driver)
                         
-                        # TAMPILKAN HASIL DARI MEMORI SESSION STATE
+                        # TAMPILKAN HASIL DARI MEMORI SESSION STATE MENGGUNAKAN st.markdown
                         if st.session_state['res_driver']:
-                            st.success(st.session_state['res_driver'])
+                            st.markdown(f"""
+                            <div style="background:white; padding:20px; border-radius:16px; border-left:5px solid #2563eb; box-shadow:0 4px 15px rgba(0,0,0,0.05);">
+                                {st.session_state['res_driver']}
+                            </div>
+                            """, unsafe_allow_html=True)
 
                 st.markdown("---")
                 
