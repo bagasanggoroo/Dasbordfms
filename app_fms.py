@@ -631,7 +631,7 @@ def plot_forecast(df_fatigue):
     x_mean = np.mean(x)
     y_mean = np.mean(y)
     numerator = np.sum((x - x_mean) * (y - y_mean))
-    denominator = np.sum((x - x_mean) ** 2)
+    denominator = np.sum((x - x_mean) <b> 2)
     slope = numerator / denominator if denominator != 0 else 0
     intercept = y_mean - slope * x_mean
     
@@ -927,15 +927,15 @@ else:
 
                         LANGSUNG TAMPILKAN FORMAT BERIKUT:
 
-                        📌 **1. RINGKASAN SITUASI & DIAGNOSIS RISIKO UTAMA**
+                        📌 <b>1. RINGKASAN SITUASI & DIAGNOSIS RISIKO UTAMA<b>
                            - Uraikan ringkasan temuan FMS, bahaya micro-sleep pada jam kritis & lokasi hotspot, serta dampaknya pada operasional tambang.
 
-                        🎯 **2. ANALISIS POTENSI RISIKO OPERASIONAL**
+                        🎯 <b>2. ANALISIS POTENSI RISIKO OPERASIONAL<b>
                            - Risiko Fatalitas (Collision / Run-off-road).
                            - Risiko Geografis & Titik Hotspot.
                            - Risiko Human Error & Driver Berisiko Tinggi.
 
-                        🚀 **3. REKOMENDASI PENCEGAHAN PRAKTIS UNTUK TIM K3/SAFETY**
+                        🚀 <b>3. REKOMENDASI PENCEGAHAN PRAKTIS UNTUK TIM K3/SAFETY<b>
                            - 3 Langkah taktis pencegahan utama yang siap dieksekusi minggu ini.
 
                         Gunakan bahasa yang padat, lugas, profesional, dan berorientasi pada pencegahan kecelakaan.
@@ -1010,9 +1010,9 @@ else:
                 
                 fig_week, trend_status = plot_weekly_trend_with_trendline(df_fatigue)
                 if fig_week:
-                    st.markdown(f"#### Status Tren Keseluruhan: **{trend_status}**")
+                    st.markdown(f"#### Status Tren Keseluruhan: <b>{trend_status}<b>")
                     st.plotly_chart(fig_week, use_container_width=True)
-                    st.info("💡 **Tips Navigasi:** Gunakan slider di bawah sumbu X grafik untuk menggeser/zoom rentang minggu tertentu (misal: Week 1–13).")
+                    st.info("💡 <b>Tips Navigasi:<b> Gunakan slider di bawah sumbu X grafik untuk menggeser/zoom rentang minggu tertentu (misal: Week 1–13).")
                 else:
                     st.warning("Data minggu tidak mencukupi untuk menampilkan grafik.")
 
@@ -1034,7 +1034,7 @@ else:
                                 Anda adalah Senior Safety Specialist operasional tambang PT. Bumiputera Maha Terpercaya (BMT).
                                 Berdasarkan rekapitulasi data distribusi jam puncak rawan fatigue berikut: {jam_data}
 
-                                Tolong berikan **SOLUSI PROAKTIF & STRATEGI PENCEGAHAN TEMPORAL** secara langsung tanpa basa-basi. 
+                                Tolong berikan <b>SOLUSI PROAKTIF & STRATEGI PENCEGAHAN TEMPORAL<b> secara langsung tanpa basa-basi. 
 
                                 DILARANG MEMBUAT:
                                 - Header Memorandum (seperti KEPADA, DARI, PERIHAL, dll).
@@ -1043,15 +1043,15 @@ else:
 
                                 LANGSUNG TAMPILKAN FORMAT BERIKUT:
 
-                                📌 **1. ANALISIS POLA WAKTU & RITME BIOLOGIS (BASED ON DATA)**
+                                📌 <b>1. ANALISIS POLA WAKTU & RITME BIOLOGIS (BASED ON DATA)<b>
                                    - Uraikan kecenderungan jam kritis berdasarkan data dan risiko operasionalnya secara singkat.
 
-                                🎯 **2. ARAH STRATEGI & PENCEGAHAN BERKELANJUTAN (STRATEGIC PREVENTIVE ACTIONS)**
-                                   - **Rekayasa Jam Kerja & Istirahat (Shift Engineering)**: Arah kebijakan penetapan jam istirahat resmi (*Scheduled Fatigue Break*) atau evaluasi durasi Shift Malam.
-                                   - **Penguatan Program Internal BMT**: Strategi pengoptimalan penggunaan Intercom Web FMS dan Senam Fatigue di Pool BMT.
-                                   - **Manajemen Sarana & Lingkungan Kerja**: Rekomendasi penerangan jalur, rest area, dan dukungan nutrisi.
+                                🎯 <b>2. ARAH STRATEGI & PENCEGAHAN BERKELANJUTAN (STRATEGIC PREVENTIVE ACTIONS)<b>
+                                   - <b>Rekayasa Jam Kerja & Istirahat (Shift Engineering)<b>: Arah kebijakan penetapan jam istirahat resmi (*Scheduled Fatigue Break*) atau evaluasi durasi Shift Malam.
+                                   - <b>Penguatan Program Internal BMT<b>: Strategi pengoptimalan penggunaan Intercom Web FMS dan Senam Fatigue di Pool BMT.
+                                   - <b>Manajemen Sarana & Lingkungan Kerja<b>: Rekomendasi penerangan jalur, rest area, dan dukungan nutrisi.
 
-                                🚀 **3. REKOMENDASI TANGGUNG JAWAB TIM K3/SAFETY**
+                                🚀 <b>3. REKOMENDASI TANGGUNG JAWAB TIM K3/SAFETY<b>
                                    - Langkah konkret yang harus diambil Tim Safety dalam 1-2 minggu ke depan.
 
                                 Gunakan bahasa yang padat, lugas, langsung ke solusi, dan profesional.
@@ -1159,7 +1159,7 @@ else:
                                 Berdasarkan rekapitulasi data driver berisiko tinggi berikut (tipe alarm 'Mata Tertutup' = Microsleep, 'Mengantuk' = Menguap):
                                 {driver_summary}
 
-                                Tolong berikan **SOLUSI PROAKTIF & ARAH TINDAKAN PENCEGAHAN DRIVER** secara langsung tanpa basa-basi.
+                                Tolong berikan <b>SOLUSI PROAKTIF & ARAH TINDAKAN PENCEGAHAN DRIVER<b> secara langsung tanpa basa-basi.
 
                                 DILARANG MEMBUAT:
                                 - Header Memorandum (seperti KEPADA, DARI, PERIHAL, dll).
@@ -1168,15 +1168,15 @@ else:
 
                                 LANGSUNG TAMPILKAN FORMAT BERIKUT:
 
-                                📌 **1. ANALISIS KECENDERUNGAN RISIKO INDIVIDU**
+                                📌 <b>1. ANALISIS KECENDERUNGAN RISIKO INDIVIDU<b>
                                    - Petakan pola risiko utama dari kumpulan driver berisiko tinggi ini secara singkat.
 
-                                🎯 **2. ARAH STRATEGI & PENCEGAHAN BERKELANJUTAN**
-                                   - **Pencegahan Lingkungan & Mess**: Evaluasi tempat tinggal, kontrol jam istirahat sebelum shift.
-                                   - **Pencegahan Medis & Screening (Fit to Work)**: MCU spesifik (skrining Sleep Apnea) untuk driver berulang.
-                                   - **Pencegahan Operasional**: Pembatasan jam kerja kumulatif dan rotasi shift.
+                                🎯 <b>2. ARAH STRATEGI & PENCEGAHAN BERKELANJUTAN<b>
+                                   - <b>Pencegahan Lingkungan & Mess<b>: Evaluasi tempat tinggal, kontrol jam istirahat sebelum shift.
+                                   - <b>Pencegahan Medis & Screening (Fit to Work)<b>: MCU spesifik (skrining Sleep Apnea) untuk driver berulang.
+                                   - <b>Pencegahan Operasional<b>: Pembatasan jam kerja kumulatif dan rotasi shift.
 
-                                🚀 **3. REKOMENDASI ACTION PLAN TIM K3/HSE**
+                                🚀 <b>3. REKOMENDASI ACTION PLAN TIM K3/HSE<b>
                                    - Langkah konkret Tim HSE & HR dalam 1-2 minggu ke depan.
 
                                 Gunakan bahasa yang padat, lugas, langsung ke solusi, dan profesional.
@@ -1215,7 +1215,7 @@ else:
                     st.plotly_chart(fig, use_container_width=True)
                     top_driver = hm_df['Driver'].value_counts().index[0] if not hm_df.empty else None
                     if top_driver:
-                        st.caption(f"💡 Insight: Driver **{top_driver}** memiliki kasus terbanyak")
+                        st.caption(f"💡 Insight: Driver <b>{top_driver}<b> memiliki kasus terbanyak")
                 else:
                     st.warning("Data tidak cukup untuk heatmap")
             
@@ -1247,7 +1247,7 @@ else:
                 if filtered.empty:
                     st.warning("Tidak ada data yang cocok")
                 else:
-                    st.markdown(f"**{fmt_num(len(filtered))} baris**")
+                    st.markdown(f"<b>{fmt_num(len(filtered))} baris<b>")
                     cols_show = [cols['date'], cols['time'], 'Bulan', 'Week', 'Shift', 'Driver', 'Umur', 'Unit', 'Type', 'Lokasi']
                     cols_show = [c for c in cols_show if c in filtered.columns]
                     show = filtered[cols_show].copy()
@@ -1286,7 +1286,7 @@ else:
                             y = monthly.values
                             x_mean = np.mean(x)
                             y_mean = np.mean(y)
-                            slope = np.sum((x - x_mean) * (y - y_mean)) / np.sum((x - x_mean) ** 2)
+                            slope = np.sum((x - x_mean) * (y - y_mean)) / np.sum((x - x_mean) <b> 2)
                             intercept = y_mean - slope * x_mean
                             next_pred = max(0, int(slope * (x[-1] + 1) + intercept))
                             pct = ((next_pred - current) / current * 100) if current > 0 else 0
