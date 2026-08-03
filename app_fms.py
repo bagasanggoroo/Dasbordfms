@@ -5,6 +5,7 @@ import plotly.express as px
 import plotly.graph_objects as go
 from datetime import datetime
 import base64
+import google.generativeai as genai
 
 # ==================== KONFIGURASI HALAMAN ====================
 st.set_page_config(
@@ -76,7 +77,8 @@ section[data-testid="stSidebar"] * {
     color: white;
 }
 section[data-testid="stSidebar"] .stSelectbox label,
-section[data-testid="stSidebar"] .stFileUploader label {
+section[data-testid="stSidebar"] .stFileUploader label,
+section[data-testid="stSidebar"] .stTextInput label {
     color: #94a3b8 !important;
 }
 section[data-testid="stSidebar"] .stSelectbox div[data-baseweb="select"] {
@@ -226,7 +228,6 @@ def load_and_process_data(file):
     df[cols['date']] = pd.to_datetime(df[cols['date']], errors='coerce')
     df = df.dropna(subset=[cols['date']])
     
-    # Kolom Bulan & Minggu (Week 1-52)
     df['Month_Num'] = df[cols['date']].dt.month
     bulan_map = {1:'Jan',2:'Feb',3:'Mar',4:'Apr',5:'Mei',6:'Jun',
                  7:'Jul',8:'Ags',9:'Sep',10:'Okt',11:'Nov',12:'Des'}
@@ -334,7 +335,6 @@ def plot_tren_generic(df_target, title="Tren Bulanan", color="#2563eb"):
         )
     return fig
 
-# FUNGSI GRAFIK TREN MINGGUAN (WEEK 1-52) DENGAN GARIS TREN (TRENDLINE)
 def plot_weekly_trend_with_trendline(df_fatigue):
     if df_fatigue.empty or 'Week' not in df_fatigue.columns:
         return None, "Data Kosong"
@@ -346,11 +346,9 @@ def plot_weekly_trend_with_trendline(df_fatigue):
     x = weekly['Week'].values.astype(float)
     y = weekly['Total'].values.astype(float)
     
-    # Hitung Garis Tren Regresi Linier (y = mx + c)
     slope, intercept = np.polyfit(x, y, 1)
     trendline_y = slope * x + intercept
     
-    # Tentukan Arah Tren
     if slope > 0.1:
         trend_status = "⚠️ CENDERUNG NAIK (Memburuk)"
         trend_color = "#ef4444"
@@ -363,7 +361,6 @@ def plot_weekly_trend_with_trendline(df_fatigue):
 
     fig = go.Figure()
     
-    # Plot Data Mingguan
     fig.add_trace(go.Scatter(
         x=weekly['Week'], y=weekly['Total'],
         mode='lines+markers',
@@ -373,7 +370,6 @@ def plot_weekly_trend_with_trendline(df_fatigue):
         hovertemplate='<b>Week %{x}</b>: %{y} kasus<extra></extra>'
     ))
     
-    # Plot Garis Tren (Trendline)
     fig.add_trace(go.Scatter(
         x=weekly['Week'], y=trendline_y,
         mode='lines',
@@ -387,7 +383,7 @@ def plot_weekly_trend_with_trendline(df_fatigue):
         font=dict(family='Inter', size=12),
         xaxis=dict(
             title="Minggu Ke- (Week)", showgrid=True, gridcolor='#edf2f7',
-            dtick=1, rangeslider=dict(visible=True)  # Tambahkan Slider Navigasi
+            dtick=1, rangeslider=dict(visible=True)
         ),
         yaxis=dict(title="Jumlah Temuan", showgrid=True, gridcolor='#e2e8f0'),
         hovermode='x unified',
@@ -706,6 +702,37 @@ def plot_fatigue_vs_overspeed(df_fatigue, df_overspeed):
     )
     return fig
 
+# FUNGSI INTEGRASI GEMINI AI UNTUK NARASI LAPORAN
+def generate_gemini_analysis(api_key, df_fatigue, df_overspeed, total_alarm, top_loc, top_jam):
+    try:
+        genai.configure(api_key=api_key)
+        model = genai.GenerativeModel("gemini-1.5-flash")
+        
+        # Penyiapan ringkasan data
+        total_f = len(df_fatigue)
+        total_o = len(df_overspeed)
+        top_driver = df_fatigue['Driver'].value_counts().index[0] if not df_fatigue.empty else "N/A"
+        top_driver_val = df_fatigue['Driver'].value_counts().iloc[0] if not df_fatigue.empty else 0
+        
+        prompt = f"""
+        Anda adalah Senior Safety Specialist di perusahaan tambang PT. Bumiputera Maha Terpercaya.
+        Analisis data Fleet Management System (FMS) berikut dan buatkan Laporan Ringkasan Eksekutif resmi yang singkat, padat, dan profesional (maksimal 3 paragraf):
+
+        - Total Seluruh Alarm: {total_alarm} kasus
+        - Total Kasus Fatigue: {total_f} kasus
+        - Total Kasus Overspeed: {total_o} kasus
+        - Lokasi Rawan (Hotspot) Utama: {top_loc}
+        - Jam Puncak Rawan Fatigue: {top_jam}
+        - Driver Berisiko Tertinggi: {top_driver} ({top_driver_val} kasus)
+
+        Berikan poin-poin analisis singkat mengenai potensi risiko operasional serta 3 rekomendasi pencegahan praktis untuk tim K3/Safety.
+        """
+        
+        response = model.generate_content(prompt)
+        return response.text
+    except Exception as e:
+        return f"❌ Gagal menghasilkan analisis AI: {str(e)}"
+
 # ==================== SIDEBAR ====================
 with st.sidebar:
     st.markdown("""
@@ -719,6 +746,18 @@ with st.sidebar:
     st.markdown("---")
     st.markdown("### 📁 Data Source")
     uploaded_file = st.file_uploader("Upload File Log FMS", type=['xlsx', 'csv'])
+    
+    st.markdown("---")
+    st.markdown("### 🤖 Config Gemini AI")
+    
+    # Ambil API key otomatis dari Streamlit Secrets jika ada, jika tidak minta input dari user
+    secret_key = st.secrets.get("GEMINI_API_KEY", "")
+    if secret_key:
+        user_api_key = secret_key
+        st.success("🔑 Gemini API Key terhubung dari Secrets")
+    else:
+        user_api_key = st.text_input("Masukkan Gemini API Key", type="password", help="Dapatkan API Key gratis di Google AI Studio")
+    
     st.markdown("---")
     st.caption("© 2026 PT. Bumiputera Maha Terpercaya")
 
@@ -800,7 +839,7 @@ else:
             
             st.markdown("---")
             
-            # ========== RINGKASAN EKSEKUTIF ==========
+            # ========== RINGKASAN EKSEKUTIF DENGAN TOMBOL GEMINI AI ==========
             st.markdown("### 📋 Ringkasan Eksekutif")
             col1, col2 = st.columns(2)
             
@@ -841,6 +880,20 @@ else:
                         insight("#fee2e2", "Unit dengan Temuan Berulang", f"{top_unit} ({top_val} temuan) — inspeksi!")
                     else:
                         insight("#dbeafe", "Unit dengan Temuan Berulang", f"{top_unit} ({top_val} temuan)")
+
+            # SEKSI AI NARRATIVE GENERATOR
+            st.markdown("#### 🤖 Laporan Narasi Otomatis (Gemini AI)")
+            if user_api_key:
+                if st.button("✨ Generate Narasi Laporan Eksekutif dengan Gemini AI"):
+                    with st.spinner("🧠 AI sedang menganalisis data FMS..."):
+                        ai_result = generate_gemini_analysis(user_api_key, df_fatigue, df_overspeed, total_alarm, top_loc, top_jam)
+                        st.markdown(f"""
+                        <div style="background:white; padding:20px; border-radius:16px; border-left:5px solid #2563eb; box-shadow:0 4px 15px rgba(0,0,0,0.05);">
+                            {ai_result}
+                        </div>
+                        """, unsafe_allow_html=True)
+            else:
+                st.info("💡 Tempel Gemini API Key di sidebar untuk mengaktifkan pembuat laporan narasi AI otomatis.")
             
             st.markdown("---")
             
@@ -900,7 +953,7 @@ else:
                 
                 fig_week, trend_status = plot_weekly_trend_with_trendline(df_fatigue)
                 if fig_week:
-                    st.markdown(f"#### status Tren Keseluruhan: **{trend_status}**")
+                    st.markdown(f"#### Status Tren Keseluruhan: **{trend_status}**")
                     st.plotly_chart(fig_week, use_container_width=True)
                     st.info("💡 **Tips Navigasi:** Gunakan slider di bawah sumbu X grafik untuk menggeser/zoom rentang minggu tertentu (misal: Week 1–13).")
                 else:
