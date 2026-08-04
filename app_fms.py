@@ -14,7 +14,7 @@ st.set_page_config(
     layout="wide"
 )
 
-# ==================== CSS CUSTOM STYLING ====================
+# ==================== CSS CUSTOM STYLING (PERBAIKAN PRINT PDF) ====================
 st.markdown("""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
@@ -39,20 +39,21 @@ html, body, [class*="css"] {
     color: var(--text-color, #0f172a) !important;
 }
 
-/* KPI CARDS */
+/* KPI CARDS STYLING */
 .kpi {
     background-color: var(--background-secondary-color, rgba(255, 255, 255, 0.05));
-    padding: 22px;
-    border-radius: 18px;
+    padding: 18px 16px;
+    border-radius: 16px;
     box-shadow: 0 5px 20px rgba(0,0,0,.05);
     transition: .25s;
     border: 1px solid var(--border-color, #edf2f7);
     position: relative;
+    box-sizing: border-box;
 }
-.kpi-icon { font-size: 28px; margin-bottom: 6px; }
-.kpi-title { font-size: 13px; opacity: 0.8; text-transform: uppercase; letter-spacing: .8px; font-weight: 500; }
-.kpi-value { font-size: 34px; font-weight: 700; margin-top: 6px; }
-.kpi-footer { margin-top: 8px; color: #2563eb; font-size: 13px; }
+.kpi-icon { font-size: 26px; margin-bottom: 4px; }
+.kpi-title { font-size: 12px; opacity: 0.85; text-transform: uppercase; letter-spacing: .5px; font-weight: 600; }
+.kpi-value { font-size: 28px; font-weight: 700; margin-top: 4px; word-wrap: break-word; }
+.kpi-footer { margin-top: 6px; color: #2563eb; font-size: 12px; }
 
 /* BUTTON STYLING */
 .stButton > button {
@@ -73,8 +74,9 @@ html, body, [class*="css"] {
     margin-bottom: 25px !important;
 }
 
-/* ==================== OPTIMISASI PRINT PDF (ANTI-OVERLAP) ==================== */
+/* ==================== OPTIMISASI UTAMA PRINT PDF ==================== */
 @media print {
+    /* Sembunyikan Navigasi, Tombol, Sidebar, & Header Streamlit */
     section[data-testid="stSidebar"],
     header[data-testid="stHeader"],
     .stButton,
@@ -84,6 +86,7 @@ html, body, [class*="css"] {
         display: none !important;
     }
     
+    /* Paksa Tab Berurutan ke Bawah */
     div[data-testid="stTabs"] [role="tabpanel"] {
         display: block !important;
         opacity: 1 !important;
@@ -95,19 +98,29 @@ html, body, [class*="css"] {
         margin-bottom: 30px !important;
     }
 
-    [data-testid="column"], div[data-testid="stHorizontalBlock"] {
-        display: block !important;
+    /* KUNCI PERBAIKAN: PAKSA KOLOM KPI TETAP SEJAJAR HORIZONTAL (4 KARTU SEBAGAI GRID/FLEX) */
+    div[data-testid="stHorizontalBlock"] {
+        display: flex !important;
+        flex-direction: row !important;
+        flex-wrap: nowrap !important;
+        justify-content: space-between !important;
+        align-items: stretch !important;
+        gap: 10px !important;
         width: 100% !important;
-        flex: none !important;
-        max-width: 100% !important;
-        clear: both !important;
-        float: none !important;
-        position: relative !important;
+    }
+
+    div[data-testid="stHorizontalBlock"] > div[data-testid="column"] {
+        flex: 1 1 25% !important;
+        width: 25% !important;
+        min-width: 0 !important;
+        max-width: 25% !important;
+        display: block !important;
+        margin-bottom: 0 !important;
     }
 
     @page {
         size: A4 portrait;
-        margin: 12mm 10mm;
+        margin: 10mm;
     }
 
     .block-container {
@@ -116,6 +129,7 @@ html, body, [class*="css"] {
         width: 100% !important;
     }
 
+    /* Isolasi Elemen Grafik Plotly Agar Tidak Menumpuk */
     .chart-box, .js-plotly-plot, [data-testid="stPlotlyChart"] {
         position: relative !important;
         display: block !important;
@@ -126,7 +140,7 @@ html, body, [class*="css"] {
         max-height: 380px !important;
         page-break-inside: avoid !important;
         break-inside: avoid !important;
-        margin-bottom: 30px !important;
+        margin-bottom: 25px !important;
     }
 
     .kpi, div[data-testid="stMarkdownContainer"] {
@@ -495,7 +509,7 @@ else:
         jam_counts = df_fatigue['Jam_Range'].value_counts()
         top_jam = jam_counts.index[0] if not jam_counts.empty else "N/A"
 
-        # KPI CARDS
+        # KPI CARDS (DIBUAT DALAM ST.COLUMNS)
         st.markdown("### 📊 Ringkasan")
         c1, c2, c3, c4 = st.columns(4)
         top_fatigue_loc = df_fatigue['Lokasi'].value_counts().index[0] if not df_fatigue.empty else "N/A"
