@@ -31,6 +31,14 @@ html, body, [class*="css"] {
     max-width: 1600px;
 }
 
+/* SIDEBAR TEXT FIX (ADAPTIF TEMA DARK/LIGHT) */
+[data-testid="stSidebar"] [data-testid="stMarkdownContainer"] p,
+[data-testid="stSidebar"] [data-testid="stMarkdownContainer"] h1,
+[data-testid="stSidebar"] [data-testid="stMarkdownContainer"] h2,
+[data-testid="stSidebar"] [data-testid="stMarkdownContainer"] h3 {
+    color: var(--text-color, #0f172a) !important;
+}
+
 /* KPI CARDS ADAPTIF TEMA */
 .kpi {
     background-color: var(--background-secondary-color, rgba(255, 255, 255, 0.05));
@@ -734,8 +742,8 @@ with st.sidebar:
     st.markdown("""
     <div style="text-align:center; padding:10px 0 20px 0;">
         <div style="font-size:40px;">👨‍✈️</div>
-        <div style="font-weight:700; font-size:1.2rem; color:white;">DSMS Dashboard</div>
-        <div style="font-size:0.7rem; color:#94a3b8;">v3.0 · Driver Safety & Compliance</div>
+        <div style="font-weight:700; font-size:1.25rem; margin-top:4px;">DSMS Dashboard</div>
+        <div style="font-size:0.75rem; opacity:0.85; margin-top:2px;">v3.0 · Driver Safety & Compliance</div>
     </div>
     """, unsafe_allow_html=True)
     
