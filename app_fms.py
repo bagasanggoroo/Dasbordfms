@@ -495,12 +495,12 @@ def plot_fatigue_vs_overspeed(df_fatigue, df_overspeed):
 # ==================== GEMINI AI INTEGRATION (MENGGUNAKAN GEMINI-1.5-FLASH UNTUK MENGHINDARI ERROR 429) ====================
 def generate_gemini_analysis(api_key, prompt_text):
     try:
-        client = genai.Client(api_key=api_key, http_options={'api_version': 'v1'})
-        response = client.models.generate_content(model='gemini-1.5-flash', contents=prompt_text)
+        client = genai.Client(api_key=api_key)
+        # Menggunakan model standar 'gemini-flash' atau 'gemini-pro' yang didukung penuh
+        response = client.models.generate_content(model='gemini-flash', contents=prompt_text)
         return response.text
     except Exception as e:
         return f"❌ Error: {str(e)}"
-
 # ==================== SIDEBAR ====================
 with st.sidebar:
     st.markdown("### 👨‍✈️ DSMS Dashboard v3.0")
