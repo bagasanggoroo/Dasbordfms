@@ -14,7 +14,7 @@ st.set_page_config(
     layout="wide"
 )
 
-# ==================== CSS CUSTOM STYLING (THEME, LIGHT MODE, PRINT PDF FIX) ====================
+# ==================== CSS CUSTOM STYLING (PRINT FIX PERFECT) ====================
 st.markdown("""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
@@ -31,7 +31,7 @@ html, body, [class*="css"] {
     max-width: 1600px;
 }
 
-/* SIDEBAR TEXT FIX (ADAPTIF TEMA DARK/LIGHT) */
+/* SIDEBAR TEXT FIX */
 [data-testid="stSidebar"] [data-testid="stMarkdownContainer"] p,
 [data-testid="stSidebar"] [data-testid="stMarkdownContainer"] h1,
 [data-testid="stSidebar"] [data-testid="stMarkdownContainer"] h2,
@@ -39,7 +39,7 @@ html, body, [class*="css"] {
     color: var(--text-color, #0f172a) !important;
 }
 
-/* KPI CARDS ADAPTIF TEMA */
+/* KPI CARDS */
 .kpi {
     background-color: var(--background-secondary-color, rgba(255, 255, 255, 0.05));
     padding: 22px;
@@ -49,31 +49,10 @@ html, body, [class*="css"] {
     border: 1px solid var(--border-color, #edf2f7);
     position: relative;
 }
-.kpi:hover {
-    transform: translateY(-6px);
-    box-shadow: 0 15px 35px rgba(0,0,0,.10);
-}
-.kpi-icon {
-    font-size: 28px;
-    margin-bottom: 6px;
-}
-.kpi-title {
-    font-size: 13px;
-    opacity: 0.8;
-    text-transform: uppercase;
-    letter-spacing: .8px;
-    font-weight: 500;
-}
-.kpi-value {
-    font-size: 34px;
-    font-weight: 700;
-    margin-top: 6px;
-}
-.kpi-footer {
-    margin-top: 8px;
-    color: #2563eb;
-    font-size: 13px;
-}
+.kpi-icon { font-size: 28px; margin-bottom: 6px; }
+.kpi-title { font-size: 13px; opacity: 0.8; text-transform: uppercase; letter-spacing: .8px; font-weight: 500; }
+.kpi-value { font-size: 34px; font-weight: 700; margin-top: 6px; }
+.kpi-footer { margin-top: 8px; color: #2563eb; font-size: 13px; }
 
 /* BUTTON STYLING */
 .stButton > button {
@@ -83,38 +62,19 @@ html, body, [class*="css"] {
     border: none;
     padding: .55rem 1rem;
     font-weight: 500;
-    transition: .2s;
-}
-.stButton > button:hover {
-    background: #1d4ed8;
-    color: white !important;
-    transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(37,99,235,0.3);
 }
 
-/* DATAFRAME STYLING */
-div[data-testid="stDataFrame"] {
-    border-radius: 14px;
-    border: 1px solid var(--border-color, #edf2f7);
-    overflow: hidden;
+/* CONTAINER GRAFIK AGAR TERISOLASI TEGAS */
+.chart-box {
+    position: relative !important;
+    display: block !important;
+    width: 100% !important;
+    clear: both !important;
+    margin-bottom: 25px !important;
 }
 
-/* PLOTLY CONTAINER */
-.js-plotly-plot .plotly .main-svg {
-    border-radius: 12px;
-}
-
-/* KONTAINER PEMBUNGKUS GRAFIK UTAMA */
-.chart-container {
-    position: relative;
-    width: 100%;
-    margin-bottom: 25px;
-    clear: both;
-}
-
-# ==================== OPTIMISASI CETAK PDF (ANTI-NUMPUK TOTAL) ====================
+/* ==================== OPTIMISASI SPESIFIK PRINT PDF (ANTI-OVERLAP) ==================== */
 @media print {
-    /* Sembunyikan Navigasi, Tombol, Sidebar, & Header Streamlit */
     section[data-testid="stSidebar"],
     header[data-testid="stHeader"],
     .stButton,
@@ -124,7 +84,6 @@ div[data-testid="stDataFrame"] {
         display: none !important;
     }
     
-    /* Paksa Semua Tab Tampil Berurutan dengan Pemisah Halaman */
     div[data-testid="stTabs"] [role="tabpanel"] {
         display: block !important;
         opacity: 1 !important;
@@ -133,49 +92,45 @@ div[data-testid="stDataFrame"] {
         float: none !important;
         clear: both !important;
         page-break-after: always !important;
-        margin-bottom: 40px !important;
+        margin-bottom: 30px !important;
     }
 
-    /* Paksa Kolom Ganda Menjadi 1 Kolom Tunggal Ke Bawah saat Print */
-    [data-testid="column"] {
-        width: 100% !important;
-        flex: 1 1 100% !important;
-        max-width: 100% !important;
+    /* Hilangkan Flexbox Kolom saat Print agar Dirender Berurutan ke Bawah */
+    [data-testid="column"], div[data-testid="stHorizontalBlock"] {
         display: block !important;
-        position: relative !important;
+        width: 100% !important;
+        flex: none !important;
+        max-width: 100% !important;
         clear: both !important;
         float: none !important;
-        margin-bottom: 20px !important;
+        position: relative !important;
     }
 
-    /* Penyesuaian Kertas Cetak */
     @page {
         size: A4 portrait;
-        margin: 10mm;
+        margin: 12mm 10mm;
     }
 
     .block-container {
         padding: 0 !important;
         margin: 0 !important;
         width: 100% !important;
-        max-width: 100% !important;
     }
 
-    /* Mencegah Tumpukan pada Elemen Grafik Plotly */
-    .chart-container, .js-plotly-plot, [data-testid="stPlotlyChart"] {
+    /* Mencegah Tumpukan pada Grafik Plotly */
+    .chart-box, .js-plotly-plot, [data-testid="stPlotlyChart"] {
         position: relative !important;
         display: block !important;
         clear: both !important;
         float: none !important;
         width: 100% !important;
         height: auto !important;
-        max-height: 400px !important;
+        max-height: 380px !important;
         page-break-inside: avoid !important;
         break-inside: avoid !important;
-        margin-bottom: 25px !important;
+        margin-bottom: 30px !important;
     }
 
-    /* Mencegah KPI Card Terpotong */
     .kpi, div[data-testid="stMarkdownContainer"] {
         page-break-inside: avoid !important;
         break-inside: avoid !important;
@@ -184,7 +139,7 @@ div[data-testid="stDataFrame"] {
 </style>
 """, unsafe_allow_html=True)
 
-# ==================== INISIALISASI SESSION STATE MEMORI AI ====================
+# ==================== MEMORI SESSION STATE ====================
 if 'res_eksekutif' not in st.session_state:
     st.session_state['res_eksekutif'] = None
 if 'res_jam' not in st.session_state:
@@ -204,18 +159,13 @@ def get_image_base64(path):
         return ""
 
 def cat_time(t):
-    if pd.isna(t):
-        return 'Unknown'
+    if pd.isna(t): return 'Unknown'
     try:
-        if isinstance(t, (datetime, pd.Timestamp)):
-            h = t.hour
-        elif hasattr(t, 'hour'):
-            h = t.hour
-        else:
-            h = int(str(t).strip().split(':')[0])
+        if isinstance(t, (datetime, pd.Timestamp)): h = t.hour
+        elif hasattr(t, 'hour'): h = t.hour
+        else: h = int(str(t).strip().split(':')[0])
         return f"{h:02d}:00-{h+1:02d}:59"
-    except:
-        return 'Unknown'
+    except: return 'Unknown'
 
 def detect_columns(df):
     col_date = next((c for c in df.columns if c.lower() in ['tanggal', 'date']), None)
@@ -240,7 +190,7 @@ def get_order_months():
 def get_order_2h():
     return [f"{i:02d}:00-{i+1:02d}:59" for i in range(0, 24, 2)]
 
-# ==================== HEADER DENGAN INTEGRASI LOGO ====================
+# ==================== HEADER UTAMA ====================
 def header_with_logo(title, subtitle, logo_path="image.png"):
     img_b64 = get_image_base64(logo_path)
     logo_html = f'<img src="data:image/png;base64,{img_b64}" style="height: 55px; object-fit: contain;">' if img_b64 else '<span style="font-size:30px;">🛡️</span>'
@@ -261,21 +211,13 @@ def header_with_logo(title, subtitle, logo_path="image.png"):
             <h1 style="margin: 0; font-size: 30px; font-weight: 700; color: white;">{title}</h1>
             <p style="margin: 6px 0 0 0; opacity: 0.9; font-size: 14px; line-height: 1.5; color: white;">{subtitle}</p>
         </div>
-        <div style="
-            background: white;
-            padding: 8px 16px;
-            border-radius: 14px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-        ">
+        <div style="background: white; padding: 8px 16px; border-radius: 14px; display: flex; align-items: center; justify-content: center;">
             {logo_html}
         </div>
     </div>
     """, unsafe_allow_html=True)
 
-# ==================== DATA PROCESSING WITH CACHE ====================
+# ==================== LOAD & PROCESS DATA ====================
 @st.cache_data
 def load_and_process_data(file):
     if file.name.endswith('.xlsx'):
@@ -366,1092 +308,283 @@ def rec_card(priority, icon, text):
     </div>
     """, unsafe_allow_html=True)
 
+# ==================== RENDERER GRAFIK AMAN PRINT ====================
+def render_chart(fig):
+    if fig:
+        st.markdown('<div class="chart-box">', unsafe_allow_html=True)
+        st.plotly_chart(fig, use_container_width=True)
+        st.markdown('</div>', unsafe_allow_html=True)
+
 # ==================== CHART FUNCTIONS ====================
 def plot_tren_generic(df_target, title="Tren Bulanan", color="#2563eb"):
-    if df_target.empty or 'Month_Num' not in df_target.columns:
-        return None
-    
+    if df_target.empty or 'Month_Num' not in df_target.columns: return None
     trend = df_target.groupby(['Month_Num', 'Bulan']).size().reset_index(name='Total').sort_values('Month_Num')
-    if trend.empty:
-        return None
-    
+    if trend.empty: return None
     max_val = trend['Total'].max()
-    
-    fig = px.line(
-        trend, x='Bulan', y='Total',
-        markers=True, title=title,
-        color_discrete_sequence=[color]
-    )
+    fig = px.line(trend, x='Bulan', y='Total', markers=True, title=title, color_discrete_sequence=[color])
     fig.update_traces(line=dict(width=3), marker=dict(size=10))
     fig.update_layout(
         plot_bgcolor='rgba(0,0,0,0)', paper_bgcolor='rgba(0,0,0,0)',
-        font=dict(family='Inter', size=12),
-        xaxis=dict(showgrid=False),
-        yaxis=dict(showgrid=True, gridcolor='rgba(150,150,150,0.2)', gridwidth=0.5, range=[0, max_val * 1.35]),
-        hovermode='x unified',
+        font=dict(family='Inter', size=12), xaxis=dict(showgrid=False),
+        yaxis=dict(showgrid=True, gridcolor='rgba(150,150,150,0.2)', range=[0, max_val * 1.35]),
         margin=dict(l=20, r=20, t=40, b=20)
     )
-    
     for i, row in trend.iterrows():
         is_max = bool(row['Total'] == max_val)
         fig.add_annotation(
-            x=row['Bulan'], y=row['Total'],
-            text=f"🔥 {row['Total']}" if is_max else str(row['Total']),
-            showarrow=is_max, arrowhead=1, arrowcolor=color,
-            yshift=14 if is_max else 10,
-            font=dict(size=12 if is_max else 11, weight='bold'),
-            bgcolor='#fee2e2' if is_max and color=='#ef4444' else ('#fef3c7' if is_max and color=='#f59e0b' else None),
-            bordercolor=color if is_max else None, borderwidth=1 if is_max else 0
+            x=row['Bulan'], y=row['Total'], text=f"🔥 {row['Total']}" if is_max else str(row['Total']),
+            showarrow=is_max, arrowhead=1, arrowcolor=color, yshift=14 if is_max else 10,
+            font=dict(size=12 if is_max else 11, weight='bold')
         )
     return fig
 
 def plot_weekly_trend_with_trendline(df_fatigue):
-    if df_fatigue.empty or 'Week' not in df_fatigue.columns:
-        return None, "Data Kosong"
-    
+    if df_fatigue.empty or 'Week' not in df_fatigue.columns: return None, "Data Kosong"
     weekly = df_fatigue.groupby('Week').size().reset_index(name='Total').sort_values('Week')
-    if len(weekly) < 2:
-        return None, "Data Tidak Cukup"
-    
+    if len(weekly) < 2: return None, "Data Tidak Cukup"
     x = weekly['Week'].values.astype(float)
     y = weekly['Total'].values.astype(float)
-    
     slope, intercept = np.polyfit(x, y, 1)
     trendline_y = slope * x + intercept
-    
-    if slope > 0.1:
-        trend_status = "⚠️ CENDERUNG NAIK (Memburuk)"
-        trend_color = "#ef4444"
-    elif slope < -0.1:
-        trend_status = "✅ CENDERUNG TURUN (Membaik)"
-        trend_color = "#22c55e"
-    else:
-        trend_status = "➡️ STABIL"
-        trend_color = "#3b82f6"
+    trend_status = "⚠️ CENDERUNG NAIK" if slope > 0.1 else ("✅ CENDERUNG TURUN" if slope < -0.1 else "➡️ STABIL")
+    trend_color = "#ef4444" if slope > 0.1 else ("#22c55e" if slope < -0.1 else "#3b82f6")
 
     fig = go.Figure()
-    
-    fig.add_trace(go.Scatter(
-        x=weekly['Week'], y=weekly['Total'],
-        mode='lines+markers',
-        name='Temuan Fatigue Mingguan',
-        line=dict(color='#ef4444', width=2.5),
-        marker=dict(size=6),
-        hovertemplate='<b>Week %{x}</b>: %{y} kasus<extra></extra>'
-    ))
-    
-    fig.add_trace(go.Scatter(
-        x=weekly['Week'], y=trendline_y,
-        mode='lines',
-        name=f'Garis Tren ({trend_status})',
-        line=dict(color=trend_color, width=3, dash='dash')
-    ))
-
+    fig.add_trace(go.Scatter(x=weekly['Week'], y=weekly['Total'], mode='lines+markers', name='Fatigue', line=dict(color='#ef4444', width=2.5)))
+    fig.add_trace(go.Scatter(x=weekly['Week'], y=trendline_y, mode='lines', name=f'Garis Tren ({trend_status})', line=dict(color=trend_color, width=3, dash='dash')))
     fig.update_layout(
-        title='📊 Tren Temuan Fatigue Mingguan (Week 1–52) + Garis Tren',
+        title='📊 Tren Fatigue Mingguan (Week 1–52) + Garis Tren',
         plot_bgcolor='rgba(0,0,0,0)', paper_bgcolor='rgba(0,0,0,0)',
-        font=dict(family='Inter', size=12),
-        xaxis=dict(
-            title="Minggu Ke- (Week)", showgrid=True, gridcolor='rgba(150,150,150,0.2)',
-            dtick=1, rangeslider=dict(visible=True)
-        ),
-        yaxis=dict(title="Jumlah Temuan", showgrid=True, gridcolor='rgba(150,150,150,0.2)'),
-        hovermode='x unified',
-        legend=dict(orientation='h', yanchor='bottom', y=1.02, xanchor='center', x=0.5),
-        margin=dict(l=20, r=20, t=50, b=20)
+        font=dict(family='Inter', size=12), margin=dict(l=20, r=20, t=50, b=20)
     )
-    
     return fig, trend_status
 
 def plot_shift_comparison(df_fatigue):
-    if df_fatigue.empty:
-        return None
-    
+    if df_fatigue.empty: return None
     shift_df = df_fatigue.groupby(['Bulan', 'Shift']).size().reset_index(name='Total')
-    if shift_df.empty:
-        return None
-    
-    fig = px.line(
-        shift_df, x='Bulan', y='Total', color='Shift',
-        markers=True, title='Perbandingan Shift',
-        color_discrete_map={'Shift 1': '#3b82f6', 'Shift 2': '#8b5cf6'}
-    )
-    fig.update_traces(line=dict(width=2.5), marker=dict(size=8))
-    fig.update_layout(
-        plot_bgcolor='rgba(0,0,0,0)', paper_bgcolor='rgba(0,0,0,0)',
-        font=dict(family='Inter', size=12),
-        xaxis=dict(showgrid=False),
-        yaxis=dict(showgrid=True, gridcolor='rgba(150,150,150,0.2)', gridwidth=0.5),
-        hovermode='x unified',
-        legend=dict(orientation='h', yanchor='bottom', y=1.02, xanchor='center', x=0.5),
-        margin=dict(l=20, r=20, t=40, b=20)
-    )
+    if shift_df.empty: return None
+    fig = px.line(shift_df, x='Bulan', y='Total', color='Shift', markers=True, title='Perbandingan Shift', color_discrete_map={'Shift 1': '#3b82f6', 'Shift 2': '#8b5cf6'})
+    fig.update_layout(plot_bgcolor='rgba(0,0,0,0)', paper_bgcolor='rgba(0,0,0,0)', margin=dict(l=20, r=20, t=40, b=20))
     return fig
 
 def plot_alarm_distribution(df_fatigue):
-    if df_fatigue.empty:
-        return None
-    
+    if df_fatigue.empty: return None
     alarm_counts = df_fatigue['Type'].value_counts().reset_index()
     alarm_counts.columns = ['Jenis', 'Total']
-    
-    colors = ['#ef4444', '#f59e0b']
-    fig = px.bar(
-        alarm_counts, x='Total', y='Jenis', orientation='h',
-        title='Jenis Alarm', color='Jenis',
-        color_discrete_sequence=colors, text='Total'
-    )
-    fig.update_traces(textposition='outside', textfont=dict(size=12, weight='bold'))
-    fig.update_layout(
-        plot_bgcolor='rgba(0,0,0,0)', paper_bgcolor='rgba(0,0,0,0)',
-        font=dict(family='Inter', size=12),
-        xaxis=dict(showgrid=True, gridcolor='rgba(150,150,150,0.2)', gridwidth=0.5),
-        yaxis=dict(showgrid=False),
-        margin=dict(l=20, r=20, t=40, b=20),
-        showlegend=False
-    )
+    fig = px.bar(alarm_counts, x='Total', y='Jenis', orientation='h', title='Jenis Alarm', color='Jenis', color_discrete_sequence=['#ef4444', '#f59e0b'], text='Total')
+    fig.update_layout(plot_bgcolor='rgba(0,0,0,0)', paper_bgcolor='rgba(0,0,0,0)', margin=dict(l=20, r=20, t=40, b=20), showlegend=False)
     return fig
 
 def plot_jam_distribution(df_fatigue, order_2h):
-    if df_fatigue.empty:
-        return None
-    
+    if df_fatigue.empty: return None
     rj = df_fatigue['Jam_Range'].value_counts().reindex(order_2h, fill_value=0).reset_index()
     rj.columns = ['Jam', 'Total']
     rj = rj[rj['Total'] > 0]
-    
-    if rj.empty:
-        return None
-    
+    if rj.empty: return None
     max_val = rj['Total'].max()
     colors = ['#991b1b' if v == max_val else '#f87171' for v in rj['Total']]
-    
-    fig = px.bar(
-        rj, x='Jam', y='Total',
-        title='Distribusi Jam Fatigue (Puncak Diberi Penanda)',
-        text='Total'
-    )
-    
-    fig.update_traces(
-        marker_color=colors,
-        textposition='outside', 
-        textfont=dict(size=11, weight='bold')
-    )
-    
-    max_row = rj[rj['Total'] == max_val].iloc[0]
-    fig.add_annotation(
-        x=max_row['Jam'], 
-        y=max_val + (max_val * 0.12),
-        text="⚠️ PUNCAK TERTINGGI",
-        showarrow=True, arrowhead=2, arrowcolor='#991b1b', arrowsize=1.2,
-        font=dict(size=11, color='white', weight='bold'),
-        bgcolor='#991b1b', bordercolor='#7f1d1d', borderwidth=2, borderpad=4
-    )
-    
-    fig.update_layout(
-        plot_bgcolor='rgba(0,0,0,0)', paper_bgcolor='rgba(0,0,0,0)',
-        font=dict(family='Inter', size=12),
-        xaxis=dict(showgrid=False, tickangle=45),
-        yaxis=dict(showgrid=True, gridcolor='rgba(150,150,150,0.2)', gridwidth=0.5, range=[0, max_val * 1.35]),
-        margin=dict(l=20, r=20, t=50, b=20),
-        showlegend=False
-    )
+    fig = px.bar(rj, x='Jam', y='Total', title='Distribusi Jam Fatigue', text='Total')
+    fig.update_traces(marker_color=colors, textposition='outside')
+    fig.update_layout(plot_bgcolor='rgba(0,0,0,0)', paper_bgcolor='rgba(0,0,0,0)', margin=dict(l=20, r=20, t=50, b=20), showlegend=False)
     return fig
 
 def plot_hotspot(df, label="Fatigue"):
-    if df.empty:
-        return None
-    
+    if df.empty: return None
     loc_counts = df['Lokasi'].value_counts().head(10).reset_index()
     loc_counts.columns = ['Lokasi', 'Total']
     loc_counts = loc_counts.sort_values('Total', ascending=True)
-    
-    max_val = loc_counts['Total'].max()
     base_color = '#ef4444' if label == "Fatigue" else '#f59e0b'
-    dark_color = '#991b1b' if label == "Fatigue" else '#b45309'
-    colors = [dark_color if v == max_val else base_color for v in loc_counts['Total']]
-    
-    fig = px.bar(
-        loc_counts, x='Total', y='Lokasi', orientation='h',
-        title=f'Top 10 Lokasi {label}', text='Total'
-    )
-    fig.update_traces(marker_color=colors, textposition='outside', textfont=dict(size=11, weight='bold'))
-    fig.update_layout(
-        plot_bgcolor='rgba(0,0,0,0)', paper_bgcolor='rgba(0,0,0,0)',
-        font=dict(family='Inter', size=12),
-        xaxis=dict(showgrid=True, gridcolor='rgba(150,150,150,0.2)', gridwidth=0.5, range=[0, max_val * 1.2]),
-        yaxis=dict(showgrid=False),
-        margin=dict(l=20, r=20, t=40, b=20),
-        showlegend=False, height=400
-    )
+    fig = px.bar(loc_counts, x='Total', y='Lokasi', orientation='h', title=f'Top 10 Lokasi {label}', text='Total', color_discrete_sequence=[base_color])
+    fig.update_traces(textposition='outside')
+    fig.update_layout(plot_bgcolor='rgba(0,0,0,0)', paper_bgcolor='rgba(0,0,0,0)', margin=dict(l=20, r=20, t=40, b=20), showlegend=False, height=380)
     return fig
 
 def plot_demografi(df_fatigue, df_overspeed, labels):
     fa = df_fatigue['Kelompok_Umur'].value_counts().reindex(labels, fill_value=0).reset_index()
     fa.columns = ['Kelompok', 'Fatigue']
-    
     oa = df_overspeed['Kelompok_Umur'].value_counts().reindex(labels, fill_value=0).reset_index()
     oa.columns = ['Kelompok', 'Overspeed']
-    
     merged = pd.merge(fa, oa, on='Kelompok')
-    
     fig = go.Figure()
-    fig.add_trace(go.Bar(
-        x=merged['Kelompok'], y=merged['Fatigue'],
-        name='Fatigue', marker_color='#ef4444',
-        text=merged['Fatigue'], textposition='outside'
-    ))
-    fig.add_trace(go.Bar(
-        x=merged['Kelompok'], y=merged['Overspeed'],
-        name='Overspeed', marker_color='#f59e0b',
-        text=merged['Overspeed'], textposition='outside'
-    ))
-    fig.update_layout(
-        title='Demografi Umur Driver (Rentang 5 Tahun)',
-        plot_bgcolor='rgba(0,0,0,0)', paper_bgcolor='rgba(0,0,0,0)',
-        font=dict(family='Inter', size=12),
-        xaxis=dict(showgrid=False, title="Rentang Umur (Tahun)"),
-        yaxis=dict(showgrid=True, gridcolor='rgba(150,150,150,0.2)', gridwidth=0.5),
-        barmode='group',
-        legend=dict(orientation='h', yanchor='bottom', y=1.02, xanchor='center', x=0.5),
-        margin=dict(l=20, r=20, t=40, b=20)
-    )
+    fig.add_trace(go.Bar(x=merged['Kelompok'], y=merged['Fatigue'], name='Fatigue', marker_color='#ef4444', text=merged['Fatigue'], textposition='outside'))
+    fig.add_trace(go.Bar(x=merged['Kelompok'], y=merged['Overspeed'], name='Overspeed', marker_color='#f59e0b', text=merged['Overspeed'], textposition='outside'))
+    fig.update_layout(title='Demografi Umur Driver (5 Tahun)', plot_bgcolor='rgba(0,0,0,0)', paper_bgcolor='rgba(0,0,0,0)', barmode='group', margin=dict(l=20, r=20, t=40, b=20))
     return fig
 
 def plot_top_driver(df_fatigue):
-    if df_fatigue.empty:
-        return None
-    
-    drv = df_fatigue['Driver'].value_counts().head(20).reset_index()
+    if df_fatigue.empty: return None
+    drv = df_fatigue['Driver'].value_counts().head(15).reset_index()
     drv.columns = ['Driver', 'Total']
     drv = drv.sort_values('Total', ascending=True)
-    
-    max_val = drv['Total'].max()
-    colors = ['#991b1b' if v == max_val else '#ef4444' for v in drv['Total']]
-    
-    fig = px.bar(
-        drv, x='Total', y='Driver', orientation='h',
-        title='Top 20 Driver Fatigue', text='Total'
-    )
-    fig.update_traces(marker_color=colors, textposition='outside', textfont=dict(size=10, weight='bold'))
-    fig.update_layout(
-        plot_bgcolor='rgba(0,0,0,0)', paper_bgcolor='rgba(0,0,0,0)',
-        font=dict(family='Inter', size=11),
-        xaxis=dict(showgrid=True, gridcolor='rgba(150,150,150,0.2)', gridwidth=0.5, range=[0, max_val * 1.2]),
-        yaxis=dict(showgrid=False),
-        margin=dict(l=20, r=20, t=40, b=20),
-        showlegend=False, height=500
-    )
+    fig = px.bar(drv, x='Total', y='Driver', orientation='h', title='Top 15 Driver Fatigue', text='Total', color_discrete_sequence=['#ef4444'])
+    fig.update_traces(textposition='outside')
+    fig.update_layout(plot_bgcolor='rgba(0,0,0,0)', paper_bgcolor='rgba(0,0,0,0)', margin=dict(l=20, r=20, t=40, b=20), showlegend=False, height=420)
     return fig
 
 def plot_heatmap(df_fatigue, order_months, top_n=15):
-    if df_fatigue.empty:
-        return None
-    
+    if df_fatigue.empty: return None
     top_drivers = df_fatigue['Driver'].value_counts().head(top_n).index
-    heatmap_data = df_fatigue[df_fatigue['Driver'].isin(top_drivers)].pivot_table(
-        index='Driver', columns='Bulan', aggfunc='size', fill_value=0
-    )
-    
+    heatmap_data = df_fatigue[df_fatigue['Driver'].isin(top_drivers)].pivot_table(index='Driver', columns='Bulan', aggfunc='size', fill_value=0)
     avail_months = [m for m in order_months if m in heatmap_data.columns]
     heatmap_data = heatmap_data.reindex(columns=avail_months)
-    
-    heatmap_data['Total'] = heatmap_data.sum(axis=1)
-    heatmap_data = heatmap_data.sort_values('Total', ascending=False).drop('Total', axis=1)
-    
-    if heatmap_data.empty:
-        return None
-    
-    fig = px.imshow(
-        heatmap_data,
-        title='Heatmap Driver Fatigue per Bulan',
-        text_auto=True, color_continuous_scale='YlOrRd', aspect='auto'
-    )
-    fig.update_layout(
-        plot_bgcolor='rgba(0,0,0,0)', paper_bgcolor='rgba(0,0,0,0)',
-        font=dict(family='Inter', size=11),
-        xaxis=dict(side='bottom'), yaxis=dict(title='Driver'),
-        margin=dict(l=20, r=20, t=40, b=20),
-        height=max(400, len(heatmap_data) * 25)
-    )
-    fig.update_xaxes(title='Bulan')
-    fig.update_yaxes(title='Driver')
+    if heatmap_data.empty: return None
+    fig = px.imshow(heatmap_data, title='Heatmap Driver Fatigue per Bulan', text_auto=True, color_continuous_scale='YlOrRd', aspect='auto')
+    fig.update_layout(plot_bgcolor='rgba(0,0,0,0)', paper_bgcolor='rgba(0,0,0,0)', margin=dict(l=20, r=20, t=40, b=20), height=420)
     return fig
 
 def plot_forecast(df_fatigue):
-    if df_fatigue.empty or 'Month_Num' not in df_fatigue.columns:
-        return None
-    
-    monthly_data = df_fatigue.groupby('Month_Num').size().reset_index(name='Total')
-    monthly_data = monthly_data.sort_values('Month_Num')
-    
-    if len(monthly_data) < 3:
-        return None
-    
-    x = monthly_data['Month_Num'].values
-    y = monthly_data['Total'].values
-    x_mean = np.mean(x)
-    y_mean = np.mean(y)
-    numerator = np.sum((x - x_mean) * (y - y_mean))
-    denominator = np.sum((x - x_mean) ** 2)
-    slope = numerator / denominator if denominator != 0 else 0
-    intercept = y_mean - slope * x_mean
-    
-    last_month = x[-1]
-    future_months = [last_month + i for i in range(1, 4)]
+    if df_fatigue.empty or 'Month_Num' not in df_fatigue.columns: return None
+    monthly_data = df_fatigue.groupby('Month_Num').size().reset_index(name='Total').sort_values('Month_Num')
+    if len(monthly_data) < 3: return None
+    x, y = monthly_data['Month_Num'].values, monthly_data['Total'].values
+    slope, intercept = np.polyfit(x, y, 1)
+    future_months = [x[-1] + i for i in range(1, 4)]
     predictions = [slope * m + intercept for m in future_months]
-    
     month_labels = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Ags','Sep','Okt','Nov','Des']
     hist_months = [month_labels[int(m)-1] for m in x]
-    future_labels = ['Bulan+1', 'Bulan+2', 'Bulan+3']
     
     fig = go.Figure()
-    fig.add_trace(go.Scatter(
-        x=hist_months, y=y,
-        mode='lines+markers', name='Data Aktual',
-        line=dict(color='#3b82f6', width=3), marker=dict(size=10)
-    ))
-    fig.add_trace(go.Scatter(
-        x=future_labels, y=predictions,
-        mode='lines+markers', name='Prediksi',
-        line=dict(color='#ef4444', width=3, dash='dash'),
-        marker=dict(size=10, color='#ef4444')
-    ))
-    fig.update_layout(
-        title='Prediksi Tren 3 Bulan ke Depan',
-        plot_bgcolor='rgba(0,0,0,0)', paper_bgcolor='rgba(0,0,0,0)',
-        font=dict(family='Inter', size=12),
-        xaxis=dict(showgrid=False),
-        yaxis=dict(showgrid=True, gridcolor='rgba(150,150,150,0.2)', gridwidth=0.5),
-        hovermode='x unified',
-        legend=dict(orientation='h', yanchor='bottom', y=1.02, xanchor='center', x=0.5),
-        margin=dict(l=20, r=20, t=40, b=20)
-    )
+    fig.add_trace(go.Scatter(x=hist_months, y=y, mode='lines+markers', name='Data Aktual', line=dict(color='#3b82f6', width=3)))
+    fig.add_trace(go.Scatter(x=['Bulan+1', 'Bulan+2', 'Bulan+3'], y=predictions, mode='lines+markers', name='Prediksi', line=dict(color='#ef4444', width=3, dash='dash')))
+    fig.update_layout(title='Prediksi Tren 3 Bulan ke Depan', plot_bgcolor='rgba(0,0,0,0)', paper_bgcolor='rgba(0,0,0,0)', margin=dict(l=20, r=20, t=40, b=20))
     return fig
 
 def plot_fatigue_vs_overspeed(df_fatigue, df_overspeed):
-    if df_fatigue.empty or df_overspeed.empty:
-        return None
-    
+    if df_fatigue.empty or df_overspeed.empty: return None
     fatigue_counts = df_fatigue['Driver'].value_counts()
     overspeed_counts = df_overspeed['Driver'].value_counts()
-    
     all_drivers = set(fatigue_counts.index) | set(overspeed_counts.index)
-    compare_data = []
-    for driver in all_drivers:
-        f = fatigue_counts.get(driver, 0)
-        o = overspeed_counts.get(driver, 0)
-        total = f + o
-        if total > 0:
-            compare_data.append({'Driver': driver, 'Fatigue': f, 'Overspeed': o, 'Total': total})
-    
+    compare_data = [{'Driver': d, 'Fatigue': fatigue_counts.get(d, 0), 'Overspeed': overspeed_counts.get(d, 0), 'Total': fatigue_counts.get(d, 0)+overspeed_counts.get(d, 0)} for d in all_drivers]
     compare_df = pd.DataFrame(compare_data).sort_values('Total', ascending=False).head(15)
-    
-    if compare_df.empty:
-        return None
-    
+    if compare_df.empty: return None
     fig = go.Figure()
-    fig.add_trace(go.Bar(
-        x=compare_df['Driver'], y=compare_df['Fatigue'],
-        name='Fatigue', marker_color='#ef4444'
-    ))
-    fig.add_trace(go.Bar(
-        x=compare_df['Driver'], y=compare_df['Overspeed'],
-        name='Overspeed', marker_color='#f59e0b'
-    ))
-    fig.update_layout(
-        title='Fatigue vs Overspeed per Driver',
-        plot_bgcolor='rgba(0,0,0,0)', paper_bgcolor='rgba(0,0,0,0)',
-        font=dict(family='Inter', size=11),
-        xaxis=dict(showgrid=False, tickangle=45),
-        yaxis=dict(showgrid=True, gridcolor='rgba(150,150,150,0.2)', gridwidth=0.5),
-        barmode='group',
-        legend=dict(orientation='h', yanchor='bottom', y=1.02, xanchor='center', x=0.5),
-        margin=dict(l=20, r=20, t=40, b=20),
-        height=450
-    )
+    fig.add_trace(go.Bar(x=compare_df['Driver'], y=compare_df['Fatigue'], name='Fatigue', marker_color='#ef4444'))
+    fig.add_trace(go.Bar(x=compare_df['Driver'], y=compare_df['Overspeed'], name='Overspeed', marker_color='#f59e0b'))
+    fig.update_layout(title='Fatigue vs Overspeed per Driver', plot_bgcolor='rgba(0,0,0,0)', paper_bgcolor='rgba(0,0,0,0)', barmode='group', margin=dict(l=20, r=20, t=40, b=20), height=420)
     return fig
 
-# ==================== FUNGSI RENDER CHART BERSIH ====================
-def render_chart(fig):
-    if fig:
-        st.markdown('<div class="chart-container">', unsafe_allow_html=True)
-        st.plotly_chart(fig, use_container_width=True)
-        st.markdown('</div>', unsafe_allow_html=True)
-
-# ==================== FUNGSI INTEGRASI GEMINI AI GENERIK ====================
+# ==================== GEMINI AI INTEGRATION ====================
 def generate_gemini_analysis(api_key, prompt_text):
     try:
-        client = genai.Client(
-            api_key=api_key,
-            http_options={'api_version': 'v1'}
-        )
-        
-        available_models = []
-        try:
-            for m in client.models.list():
-                if hasattr(m, 'supported_actions') and 'generateContent' in m.supported_actions:
-                    available_models.append(m.name)
-                elif hasattr(m, 'supported_generation_methods') and 'generateContent' in m.supported_generation_methods:
-                    available_models.append(m.name)
-        except Exception:
-            pass
-
-        candidate_models = available_models if available_models else [
-            'models/gemini-2.0-flash',
-            'models/gemini-1.5-flash',
-            'models/gemini-1.5-pro',
-            'gemini-2.0-flash',
-            'gemini-1.5-flash'
-        ]
-
-        last_err = ""
-        for model_name in candidate_models:
-            try:
-                response = client.models.generate_content(
-                    model=model_name,
-                    contents=prompt_text,
-                )
-                return response.text
-            except Exception as err:
-                last_err = str(err)
-                continue
-
-        return f"❌ Gagal menghasilkan analisis AI. Error: {last_err}"
-        
+        client = genai.Client(api_key=api_key, http_options={'api_version': 'v1'})
+        response = client.models.generate_content(model='gemini-2.0-flash', contents=prompt_text)
+        return response.text
     except Exception as e:
-        return f"❌ Gagal mengonfigurasi Gemini Client: {str(e)}"
+        return f"❌ Error: {str(e)}"
 
 # ==================== SIDEBAR ====================
 with st.sidebar:
-    st.markdown("""
-    <div style="text-align:center; padding:10px 0 20px 0;">
-        <div style="font-size:40px;">👨‍✈️</div>
-        <div style="font-weight:700; font-size:1.25rem; margin-top:4px;">DSMS Dashboard</div>
-        <div style="font-size:0.75rem; opacity:0.85; margin-top:2px;">v3.0 · Driver Safety & Compliance</div>
-    </div>
-    """, unsafe_allow_html=True)
-    
-    st.markdown("---")
-    st.markdown("### 📁 Data Source")
-    uploaded_file = st.file_uploader("Upload File Log FMS / DSMS", type=['xlsx', 'csv'])
-    
-    st.markdown("---")
-    st.markdown("### 🤖 Config Gemini AI")
-    
+    st.markdown("### 👨‍✈️ DSMS Dashboard v3.0")
+    uploaded_file = st.file_uploader("Upload Log FMS / DSMS", type=['xlsx', 'csv'])
     secret_key = st.secrets.get("GEMINI_API_KEY", "")
-    if secret_key:
-        user_api_key = secret_key
-        st.success("🔑 Gemini API Key terhubung dari Secrets")
-    else:
-        user_api_key = st.text_input("Masukkan Gemini API Key", type="password", help="Dapatkan API Key gratis di Google AI Studio")
-    
-    st.markdown("---")
-    st.caption("© 2026 PT. Bumiputera Maha Terpercaya")
+    user_api_key = secret_key if secret_key else st.text_input("Gemini API Key", type="password")
 
-# ==================== HEADER UTAMA DENGAN JUDUL, SUBTITLE & DESKRIPSI ====================
+# ==================== HEADER UTAMA ====================
 header_with_logo(
     "🛡️ Driver Safety Management System",
-    "PT. Bumiputera Maha Terpercaya<br>"
-    "<b>Monitoring Fatigue • Driver Behavior Analytics • K3 Compliance</b><br>"
-    "<span style='font-size:12px; opacity:0.85; display:inline-block; margin-top:4px;'>"
-    "Sistem analisis terintegrasi untuk memantau risiko fatigue pengemudi, perilaku berkendara, dan penegakan sanksi K3 secara real-time sesuai SOP BMT-CHL-SOP 011 & BIB-HSE-PPO-035."
-    "</span>",
+    "PT. Bumiputera Maha Terpercaya<br><b>Monitoring Fatigue • Analytics • K3 Compliance</b>",
     "image.png"
 )
 
 # ==================== MAIN ====================
 if uploaded_file is None:
     st.info("👆 Upload file Excel/CSV di sidebar untuk memulai")
-    
-    col1, col2, col3 = st.columns(3)
-    with col1:
-        st.markdown("""
-        <div style="background:white; padding:30px; border-radius:18px; text-align:center; border:1px solid #edf2f7; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
-            <div style="font-size:40px;">📊</div>
-            <div style="font-weight:700; color:#0f172a; font-size:1.1rem; margin-top:8px;">Analisis Lengkap</div>
-            <div style="font-size:0.85rem; color:#475569; margin-top:4px;">Tren fatigue, overspeed, performa</div>
-        </div>
-        """, unsafe_allow_html=True)
-    with col2:
-        st.markdown("""
-        <div style="background:white; padding:30px; border-radius:18px; text-align:center; border:1px solid #edf2f7; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
-            <div style="font-size:40px;">🗺️</div>
-            <div style="font-weight:700; color:#0f172a; font-size:1.1rem; margin-top:8px;">Spatial & Temporal</div>
-            <div style="font-size:0.85rem; color:#475569; margin-top:4px;">Hotspot & pola waktu</div>
-        </div>
-        """, unsafe_allow_html=True)
-    with col3:
-        st.markdown("""
-        <div style="background:white; padding:30px; border-radius:18px; text-align:center; border:1px solid #edf2f7; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
-            <div style="font-size:40px;">👥</div>
-            <div style="font-weight:700; color:#0f172a; font-size:1.1rem; margin-top:8px;">Driver & Fleet</div>
-            <div style="font-size:0.85rem; color:#475569; margin-top:4px;">Demografi & performa</div>
-        </div>
-        """, unsafe_allow_html=True)
 else:
     with st.spinner("🔄 Memproses data..."):
-        try:
-            df, cols, age_labels = load_and_process_data(uploaded_file)
+        df, cols, age_labels = load_and_process_data(uploaded_file)
+        if df is None:
+            st.error("❌ File tidak valid")
+            st.stop()
+
+        df_fatigue = df[df['Type'].isin(['Mata Tertutup', 'Mengantuk'])].copy()
+        df_overspeed = df[df['Type'] == 'Overspeed'].copy()
+        order_months, order_2h = get_order_months(), get_order_2h()
+        total_f, total_o = len(df_fatigue), len(df_overspeed)
+        total_alarm = total_f + total_o
+        jam_counts = df_fatigue['Jam_Range'].value_counts()
+        top_jam = jam_counts.index[0] if not jam_counts.empty else "N/A"
+
+        # KPI CARDS
+        st.markdown("### 📊 Ringkasan")
+        c1, c2, c3, c4 = st.columns(4)
+        top_fatigue_loc = df_fatigue['Lokasi'].value_counts().index[0] if not df_fatigue.empty else "N/A"
+        fatigue_loc_footer = f"{df_fatigue['Lokasi'].value_counts().iloc[0]} kasus" if not df_fatigue.empty else "0 kasus"
+
+        with c1: kpi("Total Alarm", fmt_num(total_alarm), "Semua jenis alarm", "🚨", "#ef4444")
+        with c2: kpi("Fatigue", fmt_num(total_f), "Kasus fatigue valid", "😴", "#f59e0b")
+        with c3: kpi("Overspeed", fmt_num(total_o), "Kasus overspeed", "🚗", "#3b82f6")
+        with c4: kpi("Lokasi Rawan Fatigue", top_fatigue_loc, fatigue_loc_footer, "📍", "#8b5cf6")
+
+        st.markdown("---")
+        st.markdown("### 📋 Ringkasan Eksekutif")
+        col1, col2 = st.columns(2)
+        with col1:
+            insight("#fee2e2", "Jam Kritis Sirkadian (BIB PPO-035)", f"Puncak fatigue di {top_jam} — Masuk jam rawan 02.00–06.00 WITA!")
+        with col2:
+            top_unit = df_fatigue['Unit'].value_counts().index[0] if not df_fatigue.empty else "N/A"
+            insight("#fee2e2", "Unit Temuan Berulang Valid", f"Unit {top_unit} — Prioritaskan Live Streaming Monitoring!")
+
+        # SEKSI AI NARRATIVE GENERATOR
+        st.markdown("#### 📄 Laporan Ringkasan Eksekutif K3")
+        if user_api_key:
+            if st.button("✨ Generate Laporan Ringkasan Eksekutif"):
+                with st.spinner("🧠 AI sedang menyusun laporan..."):
+                    prompt_eksekutif = f"Buatkan Laporan K3 DSMS PT BMT untuk {total_alarm} alarm ({total_f} fatigue, {total_o} overspeed) di hotspot {top_fatigue_loc} jam {top_jam}."
+                    st.session_state['res_eksekutif'] = generate_gemini_analysis(user_api_key, prompt_eksekutif)
             
-            if df is None:
-                st.error("❌ Kolom minimum wajib ada: Tanggal, Type, Driver")
-                st.stop()
+            if st.session_state['res_eksekutif']:
+                st.markdown(f"<div style='background:white; color:#0f172a; padding:20px; border-radius:14px; border-left:5px solid #2563eb; text-align:justify;'>{st.session_state['res_eksekutif']}</div>", unsafe_allow_html=True)
 
-            df_fatigue = df[df['Type'].isin(['Mata Tertutup', 'Mengantuk'])].copy()
-            df_overspeed = df[df['Type'] == 'Overspeed'].copy()
+        st.markdown("---")
+
+        # TABS UTAMA
+        tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs([
+            "📊 Overview Bulanan", "📅 Tren Mingguan (Week 1-52)",
+            "🗺️ Lokasi & Waktu", "👥 Driver & Unit", "📋 Data Logs", "🧠 Analisis Lanjutan"
+        ])
+
+        with tab1:
+            st.markdown("### 📉 Tren Temuan DSMS Bulanan")
+            render_chart(plot_tren_generic(df_fatigue, title="Tren Bulanan Kasus Fatigue", color="#ef4444"))
+            render_chart(plot_tren_generic(df_overspeed, title="Tren Bulanan Kasus Overspeed", color="#f59e0b"))
+            render_chart(plot_tren_generic(df, title="Tren Bulanan Total Seluruh Alarm DSMS", color="#2563eb"))
+            render_chart(plot_shift_comparison(df_fatigue))
+            render_chart(plot_alarm_distribution(df_fatigue))
+
+        with tab2:
+            st.markdown("### 📅 Analisis Tren Fatigue Mingguan (Week 1 - 52)")
+            fig_week, trend_status = plot_weekly_trend_with_trendline(df_fatigue)
+            if fig_week:
+                st.markdown(f"#### Status Tren Keseluruhan: **{trend_status}**")
+                render_chart(fig_week)
+
+        with tab3:
+            st.markdown("### 🗺️ Analisis Lokasi & Waktu")
+            render_chart(plot_jam_distribution(df_fatigue, order_2h))
+            render_chart(plot_hotspot(df_fatigue, "Fatigue"))
+            render_chart(plot_hotspot(df_overspeed, "Overspeed"))
+
+        with tab4:
+            st.markdown("### 👥 Analisis Driver & Unit")
+            render_chart(plot_demografi(df_fatigue, df_overspeed, age_labels))
+            render_chart(plot_top_driver(df_fatigue))
             
-            order_months = get_order_months()
-            order_2h = get_order_2h()
+            if not df.empty:
+                unit = df['Unit'].value_counts().head(10).reset_index()
+                unit.columns = ['Unit', 'Total']
+                fig_u = px.bar(unit.sort_values('Total'), x='Total', y='Unit', orientation='h', title='Top 10 Unit', text='Total')
+                render_chart(fig_u)
             
-            total_f = len(df_fatigue)
-            total_o = len(df_overspeed)
-            total_alarm = total_f + total_o
-            
-            jam_counts = df_fatigue['Jam_Range'].value_counts()
-            top_jam = jam_counts.index[0] if not jam_counts.empty else "N/A"
-            top_jam_val = jam_counts.iloc[0] if not jam_counts.empty else 0
-            
-            # ========== KPI CARDS ==========
-            st.markdown("### 📊 Ringkasan")
-            c1, c2, c3, c4 = st.columns(4)
-            
-            if not df_fatigue.empty:
-                fatigue_loc_counts = df_fatigue['Lokasi'].value_counts()
-                top_fatigue_loc = fatigue_loc_counts.index[0]
-                top_fatigue_val = fatigue_loc_counts.iloc[0]
-                fatigue_pct = (top_fatigue_val / total_f) * 100 if total_f > 0 else 0
-                fatigue_loc_footer = f"{top_fatigue_val} kasus ({fatigue_pct:.1f}% total fatigue)"
-            else:
-                top_fatigue_loc = "N/A"
-                fatigue_loc_footer = "0 kasus"
-            
-            with c1:
-                kpi("Total Alarm", fmt_num(total_alarm), "Semua jenis alarm", "🚨", "#ef4444")
-            with c2:
-                kpi("Fatigue", fmt_num(total_f), "Kasus fatigue valid", "😴", "#f59e0b")
-            with c3:
-                kpi("Overspeed", fmt_num(total_o), "Kasus overspeed", "🚗", "#3b82f6")
-            with c4:
-                kpi("Lokasi Rawan Fatigue", top_fatigue_loc, fatigue_loc_footer, "📍", "#8b5cf6")
-            
-            st.markdown("---")
-            
-            # ========== RINGKASAN EKSEKUTIF ==========
-            st.markdown("### 📋 Ringkasan Eksekutif")
-            col1, col2 = st.columns(2)
-            
-            with col1:
-                if not jam_counts.empty:
-                    top_jam = jam_counts.index[0]
-                    top_val = jam_counts.iloc[0]
-                    pct = top_val / jam_counts.sum() * 100
-                    if any(j in top_jam for j in ['00:00','01:00','02:00','03:00','04:00','05:00']):
-                        insight("#fee2e2", "Jam Kritis Sirkadian (BIB PPO-035)", f"Puncak fatigue di {top_jam} ({top_val} kasus, {pct:.1f}%) — Masuk jam rawan utama 02.00–06.00 WITA!")
-                    else:
-                        insight("#dbeafe", "Jam Rawan", f"{top_jam} ({top_val} kasus, {pct:.1f}%)")
-                
-                shift_counts = df_fatigue['Shift'].value_counts()
-                if 'Shift 2' in shift_counts.index and 'Shift 1' in shift_counts.index:
-                    s2, s1 = shift_counts['Shift 2'], shift_counts['Shift 1']
-                    if s1 > 0:
-                        ratio = s2 / s1
-                        if ratio > 2:
-                            insight("#fee2e2", "Shift Malam (Kritis)", f"{ratio:.1f}x lebih tinggi ({s2} vs {s1}) — tingkatkan Wake Up Call!")
-                        elif ratio > 1.2:
-                            insight("#fef3c7", "Shift Malam", f"{ratio:.1f}x lebih tinggi ({s2} vs {s1})")
-                        else:
-                            insight("#dcfce7", "Shift Seimbang", f"{s2} vs {s1}")
-            
-            with col2:
-                if not df_fatigue.empty and 'Week' in df_fatigue.columns:
-                    weekly_driver_fatigue = df_fatigue.groupby(['Driver', 'Week']).size().reset_index(name='Weekly_Count')
-                    max_weekly_row = weekly_driver_fatigue.sort_values('Weekly_Count', ascending=False).iloc[0]
-                    
-                    top_driver_name = max_weekly_row['Driver']
-                    max_weekly_val = max_weekly_row['Weekly_Count']
-                    top_driver_total_all = df_fatigue['Driver'].value_counts().get(top_driver_name, 0)
-                    
-                    if max_weekly_val >= 4:
-                        insight("#fee2e2", "Driver Risk High (SOP BMT 011)", 
-                                f"{top_driver_name} ({max_weekly_val} kasus di Week {max_weekly_row['Week']} | Total: {top_driver_total_all} kasus) — Menyentuh threshold SP1 & Lubang 1!")
-                    else:
-                        insight("#fef3c7", "Driver Berisiko", 
-                                f"{top_driver_name} (Maks {max_weekly_val} kasus/minggu | Total: {top_driver_total_all} kasus) — Perlu monitoring")
-                else:
-                    top_driver_name = "N/A"
-                    max_weekly_val = 0
+            render_chart(plot_heatmap(df_fatigue, order_months))
 
-                unit_counts = df_fatigue['Unit'].value_counts()
-                if not unit_counts.empty:
-                    top_unit = unit_counts.index[0]
-                    top_val = unit_counts.iloc[0]
-                    if top_val > 5:
-                        insight("#fee2e2", "Unit Temuan Berulang Valid (SOP BMT 011)", 
-                                f"{top_unit} ({top_val} temuan valid) — Prioritaskan untuk Live Streaming Monitoring CCR!")
-                    else:
-                        insight("#dbeafe", "Unit Temuan Berulang", f"{top_unit} ({top_val} temuan valid)")
+        with tab5:
+            st.markdown("### 📋 Data Logs")
+            st.dataframe(df.head(100), use_container_width=True, hide_index=True)
 
-            # SEKSI AI NARRATIVE GENERATOR
-            st.markdown("#### 📄 Laporan Ringkasan Eksekutif K3")
-            if user_api_key:
-                if st.button("✨ Generate Laporan Ringkasan Eksekutif"):
-                    with st.spinner("🧠 AI sedang menganalisis data berdasarkan SOP BMT 011 & PPO BIB 035..."):
-                        prompt_eksekutif = f"""
-                        Anda adalah Senior Safety Specialist di PT. Bumiputera Maha Terpercaya (BMT) untuk operasional tambang PT Borneo Indobara (BIB).
-                        Analisis data Driver Safety Management System (DSMS) berikut dan buatkan Laporan Ringkasan Eksekutif K3 yang SEPENUHNYA PATUH pada SOP BMT-CHL-SOP 011 dan BIB-HSE-PPO-035.
+        with tab6:
+            st.markdown("## 🧠 Analisis Lanjutan & Pencegahan")
+            render_chart(plot_forecast(df_fatigue))
+            render_chart(plot_fatigue_vs_overspeed(df_fatigue, df_overspeed))
 
-                        RULES PENULISAN (SANGAT KETAT):
-                        - DILARANG MEMBUAT Header Memorandum (KEPADA, DARI, PERIHAL, dll).
-                        - DILARANG MEMBUAT pembuka formalitas atau salam/penutup/tanda tangan.
-                        - DILARANG MENGGUNAKAN TANDA BINTANG (*) SAMA SEKALI DALAM TEKS OUTPUT.
-
-                        ACUAN STANDAR REGULASI:
-                        1. Threshold Fatigue Valid BMT/BIB: Maksimal 4x temuan/minggu. Jika >=4x dikenakan sanksi bertingkat (SP1+Lubang 1).
-                        2. Jam Rawan Utama PPO BIB-035: Pukul 02.00 - 06.00 WITA (Wajib intensifkan Wake Up Call kata sandi).
-                        3. Intervensi Driver Fatigue Valid: Kecepatan maks 30 kph, hazard ON, dikawal (escorted) ke Rest Area/Office, dan verifikasi ADAS dengan handbrake & wheel chock.
-                        4. Kampanye 7B: Berhenti, Beritahu, Bernafas, Beristirahat, Bekerja kembali, Berolahraga ringan, Berdoa.
-
-                        DATA UTAMA DSMS:
-                        - Total Seluruh Alarm: {total_alarm} kasus
-                        - Total Kasus Fatigue: {total_f} kasus
-                        - Total Kasus Overspeed: {total_o} kasus
-                        - Lokasi Rawan (Hotspot) Utama Fatigue: {top_fatigue_loc} ({fatigue_loc_footer})
-                        - Jam Puncak Rawan Fatigue: {top_jam}
-                        - Driver Berisiko Tertinggi (Mingguan): {top_driver_name} ({max_weekly_val} kasus di minggu puncak)
-
-                        LANGSUNG TAMPILKAN FORMAT BERIKUT (Gunakan tag HTML <b> untuk judul):
-
-                        <b>📌 1. RINGKASAN SITUASI & EVALUASI COMPLIANCE SAFETY</b><br>
-                        Uraikan ringkasan temuan DSMS, bahaya micro-sleep di jam rawan sirkadian BIB (02.00-06.00 WITA), serta evaluasi kepatuhan driver terhadap threshold 4x fatigue/minggu.
-
-                        <br><b>🎯 2. PENILAIAN RISIKO OPERASIONAL & AUDIT ATRIBUT</b><br>
-                        - Risiko Fatalitas (Collision / Run-off-road) di area Hotspot.<br>
-                        - Audit Atribut Driver (Evaluasi larangan kacamata hitam, topi, dan penutup mulut/masker sesuai SOP 011).<br>
-                        - Driver Berisiko Tinggi & Sanksi Bertingkat (SP1/SP2/SP3).
-
-                        <br><b>🚀 3. ACTION PLAN TAKTIS TIM K3/SAFETY (BERDASARKAN KAMPANYE 7B & SOP 011)</b><br>
-                        Berikan 3 langkah taktis instruksi kerja tim Safety/CCR (Pengawalan ke rest area, pergantian driver spare, dan verifikasi fisik ADAS).
-
-                        Gunakan bahasa yang padat, lugas, tegas, berorientasi K3 pertambangan, dan profesional.
-                        """
-                        st.session_state['res_eksekutif'] = generate_gemini_analysis(user_api_key, prompt_eksekutif)
-                
-                if st.session_state['res_eksekutif']:
-                    st.markdown(f"""
-                    <div style="
-                        background: white;
-                        color: #0f172a;
-                        padding: 22px;
-                        border-radius: 16px;
-                        border-left: 5px solid #2563eb;
-                        box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-                        line-height: 1.65;
-                        text-align: justify;
-                    ">
-                        {st.session_state['res_eksekutif']}
-                    </div>
-                    """, unsafe_allow_html=True)
-            else:
-                st.info("💡 Tempel Gemini API Key di sidebar untuk mengaktifkan pembuat laporan narasi AI otomatis.")
-            
-            st.markdown("---")
-            
-            # ========== TABS UTAMA ==========
-            tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs([
-                "📊 Overview Bulanan",
-                "📅 Tren Mingguan (Week 1-52)",
-                "🗺️ Lokasi & Waktu",
-                "👥 Driver & Unit",
-                "📋 Data Logs",
-                "🧠 Analisis Lanjutan"
-            ])
-            
-            # ========== TAB 1: OVERVIEW BULANAN ==========
-            with tab1:
-                st.markdown("### 📉 Tren Temuan DSMS Bulanan")
-                render_chart(plot_tren_generic(df_fatigue, title="Tren Bulanan Kasus Fatigue", color="#ef4444"))
-                render_chart(plot_tren_generic(df_overspeed, title="Tren Bulanan Kasus Overspeed", color="#f59e0b"))
-                render_chart(plot_tren_generic(df, title="Tren Bulanan Total Seluruh Alarm DSMS", color="#2563eb"))
-
-                st.markdown("---")
-                
-                c1, c2 = st.columns(2)
-                with c1:
-                    render_chart(plot_shift_comparison(df_fatigue))
-                with c2:
-                    render_chart(plot_alarm_distribution(df_fatigue))
-            
-            # ========== TAB 2: TREN MINGGUAN (WEEK 1-52) ==========
-            with tab2:
-                st.markdown("### 📅 Analisis Tren Fatigue Mingguan (Week 1 - 52)")
-                st.caption("Dilengkapi dengan Garis Tren (Trendline) untuk melihat arah perkembangan kasus sepanjang tahun.")
-                
-                fig_week, trend_status = plot_weekly_trend_with_trendline(df_fatigue)
-                if fig_week:
-                    st.markdown(f"#### Status Tren Keseluruhan: **{trend_status}**")
-                    render_chart(fig_week)
-                    st.info("💡 **Tips Navigasi:** Gunakan slider di bawah sumbu X grafik untuk menggeser/zoom rentang minggu tertentu (misal: Week 1–13).")
-                else:
-                    st.warning("Data minggu tidak mencukupi untuk menampilkan grafik.")
-
-            # ========== TAB 3: LOKASI & WAKTU ==========
-            with tab3:
-                render_chart(plot_jam_distribution(df_fatigue, order_2h))
-                
-                if user_api_key:
-                    with st.expander("💡 Rekomendasi AI: Solusi Proaktif & Strategi Jam Rawan (PPO BIB-035)", expanded=False):
-                        if st.button("✨ Generate Temporal Preventive Strategy"):
-                            with st.spinner("🧠 AI sedang menganalisis pola jam rawan berdasarkan PPO BIB-035..."):
-                                jam_data = df_fatigue['Jam_Range'].value_counts().head(5).to_dict()
-                                prompt_jam_rawan = f"""
-                                Anda adalah Senior Safety Specialist operasional tambang PT. BMT (Mitra Kerja PT Borneo Indobara).
-                                Berdasarkan rekapitulasi data distribusi jam puncak rawan fatigue berikut: {jam_data}
-
-                                Berikan STRATEGI PENCEGAHAN TEMPORAL yang patuh pada BIB-HSE-PPO-035 secara langsung tanpa basa-basi.
-
-                                DILARANG MEMBUAT:
-                                - Header Memorandum, pembuka formalitas, maupun tanda tangan di akhir.
-                                - DILARANG MENGGUNAKAN TANDA BINTANG (*) SAMA SEKALI DALAM TEKS OUTPUT.
-
-                                ACUAN ATURAN:
-                                - Puncak Sirkadian Rendah: Jam 02.00 - 06.00 WITA. Wajib pemantauan Wake Up Call (kata sandi radio) maks 3x panggilan.
-                                - Jam Rawan Acak: 14.00-16.00 (Shift 1) & 23.00-02.00 (Shift 2).
-                                - Istirahat Fleksibel Hauling: Minimal 1 jam di workshop/rest area per shift.
-
-                                LANGSUNG TAMPILKAN FORMAT BERIKUT (Gunakan tag HTML <b> untuk judul):
-
-                                <b>📌 1. ANALISIS POLA WAKTU & RITME SIRKADIAN (BIB-035)</b><br>
-                                Uraikan kecenderungan jam kritis DSMS vs jam rawan resmi BIB (02.00 - 06.00 WITA).
-
-                                <br><b>🎯 2. ARAH STRATEGI & PENCEGAHAN TEMPORAL</b><br>
-                                - <b>Program Wake Up Call Radio</b>: Pengoperasian kata sandi harian per shift di jam kritis.<br>
-                                - <b>Manajemen Rest Area</b>: Pengaturan istirahat tidur minimal 1 jam di workshop/rest area.<br>
-                                - <b>Inspeksi Fisik & Mental</b>: Pelaksanaan fatigue check acak pada shift 1 & 2.
-
-                                <br><b>🚀 3. REKOMENDASI INTERVENSI PENGAWAS CCR/FMS</b><br>
-                                Langkah intervensi cepat jika driver tidak merespon Wake Up Call atau terdeteksi fatigue valid.
-
-                                Gunakan bahasa yang padat, lugas, langsung ke solusi, dan profesional.
-                                """
-                                st.session_state['res_jam'] = generate_gemini_analysis(user_api_key, prompt_jam_rawan)
-                        
-                        if st.session_state['res_jam']:
-                            st.markdown(f"""
-                            <div style="
-                                background: white;
-                                color: #0f172a;
-                                padding: 20px;
-                                border-radius: 16px;
-                                border-left: 5px solid #2563eb;
-                                box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-                                line-height: 1.65;
-                                text-align: justify;
-                            ">
-                                {st.session_state['res_jam']}
-                            </div>
-                            """, unsafe_allow_html=True)
-                
-                st.markdown("---")
-                
-                if not df_overspeed.empty:
-                    rj_o = df_overspeed['Jam_Range'].value_counts().reindex(order_2h, fill_value=0)
-                    rj_o = rj_o[rj_o > 0].reset_index()
-                    rj_o.columns = ['Jam', 'Total']
-                    if not rj_o.empty:
-                        max_o_val = rj_o['Total'].max()
-                        colors_o = ['#b45309' if v == max_o_val else '#f59e0b' for v in rj_o['Total']]
-                        
-                        fig = px.bar(
-                            rj_o, x='Jam', y='Total',
-                            title='Distribusi Jam Overspeed', text='Total'
-                        )
-                        fig.update_traces(marker_color=colors_o, textposition='outside', textfont=dict(size=11, weight='bold'))
-                        fig.update_layout(
-                            plot_bgcolor='rgba(0,0,0,0)', paper_bgcolor='rgba(0,0,0,0)',
-                            font=dict(family='Inter', size=12),
-                            xaxis=dict(showgrid=False, tickangle=45),
-                            yaxis=dict(showgrid=True, gridcolor='rgba(150,150,150,0.2)', gridwidth=0.5, range=[0, max_o_val * 1.25]),
-                            margin=dict(l=20, r=20, t=40, b=20),
-                            showlegend=False
-                        )
-                        render_chart(fig)
-                        st.caption("💡 Overspeed umumnya terjadi pada jam operasional puncak")
-                
-                st.markdown("---")
-                
-                c1, c2 = st.columns(2)
-                with c1:
-                    render_chart(plot_hotspot(df_fatigue, "Fatigue"))
-                with c2:
-                    render_chart(plot_hotspot(df_overspeed, "Overspeed"))
-            
-            # ========== TAB 4: DRIVER & UNIT ==========
-            with tab4:
-                render_chart(plot_demografi(df_fatigue, df_overspeed, age_labels))
-                
-                st.markdown("---")
-                
-                c1, c2 = st.columns(2)
-                with c1:
-                    render_chart(plot_top_driver(df_fatigue))
-                
-                with c2:
-                    if not df.empty:
-                        unit = df['Unit'].value_counts().head(10).reset_index()
-                        unit.columns = ['Unit', 'Total']
-                        unit = unit.sort_values('Total', ascending=True)
-                        
-                        max_u = unit['Total'].max()
-                        colors_u = ['#1d4ed8' if v == max_u else '#3b82f6' for v in unit['Total']]
-                        
-                        fig = px.bar(
-                            unit, x='Total', y='Unit', orientation='h',
-                            title='Top 10 Unit dengan Temuan Berulang', text='Total'
-                        )
-                        fig.update_traces(marker_color=colors_u, textposition='outside', textfont=dict(size=11, weight='bold'))
-                        fig.update_layout(
-                            plot_bgcolor='rgba(0,0,0,0)', paper_bgcolor='rgba(0,0,0,0)',
-                            font=dict(family='Inter', size=11),
-                            xaxis=dict(showgrid=True, gridcolor='rgba(150,150,150,0.2)', gridwidth=0.5, range=[0, max_u * 1.2]),
-                            yaxis=dict(showgrid=False),
-                            margin=dict(l=20, r=20, t=40, b=20),
-                            showlegend=False, height=450
-                        )
-                        render_chart(fig)
-                    else:
-                        st.info("Tidak ada data unit")
-                
-                if user_api_key:
-                    with st.expander("👤 Rekomendasi AI: Action Plan Driver & Disiplin (SOP BMT 011)", expanded=False):
-                        if st.button("✨ Generate Strategy & Preventive Plan"):
-                            with st.spinner("🧠 AI sedang menyusun action plan disiplin driver berisiko tinggi..."):
-                                top_fatigue_drivers = df_fatigue['Driver'].value_counts().head(5).index.tolist()
-                                
-                                driver_summary_list = []
-                                for drv in top_fatigue_drivers:
-                                    total_c = len(df_fatigue[df_fatigue['Driver'] == drv])
-                                    if 'Week' in df_fatigue.columns:
-                                        drv_weekly = df_fatigue[df_fatigue['Driver'] == drv].groupby('Week').size()
-                                        max_w = drv_weekly.max() if not drv_weekly.empty else 0
-                                        peak_week = drv_weekly.idxmax() if not drv_weekly.empty else "N/A"
-                                        driver_summary_list.append(f"- {drv}: Total {total_c} kasus (Puncak: {max_w} kasus di Week {peak_week})")
-                                    else:
-                                        driver_summary_list.append(f"- {drv}: Total {total_c} kasus")
-                                
-                                driver_summary_text = "\n".join(driver_summary_list)
-                                
-                                prompt_top_driver = f"""
-                                Anda adalah Senior Safety Specialist operasional tambang PT. BMT.
-                                Berikut adalah DATA TOP 5 DRIVER DENGAN KASUS FATIGUE TERTINGGI dari log FMS/DSMS:
-                                {driver_summary_text}
-
-                                Susun ACTION PLAN DISIPLIN DRIVER yang patuh pada BMT-CHL-SOP 011 secara langsung tanpa basa-basi.
-
-                                DILARANG MEMBUAT:
-                                - Header Memorandum, pembuka formalitas, maupun tanda tangan di akhir.
-                                - DILARANG MENGGUNAKAN TANDA BINTANG (*) SAMA SEKALI DALAM TEKS OUTPUT.
-
-                                ATURAN SANKSI BERTINGKAT BMT 011:
-                                - Threshold Peringatan: 4x Fatigue Valid dalam 1 MINGGU KERJA.
-                                - Minggu 1 (>=4x fatigue/minggu): SP1 + Lubang 1.
-                                - Minggu 2 (>=4x fatigue/minggu berturut-turut): SP2 + Lubang 2 + Dirumahkan 3 Hari + Pemanggilan Keluarga ke Office.
-                                - Minggu 3 (>=4x fatigue/minggu berturut-turut): SP3 + Lubang 3.
-                                - Sanksi Pengawas: Jika terjadi pembiaran fatigue driver, SIMPER/Mine Permit Pengawas dicabut PERMANEN.
-
-                                LANGSUNG TAMPILKAN FORMAT BERIKUT (Gunakan tag HTML <b> untuk judul):
-
-                                <b>📌 1. EVALUASI TINGKAT RISIKO & COMPLIANCE THRESHOLD TOP DRIVER</b><br>
-                                Uraikan ringkasan data Top 5 Driver berisiko tinggi di atas. Sebutkan secara jujur driver mana yang benar-benar menyentuh/melebihi threshold 4x fatigue per minggu dan mana yang masih di bawah threshold.
-
-                                <br><b>🎯 2. ACTION PLAN TINDAK LANJUT DISIPLIN & SANKSI</b><br>
-                                - <b>Penegakan Sanksi Bertingkat</b>: Rekomendasi penerbitan SP1/SP2/SP3 bagi driver yang menyentuh threshold 4x/minggu.<br>
-                                - <b>Pemeriksaan Fit to Work</b>: Verifikasi jam tidur (<4 jam dilarang bekerja) & konsumsi obat.<br>
-                                - <b>Prosedur Pengawalan Lapangan</b>: Penjemputan driver ke office oleh Safety Patrol & penyiapan driver spare.
-
-                                <br><b>🚀 3. PENGAWASAN KEPADA PENGAWAS LAPANGAN</b><br>
-                                Peringatan komitmen kepengawasan untuk mencegah pembiaran fatigue (Ancaman pencabutan SIMPER/Mine Permit permanen).
-
-                                Gunakan bahasa yang padat, lugas, langsung ke solusi, dan tegas.
-                                """
-                                st.session_state['res_driver'] = generate_gemini_analysis(user_api_key, prompt_top_driver)
-                        
-                        if st.session_state['res_driver']:
-                            st.markdown(f"""
-                            <div style="
-                                background: white;
-                                color: #0f172a;
-                                padding: 20px;
-                                border-radius: 16px;
-                                border-left: 5px solid #2563eb;
-                                box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-                                line-height: 1.65;
-                                text-align: justify;
-                            ">
-                                {st.session_state['res_driver']}
-                            </div>
-                            """, unsafe_allow_html=True)
-
-                st.markdown("---")
-                
-                st.markdown("#### 🔥 Heatmap Driver per Bulan")
-                col_h1, col_h2, col_h3 = st.columns(3)
-                with col_h1:
-                    top_n = st.slider("Jumlah Driver", 5, 30, 15, key="hm_top")
-                with col_h2:
-                    shift_filter = st.selectbox(
-                        "Shift", ["Semua"] + sorted(df_fatigue['Shift'].unique().tolist()),
-                        key="hm_shift"
-                    )
-                with col_h3:
-                    type_filter = st.selectbox(
-                        "Jenis Alarm", ["Semua"] + sorted(df_fatigue['Type'].unique().tolist()),
-                        key="hm_type"
-                    )
-                
-                hm_df = df_fatigue.copy()
-                if shift_filter != "Semua":
-                    hm_df = hm_df[hm_df['Shift'] == shift_filter]
-                if type_filter != "Semua":
-                    hm_df = hm_df[hm_df['Type'] == type_filter]
-                
-                render_chart(plot_heatmap(hm_df, order_months, top_n))
-            
-            # ========== TAB 5: DATA LOGS ==========
-            with tab5:
-                st.markdown("### 📋 Data Logs")
-                
-                c1, c2, c3 = st.columns([2, 1, 1])
-                with c1:
-                    search = st.text_input("🔍 Cari", placeholder="Driver / Unit / Lokasi")
-                with c2:
-                    f_month = st.selectbox("Bulan", ["Semua"] + [m for m in order_months if m in df['Bulan'].unique()])
-                with c3:
-                    f_type = st.selectbox("Jenis", ["Semua"] + list(df['Type'].unique()))
-                
-                filtered = df.copy()
-                if search.strip():
-                    s = search.strip().lower()
-                    filtered = filtered[
-                        filtered['Driver'].str.lower().str.contains(s, na=False) |
-                        filtered['Unit'].str.lower().str.contains(s, na=False) |
-                        filtered['Lokasi'].str.lower().str.contains(s, na=False)
-                    ]
-                if f_month != "Semua":
-                    filtered = filtered[filtered['Bulan'] == f_month]
-                if f_type != "Semua":
-                    filtered = filtered[filtered['Type'] == f_type]
-                
-                if filtered.empty:
-                    st.warning("Tidak ada data yang cocok")
-                else:
-                    st.markdown(f"**{fmt_num(len(filtered))} baris**")
-                    cols_show = [cols['date'], cols['time'], 'Bulan', 'Week', 'Shift', 'Driver', 'Umur', 'Unit', 'Type', 'Lokasi']
-                    cols_show = [c for c in cols_show if c in filtered.columns]
-                    show = filtered[cols_show].copy()
-                    show[cols['date']] = show[cols['date']].dt.strftime('%d-%m-%Y')
-                    show = show.rename(columns={
-                        cols['date']: 'Tanggal', cols['time']: 'Jam', 'Bulan': 'Bulan',
-                        'Week': 'Week', 'Shift': 'Shift', 'Driver': 'Driver', 'Umur': 'Umur',
-                        'Unit': 'Unit', 'Type': 'Jenis', 'Lokasi': 'Lokasi'
-                    })
-                    st.dataframe(show, use_container_width=True, hide_index=True, height=400)
-                    
-                    csv = show.to_csv(index=False).encode('utf-8')
-                    st.download_button(
-                        label="📥 Download CSV",
-                        data=csv,
-                        file_name=f"data_dsms_{datetime.now().strftime('%Y%m%d_%H%M')}.csv",
-                        mime='text/csv'
-                    )
-            
-            # ========== TAB 6: ANALISIS LANJUTAN ==========
-            with tab6:
-                st.markdown("## 🧠 Analisis Lanjutan untuk Pencegahan")
-                st.caption("Analisis ini membantu mengidentifikasi pola dan risiko untuk tindakan preventif")
-                st.markdown("---")
-                
-                st.markdown("### 📈 Prediksi Tren")
-                fig = plot_forecast(df_fatigue)
-                if fig:
-                    render_chart(fig)
-                    
-                    if not df_fatigue.empty:
-                        monthly = df_fatigue.groupby('Month_Num').size()
-                        if len(monthly) >= 3:
-                            current = int(monthly.iloc[-1])
-                            x = monthly.index.values
-                            y = monthly.values
-                            x_mean = np.mean(x)
-                            y_mean = np.mean(y)
-                            slope = np.sum((x - x_mean) * (y - y_mean)) / np.sum((x - x_mean) ** 2)
-                            intercept = y_mean - slope * x_mean
-                            next_pred = max(0, int(slope * (x[-1] + 1) + intercept))
-                            pct = ((next_pred - current) / current * 100) if current > 0 else 0
-                            
-                            col1, col2, col3 = st.columns(3)
-                            with col1:
-                                st.metric("📊 Bulan Ini", f"{current} kasus")
-                            with col2:
-                                st.metric("📈 Prediksi Depan", f"{next_pred} kasus", f"{pct:+.1f}%")
-                            with col3:
-                                if pct > 10:
-                                    st.warning("⚠️ Prediksi peningkatan >10%")
-                                elif pct < -10:
-                                    st.success("✅ Prediksi penurunan >10%")
-                                else:
-                                    st.info("📊 Prediksi stabil")
-                else:
-                    st.warning("Data kurang dari 3 bulan untuk prediksi")
-                
-                st.markdown("---")
-                
-                st.markdown("### 🔄 Fatigue vs Overspeed")
-                render_chart(plot_fatigue_vs_overspeed(df_fatigue, df_overspeed))
-                
-                st.markdown("---")
-                
-                st.markdown("### ✅ Rekomendasi Otomatis (Compliance BMT & BIB)")
-                
-                recs = []
-                if not df_fatigue.empty:
-                    if 'Week' in df_fatigue.columns:
-                        weekly_df = df_fatigue.groupby(['Driver', 'Week']).size().reset_index(name='Weekly_Count')
-                        high_risk_rows = weekly_df[weekly_df['Weekly_Count'] >= 4]
-                        if not high_risk_rows.empty:
-                            top_risk = high_risk_rows.sort_values('Weekly_Count', ascending=False).iloc[0]
-                            recs.append(("🔴 PRIORITAS HIGH", "🚨", f"Penegakan Sanksi BMT 011: Driver {top_risk['Driver']} mencapai {top_risk['Weekly_Count']} kasus di Week {top_risk['Week']} (SP1 + Lubang 1)"))
-                    
-                    shift_counts = df_fatigue['Shift'].value_counts()
-                    if 'Shift 2' in shift_counts.index and 'Shift 1' in shift_counts.index:
-                        ratio = shift_counts['Shift 2'] / shift_counts['Shift 1'] if shift_counts['Shift 1'] > 0 else 0
-                        if ratio > 1.5:
-                            recs.append(("🔴 PRIORITAS", "📻", f"Wake Up Call Radio (BIB 035): Intensifkan pemanggilan kata sandi jam 02.00–06.00 WITA"))
-                    
-                    jam_counts = df_fatigue['Jam_Range'].value_counts()
-                    if not jam_counts.empty:
-                        top_j = jam_counts.index[0]
-                        if any(j in top_j for j in ['02:00', '03:00', '04:00', '05:00']):
-                            recs.append(("🟡 PENTING", "☕", f"Istirahat Fleksibel: Puncak fatigue di jam sirkadian {top_j}. Instruksikan istirahat 1 jam di rest area"))
-                    
-                    unit_counts = df_fatigue['Unit'].value_counts()
-                    if not unit_counts.empty and unit_counts.iloc[0] > 5:
-                        recs.append(("🟡 PENTING", "🎥", f"Monitoring Live Streaming CCR (SOP BMT 011): Unit {unit_counts.index[0]} ({unit_counts.iloc[0]} temuan valid) wajib diprioritaskan"))
-                
-                if recs:
-                    for rec in recs:
-                        rec_card(rec[0], rec[1], rec[2])
-                else:
-                    st.success("✅ Tidak ada rekomendasi prioritas saat ini")
-            
-            st.sidebar.success(f"✅ {fmt_num(len(df))} data valid")
-
-        except Exception as e:
-            st.error(f"❌ Error saat memproses data: {str(e)}")
-            with st.expander("🔍 Detail Traceback"):
-                import traceback
-                st.code(traceback.format_exc())
-
-# ==================== FOOTER ====================
 st.markdown("---")
-st.caption("© 2026 PT. Bumiputera Maha Terpercaya | Driver Safety Management System v3.0 (Patuh SOP BMT 011 & BIB 035)")
+st.caption("© 2026 PT. Bumiputera Maha Terpercaya | Driver Safety Management System v3.0")
