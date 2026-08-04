@@ -104,7 +104,7 @@ div[data-testid="stDataFrame"] {
     border-radius: 12px;
 }
 
-/* ==================== OPTIMISASI PRINT / CETAK PDF ==================== */
+/* ==================== OPTIMISASI UTAMA PRINT / CETAK PDF (MENCEGAH GRAFIK NUMPUK) ==================== */
 @media print {
     /* Sembunyikan Navigasi & Tombol Interaktif saat Cetak PDF */
     section[data-testid="stSidebar"],
@@ -116,30 +116,53 @@ div[data-testid="stDataFrame"] {
         display: none !important;
     }
     
-    /* Tampilkan Semua Tab Secara Berurutan ke Bawah */
+    /* Tampilkan Seluruh Tab Berurutan secara Terisolasi */
     div[data-testid="stTabs"] [role="tabpanel"] {
         display: block !important;
         opacity: 1 !important;
         visibility: visible !important;
+        position: relative !important;
+        clear: both !important;
         page-break-before: always;
-        margin-bottom: 25px;
+        margin-bottom: 30px !important;
     }
 
-    /* Penyesuaian Margin Cetak */
+    /* Penyesuaian Margin Halaman */
     @page {
-        margin: 10mm;
+        size: A4 portrait;
+        margin: 12mm 10mm 12mm 10mm;
     }
 
     .block-container {
         padding: 0 !important;
         margin: 0 !important;
         width: 100% !important;
+        max-width: 100% !important;
     }
 
-    /* Mencegah Elemen Terpotong di Tengah Halaman */
-    .kpi, .js-plotly-plot, div[data-testid="stMarkdownContainer"] {
-        break-inside: avoid;
-        page-break-inside: avoid;
+    /* Isolasi Elemen Grafik Plotly Agar Tidak Menumpuk */
+    .js-plotly-plot, [data-testid="stPlotlyChart"] {
+        position: relative !important;
+        display: block !important;
+        clear: both !important;
+        float: none !important;
+        width: 100% !important;
+        max-height: 380px !important;
+        page-break-inside: avoid !important;
+        break-inside: avoid !important;
+        margin-bottom: 20px !important;
+    }
+
+    /* Mencegah KPI Card & Markdown Terpotong */
+    .kpi, div[data-testid="stMarkdownContainer"] {
+        page-break-inside: avoid !important;
+        break-inside: avoid !important;
+    }
+
+    /* Isolasi Kolom Layout Streamlit saat Print */
+    [data-testid="column"] {
+        page-break-inside: avoid !important;
+        break-inside: avoid !important;
     }
 }
 </style>
@@ -949,7 +972,6 @@ else:
             # SEKSI AI NARRATIVE GENERATOR (FORMAL HEADER & HIDDEN BUTTON ON PRINT)
             st.markdown("#### 📄 Laporan Ringkasan Eksekutif K3")
             if user_api_key:
-                # Tombol hanya muncul di layar browser, otomatis tersembunyi saat di-print/PDF
                 if st.button("✨ Generate Laporan Ringkasan Eksekutif"):
                     with st.spinner("🧠 AI sedang menganalisis data berdasarkan SOP BMT 011 & PPO BIB 035..."):
                         prompt_eksekutif = f"""
@@ -992,7 +1014,6 @@ else:
                         """
                         st.session_state['res_eksekutif'] = generate_gemini_analysis(user_api_key, prompt_eksekutif)
                 
-                # HASIL KONTEN RAPAT KIRI-KANAN (JUSTIFY) & BERBERSIH CETAKAN
                 if st.session_state['res_eksekutif']:
                     st.markdown(f"""
                     <div style="
@@ -1083,7 +1104,6 @@ else:
                 else:
                     st.warning("Tidak ada data jam")
                 
-                # FITUR AI KHUSUS GRAFIK JAM RAWAN FATIGUE
                 if user_api_key:
                     with st.expander("💡 Rekomendasi AI: Solusi Proaktif & Strategi Jam Rawan (PPO BIB-035)", expanded=False):
                         if st.button("✨ Generate Temporal Preventive Strategy"):
@@ -1221,7 +1241,6 @@ else:
                     else:
                         st.info("Tidak ada data unit")
                 
-                # FITUR AI KHUSUS TOP DRIVER
                 if user_api_key:
                     with st.expander("👤 Rekomendasi AI: Action Plan Driver & Disiplin (SOP BMT 011)", expanded=False):
                         if st.button("✨ Generate Strategy & Preventive Plan"):
