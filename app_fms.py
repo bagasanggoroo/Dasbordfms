@@ -14,7 +14,7 @@ st.set_page_config(
     layout="wide"
 )
 
-# ==================== CSS CUSTOM STYLING (PRINT FIX PERFECT) ====================
+# ==================== CSS CUSTOM STYLING ====================
 st.markdown("""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
@@ -64,7 +64,7 @@ html, body, [class*="css"] {
     font-weight: 500;
 }
 
-/* CONTAINER GRAFIK AGAR TERISOLASI TEGAS */
+/* KONTAINER GRAFIK ISOLASI */
 .chart-box {
     position: relative !important;
     display: block !important;
@@ -73,7 +73,7 @@ html, body, [class*="css"] {
     margin-bottom: 25px !important;
 }
 
-/* ==================== OPTIMISASI SPESIFIK PRINT PDF (ANTI-OVERLAP) ==================== */
+/* ==================== OPTIMISASI PRINT PDF (ANTI-OVERLAP) ==================== */
 @media print {
     section[data-testid="stSidebar"],
     header[data-testid="stHeader"],
@@ -95,7 +95,6 @@ html, body, [class*="css"] {
         margin-bottom: 30px !important;
     }
 
-    /* Hilangkan Flexbox Kolom saat Print agar Dirender Berurutan ke Bawah */
     [data-testid="column"], div[data-testid="stHorizontalBlock"] {
         display: block !important;
         width: 100% !important;
@@ -117,7 +116,6 @@ html, body, [class*="css"] {
         width: 100% !important;
     }
 
-    /* Mencegah Tumpukan pada Grafik Plotly */
     .chart-box, .js-plotly-plot, [data-testid="stPlotlyChart"] {
         position: relative !important;
         display: block !important;
@@ -139,7 +137,7 @@ html, body, [class*="css"] {
 </style>
 """, unsafe_allow_html=True)
 
-# ==================== MEMORI SESSION STATE ====================
+# ==================== MEMORI SESSION STATE AI ====================
 if 'res_eksekutif' not in st.session_state:
     st.session_state['res_eksekutif'] = None
 if 'res_jam' not in st.session_state:
@@ -211,7 +209,7 @@ def header_with_logo(title, subtitle, logo_path="image.png"):
             <h1 style="margin: 0; font-size: 30px; font-weight: 700; color: white;">{title}</h1>
             <p style="margin: 6px 0 0 0; opacity: 0.9; font-size: 14px; line-height: 1.5; color: white;">{subtitle}</p>
         </div>
-        <div style="background: white; padding: 8px 16px; border-radius: 14px; display: flex; align-items: center; justify-content: center;">
+        <div style="background: white; padding: 8px 16px; border-radius: 14px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
             {logo_html}
         </div>
     </div>
@@ -297,17 +295,6 @@ def insight(color, title, text, icon="💡"):
     </div>
     """, unsafe_allow_html=True)
 
-def rec_card(priority, icon, text):
-    bg = '#fef2f2' if 'PRIORITAS' in priority else '#fffbeb'
-    border = '#ef4444' if 'PRIORITAS' in priority else '#f59e0b'
-    st.markdown(f"""
-    <div style="background:{bg}; padding:12px 16px; border-radius:12px; border-left:5px solid {border}; margin:6px 0; color:#1e293b;">
-        <span style="font-weight:600; font-size:0.85rem;">{priority}</span> 
-        <span style="font-size:1rem;">{icon}</span> 
-        <span style="font-size:0.9rem; color:#1e293b;">{text}</span>
-    </div>
-    """, unsafe_allow_html=True)
-
 # ==================== RENDERER GRAFIK AMAN PRINT ====================
 def render_chart(fig):
     if fig:
@@ -383,7 +370,7 @@ def plot_jam_distribution(df_fatigue, order_2h):
     if rj.empty: return None
     max_val = rj['Total'].max()
     colors = ['#991b1b' if v == max_val else '#f87171' for v in rj['Total']]
-    fig = px.bar(rj, x='Jam', y='Total', title='Distribusi Jam Fatigue', text='Total')
+    fig = px.bar(rj, x='Jam', y='Total', title='Distribusi Jam Fatigue (Puncak Diberi Penanda)', text='Total')
     fig.update_traces(marker_color=colors, textposition='outside')
     fig.update_layout(plot_bgcolor='rgba(0,0,0,0)', paper_bgcolor='rgba(0,0,0,0)', margin=dict(l=20, r=20, t=50, b=20), showlegend=False)
     return fig
@@ -482,7 +469,11 @@ with st.sidebar:
 # ==================== HEADER UTAMA ====================
 header_with_logo(
     "🛡️ Driver Safety Management System",
-    "PT. Bumiputera Maha Terpercaya<br><b>Monitoring Fatigue • Analytics • K3 Compliance</b>",
+    "PT. Bumiputera Maha Terpercaya<br>"
+    "<b>Monitoring Fatigue • Driver Behavior Analytics • K3 Compliance</b><br>"
+    "<span style='font-size:12px; opacity:0.85; display:inline-block; margin-top:4px;'>"
+    "Sistem analisis terintegrasi untuk memantau risiko fatigue pengemudi, perilaku berkendara, dan penegakan sanksi K3 secara real-time sesuai SOP BMT-CHL-SOP 011 & BIB-HSE-PPO-035."
+    "</span>",
     "image.png"
 )
 
@@ -522,14 +513,30 @@ else:
             insight("#fee2e2", "Jam Kritis Sirkadian (BIB PPO-035)", f"Puncak fatigue di {top_jam} — Masuk jam rawan 02.00–06.00 WITA!")
         with col2:
             top_unit = df_fatigue['Unit'].value_counts().index[0] if not df_fatigue.empty else "N/A"
-            insight("#fee2e2", "Unit Temuan Berulang Valid", f"Unit {top_unit} — Prioritaskan Live Streaming Monitoring!")
+            insight("#fee2e2", "Unit Temuan Berulang Valid (SOP BMT 011)", f"Unit {top_unit} — Prioritaskan Live Streaming Monitoring!")
 
         # SEKSI AI NARRATIVE GENERATOR
         st.markdown("#### 📄 Laporan Ringkasan Eksekutif K3")
         if user_api_key:
             if st.button("✨ Generate Laporan Ringkasan Eksekutif"):
                 with st.spinner("🧠 AI sedang menyusun laporan..."):
-                    prompt_eksekutif = f"Buatkan Laporan K3 DSMS PT BMT untuk {total_alarm} alarm ({total_f} fatigue, {total_o} overspeed) di hotspot {top_fatigue_loc} jam {top_jam}."
+                    prompt_eksekutif = f"""
+                    Anda adalah Senior Safety Specialist di PT. Bumiputera Maha Terpercaya (BMT).
+                    Analisis data DSMS berikut dan buatkan Laporan Ringkasan Eksekutif K3 yang PATUH pada SOP BMT-CHL-SOP 011 dan BIB-HSE-PPO-035.
+
+                    DILARANG MEMBUAT Header Memorandum atau tanda tangan di akhir.
+                    DILARANG MENGGUNAKAN TANDA BINTANG (*) SAMA SEKALI DALAM TEKS OUTPUT.
+
+                    Data: Total Alarm: {total_alarm}, Fatigue: {total_f}, Overspeed: {total_o}, Hotspot: {top_fatigue_loc}, Jam Puncak: {top_jam}.
+
+                    Format Output (HTML):
+                    <b>📌 1. RINGKASAN SITUASI & EVALUASI COMPLIANCE SAFETY</b><br>
+                    Uraikan ringkasan temuan DSMS & sirkadian jam rawan.<br><br>
+                    <b>🎯 2. PENILAIAN RISIKO OPERASIONAL & AUDIT ATRIBUT</b><br>
+                    Risiko fatalitas & audit kacamata/masker sesuai SOP 011.<br><br>
+                    <b>🚀 3. ACTION PLAN TAKTIS TIM K3/SAFETY (KAMPANYE 7B)</b><br>
+                    3 langkah taktis pengawalan & verifikasi ADAS.
+                    """
                     st.session_state['res_eksekutif'] = generate_gemini_analysis(user_api_key, prompt_eksekutif)
             
             if st.session_state['res_eksekutif']:
@@ -558,17 +565,75 @@ else:
                 st.markdown(f"#### Status Tren Keseluruhan: **{trend_status}**")
                 render_chart(fig_week)
 
+        # TAB 3: LOKASI & WAKTU + GENERATOR AI DISTRIBUSI WAKTU
         with tab3:
             st.markdown("### 🗺️ Analisis Lokasi & Waktu")
             render_chart(plot_jam_distribution(df_fatigue, order_2h))
+            
+            # FITUR AI KHUSUS DISTRIBUSI JAM RAWAN (PPO BIB-035)
+            if user_api_key:
+                with st.expander("💡 Rekomendasi AI: Solusi Proaktif & Strategi Jam Rawan (PPO BIB-035)", expanded=False):
+                    if st.button("✨ Generate Temporal Preventive Strategy"):
+                        with st.spinner("🧠 AI sedang menganalisis pola jam rawan..."):
+                            jam_data = df_fatigue['Jam_Range'].value_counts().head(5).to_dict()
+                            prompt_jam_rawan = f"""
+                            Anda adalah Senior Safety Specialist operasional tambang PT. BMT.
+                            Berdasarkan data distribusi jam puncak fatigue: {jam_data}
+
+                            Berikan STRATEGI PENCEGAHAN TEMPORAL yang patuh pada BIB-HSE-PPO-035.
+                            DILARANG MENGGUNAKAN TANDA BINTANG (*) SAMA SEKALI.
+
+                            Format HTML:
+                            <b>📌 1. ANALISIS POLA WAKTU & RITME SIRKADIAN (BIB-035)</b><br>
+                            Uraikan jam kritis Sirkadian (02.00 - 06.00 WITA).<br><br>
+                            <b>🎯 2. ARAH STRATEGI & PENCEGAHAN TEMPORAL</b><br>
+                            - Program Wake Up Call Radio (kata sandi).<br>
+                            - Istirahat Fleksibel Hauling di rest area.<br><br>
+                            <b>🚀 3. REKOMENDASI INTERVENSI PENGAWAS CCR/FMS</b><br>
+                            Langkah intervensi jika driver fatigue valid.
+                            """
+                            st.session_state['res_jam'] = generate_gemini_analysis(user_api_key, prompt_jam_rawan)
+                    
+                    if st.session_state['res_jam']:
+                        st.markdown(f"<div style='background:white; color:#0f172a; padding:20px; border-radius:14px; border-left:5px solid #2563eb; text-align:justify;'>{st.session_state['res_jam']}</div>", unsafe_allow_html=True)
+            
+            st.markdown("---")
             render_chart(plot_hotspot(df_fatigue, "Fatigue"))
             render_chart(plot_hotspot(df_overspeed, "Overspeed"))
 
+        # TAB 4: DRIVER & UNIT + GENERATOR AI ACTION PLAN DRIVER
         with tab4:
             st.markdown("### 👥 Analisis Driver & Unit")
             render_chart(plot_demografi(df_fatigue, df_overspeed, age_labels))
             render_chart(plot_top_driver(df_fatigue))
             
+            # FITUR AI KHUSUS DRIVER RISK (SOP BMT 011)
+            if user_api_key:
+                with st.expander("👤 Rekomendasi AI: Action Plan Driver & Disiplin (SOP BMT 011)", expanded=False):
+                    if st.button("✨ Generate Strategy & Preventive Plan"):
+                        with st.spinner("🧠 AI sedang menyusun action plan driver..."):
+                            top_drivers = df_fatigue['Driver'].value_counts().head(5).to_dict()
+                            prompt_top_driver = f"""
+                            Anda adalah Senior Safety Specialist PT. BMT.
+                            Data Top Driver Fatigue: {top_drivers}
+
+                            Susun ACTION PLAN DISIPLIN DRIVER berdasarkan BMT-CHL-SOP 011.
+                            DILARANG MENGGUNAKAN TANDA BINTANG (*) SAMA SEKALI.
+
+                            Format HTML:
+                            <b>📌 1. EVALUASI TINGKAT RISIKO & COMPLIANCE THRESHOLD</b><br>
+                            Evaluasi threshold 4x fatigue/minggu.<br><br>
+                            <b>🎯 2. ACTION PLAN TINDAK LANJUT DISIPLIN & SANKSI</b><br>
+                            Penegakan SP1/SP2/SP3 & Fit to Work.<br><br>
+                            <b>🚀 3. PENGAWASAN LAPANGAN</b><br>
+                            Komitmen pengawasan cegah pembiaran.
+                            """
+                            st.session_state['res_driver'] = generate_gemini_analysis(user_api_key, prompt_top_driver)
+                    
+                    if st.session_state['res_driver']:
+                        st.markdown(f"<div style='background:white; color:#0f172a; padding:20px; border-radius:14px; border-left:5px solid #2563eb; text-align:justify;'>{st.session_state['res_driver']}</div>", unsafe_allow_html=True)
+
+            st.markdown("---")
             if not df.empty:
                 unit = df['Unit'].value_counts().head(10).reset_index()
                 unit.columns = ['Unit', 'Total']
@@ -587,4 +652,4 @@ else:
             render_chart(plot_fatigue_vs_overspeed(df_fatigue, df_overspeed))
 
 st.markdown("---")
-st.caption("© 2026 PT. Bumiputera Maha Terpercaya | Driver Safety Management System v3.0")
+st.caption("© 2026 PT. Bumiputera Maha Terpercaya | Driver Safety Management System v3.0 (Patuh SOP BMT 011 & BIB 035)")
