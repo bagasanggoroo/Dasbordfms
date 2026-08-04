@@ -173,7 +173,7 @@ def header_with_logo(title, subtitle, logo_path="image.png"):
     ">
         <div>
             <h1 style="margin: 0; font-size: 30px; font-weight: 700; color: white;">{title}</h1>
-            <p style="margin: 6px 0 0 0; opacity: 0.85; font-size: 14px; line-height: 1.4; color: white;">{subtitle}</p>
+            <p style="margin: 6px 0 0 0; opacity: 0.9; font-size: 14px; line-height: 1.5; color: white;">{subtitle}</p>
         </div>
         <div style="
             background: white;
@@ -756,10 +756,14 @@ with st.sidebar:
     st.markdown("---")
     st.caption("© 2026 PT. Bumiputera Maha Terpercaya")
 
-# ==================== HEADER UTAMA DENGAN JUDUL & IKON BARU ====================
+# ==================== HEADER UTAMA DENGAN JUDUL, SUBTITLE & DESKRIPSI ====================
 header_with_logo(
     "🛡️ Driver Safety Management System",
-    "PT. Bumiputera Maha Terpercaya<br>Monitoring Fatigue • Driver Behavior Analytics • K3 Compliance",
+    "PT. Bumiputera Maha Terpercaya<br>"
+    "<b>Monitoring Fatigue • Driver Behavior Analytics • K3 Compliance</b><br>"
+    "<span style='font-size:12px; opacity:0.85; display:inline-block; margin-top:4px;'>"
+    "Sistem analisis terintegrasi untuk memantau risiko fatigue pengemudi, perilaku berkendara, dan penegakan sanksi K3 secara real-time sesuai SOP BMT-CHL-SOP 011 & BIB-HSE-PPO-035."
+    "</span>",
     "image.png"
 )
 
@@ -837,7 +841,6 @@ else:
             with c3:
                 kpi("Overspeed", fmt_num(total_o), "Kasus overspeed", "🚗", "#3b82f6")
             with c4:
-                # REVISI: Mengubah label menjadi spesifik "Lokasi Rawan Fatigue" dengan statistik riil
                 kpi("Lokasi Rawan Fatigue", top_fatigue_loc, fatigue_loc_footer, "📍", "#8b5cf6")
             
             st.markdown("---")
