@@ -14,7 +14,7 @@ st.set_page_config(
     layout="wide"
 )
 
-# ==================== CSS CUSTOM STYLING (FIX SIDEBAR DARK & CHART CUT) ====================
+# ==================== CSS CUSTOM STYLING (SOFT THEME & PRINT FIX) ====================
 st.markdown("""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
@@ -23,7 +23,7 @@ html, body, [class*="css"] {
     font-family: 'Inter', sans-serif;
 }
 
-/* LATAR BELAKANG UTAMA (SOFT & TIDAK PUTIH POLOS) */
+/* LATAR BELAKANG UTAMA (SOFT & NYAMAN DILIHAT) */
 .stApp {
     background-color: #f8fafc !important;
 }
@@ -36,21 +36,22 @@ html, body, [class*="css"] {
     max-width: 1600px;
 }
 
-/* SIDEBAR ADAPTIF */
+/* SIDEBAR ADAPTIF TERANG/GELAP */
 [data-testid="stSidebar"] {
-    background-color: #f1f5f9 !important;
+    background-color: var(--background-color) !important;
 }
 
 [data-testid="stSidebar"] [data-testid="stMarkdownContainer"] p,
 [data-testid="stSidebar"] [data-testid="stMarkdownContainer"] span,
-[data-testid="stSidebar"] label {
-    color: #1e293b !important;
+[data-testid="stSidebar"] label,
+[data-testid="stSidebar"] .stFileUploader label {
+    color: var(--text-color) !important;
 }
 
-/* KPI CARDS (WARNA SOFT, ELEGAN, NYAMAN DILIHAT) */
+/* KPI CARDS (SOFT & ELEGAN) */
 .kpi {
     background-color: #ffffff;
-    padding: 20px 18px;
+    padding: 18px 16px;
     border-radius: 16px;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
     transition: all 0.3s ease;
@@ -377,7 +378,6 @@ def plot_weekly_trend_with_trendline(df_fatigue):
     fig.add_trace(go.Scatter(x=weekly['Week'], y=weekly['Total'], mode='lines+markers', name='Fatigue', line=dict(color='#ef4444', width=2.5)))
     fig.add_trace(go.Scatter(x=weekly['Week'], y=trendline_y, mode='lines', name=f'Garis Tren ({trend_status})', line=dict(color=trend_color, width=3, dash='dash')))
     
-    # PERBAIKAN: HAPUS RANGESLIDER AGAR GRAFIK MINGGU TIDAK TERPOTONG / KEPOTONG BAWAHNYA
     fig.update_layout(
         title='📊 Tren Fatigue Mingguan (Week 1–52) + Garis Tren',
         plot_bgcolor='rgba(0,0,0,0)', paper_bgcolor='rgba(0,0,0,0)',
@@ -492,11 +492,11 @@ def plot_fatigue_vs_overspeed(df_fatigue, df_overspeed):
     fig.update_layout(title='Fatigue vs Overspeed per Driver', plot_bgcolor='rgba(0,0,0,0)', paper_bgcolor='rgba(0,0,0,0)', barmode='group', margin=dict(l=20, r=20, t=40, b=20), height=420)
     return fig
 
-# ==================== GEMINI AI INTEGRATION ====================
+# ==================== GEMINI AI INTEGRATION (MENGGUNAKAN GEMINI-1.5-FLASH UNTUK MENGHINDARI ERROR 429) ====================
 def generate_gemini_analysis(api_key, prompt_text):
     try:
         client = genai.Client(api_key=api_key, http_options={'api_version': 'v1'})
-        response = client.models.generate_content(model='gemini-2.0-flash', contents=prompt_text)
+        response = client.models.generate_content(model='gemini-1.5-flash', contents=prompt_text)
         return response.text
     except Exception as e:
         return f"❌ Error: {str(e)}"
