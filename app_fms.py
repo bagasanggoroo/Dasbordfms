@@ -14,7 +14,7 @@ st.set_page_config(
     layout="wide"
 )
 
-# ==================== CSS CUSTOM STYLING (THEME-ADAPTIVE & DARK/LIGHT FIX) ====================
+# ==================== CSS CUSTOM STYLING (THEME, LIGHT MODE, PRINT PDF FIX) ====================
 st.markdown("""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
@@ -102,6 +102,40 @@ div[data-testid="stDataFrame"] {
 /* PLOTLY CONTAINER */
 .js-plotly-plot .plotly .main-svg {
     border-radius: 12px;
+}
+
+/* ==================== OPTIMISASI PRINT / CETAK PDF ==================== */
+@media print {
+    /* Sembunyikan elemen navigasi yang tidak perlu di cetakan */
+    section[data-testid="stSidebar"],
+    header[data-testid="stHeader"],
+    .stButton,
+    footer,
+    div[data-testid="stTabs"] [role="tablist"] {
+        display: none !important;
+    }
+    
+    /* Paksa seluruh konten Tab tampil berurutan ke bawah secara utuh */
+    div[data-testid="stTabs"] [role="tabpanel"] {
+        display: block !important;
+        opacity: 1 !important;
+        visibility: visible !important;
+        page-break-after: always;
+        margin-bottom: 30px;
+    }
+
+    /* Penyesuaian margin dokumen cetak */
+    .block-container {
+        padding: 0 !important;
+        margin: 0 !important;
+        width: 100% !important;
+        max-width: 100% !important;
+    }
+
+    /* Memastikan grafik Plotly tercetak utuh tanpa terpotong */
+    .js-plotly-plot {
+        page-break-inside: avoid;
+    }
 }
 </style>
 """, unsafe_allow_html=True)
@@ -880,7 +914,6 @@ else:
                             insight("#dcfce7", "Shift Seimbang", f"{s2} vs {s1}")
             
             with col2:
-                # PERBAIKAN 1: DRIVER RISK HIGH - Dihitung presisi per minggunya (Week)
                 if not df_fatigue.empty and 'Week' in df_fatigue.columns:
                     weekly_driver_fatigue = df_fatigue.groupby(['Driver', 'Week']).size().reset_index(name='Weekly_Count')
                     max_weekly_row = weekly_driver_fatigue.sort_values('Weekly_Count', ascending=False).iloc[0]
@@ -899,7 +932,6 @@ else:
                     top_driver_name = "N/A"
                     max_weekly_val = 0
 
-                # PERBAIKAN 2: UNIT TEMUAN BERULANG - Diarahkan ke Live Streaming Monitoring CCR (Bukan perbaikan teknis)
                 unit_counts = df_fatigue['Unit'].value_counts()
                 if not unit_counts.empty:
                     top_unit = unit_counts.index[0]
@@ -955,10 +987,19 @@ else:
                         """
                         st.session_state['res_eksekutif'] = generate_gemini_analysis(user_api_key, prompt_eksekutif)
                 
-                # TAMPILKAN HASIL DARI MEMORI SESSION STATE (WARNA TEKS GELAP BIAR TERBACA DI DARK MODE)
+                # PERBAIKAN: HASIL AI RATA KIRI KANAN (JUSTIFY) & WARNA GELAP CONTRAS
                 if st.session_state['res_eksekutif']:
                     st.markdown(f"""
-                    <div style="background:white; color:#0f172a; padding:20px; border-radius:16px; border-left:5px solid #2563eb; box-shadow:0 4px 15px rgba(0,0,0,0.05); line-height:1.6;">
+                    <div style="
+                        background: white;
+                        color: #0f172a;
+                        padding: 22px;
+                        border-radius: 16px;
+                        border-left: 5px solid #2563eb;
+                        box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+                        line-height: 1.65;
+                        text-align: justify;
+                    ">
                         {st.session_state['res_eksekutif']}
                     </div>
                     """, unsafe_allow_html=True)
@@ -1037,7 +1078,7 @@ else:
                 else:
                     st.warning("Tidak ada data jam")
                 
-                # FITUR AI KHUSUS GRAFIK JAM RAWAN FATIGUE (BERDASARKAN PPO BIB-035)
+                # FITUR AI KHUSUS GRAFIK JAM RAWAN FATIGUE
                 if user_api_key:
                     with st.expander("💡 Rekomendasi AI: Solusi Proaktif & Strategi Jam Rawan (PPO BIB-035)", expanded=False):
                         if st.button("✨ Generate Temporal Preventive Strategy"):
@@ -1075,10 +1116,19 @@ else:
                                 """
                                 st.session_state['res_jam'] = generate_gemini_analysis(user_api_key, prompt_jam_rawan)
                         
-                        # TAMPILKAN HASIL DARI MEMORI SESSION STATE (WARNA TEKS GELAP)
+                        # PERBAIKAN: HASIL AI RATA KIRI KANAN (JUSTIFY)
                         if st.session_state['res_jam']:
                             st.markdown(f"""
-                            <div style="background:white; color:#0f172a; padding:20px; border-radius:16px; border-left:5px solid #2563eb; box-shadow:0 4px 15px rgba(0,0,0,0.05); line-height:1.6;">
+                            <div style="
+                                background: white;
+                                color: #0f172a;
+                                padding: 20px;
+                                border-radius: 16px;
+                                border-left: 5px solid #2563eb;
+                                box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+                                line-height: 1.65;
+                                text-align: justify;
+                            ">
                                 {st.session_state['res_jam']}
                             </div>
                             """, unsafe_allow_html=True)
@@ -1167,13 +1217,11 @@ else:
                     else:
                         st.info("Tidak ada data unit")
                 
-                # FITUR AI KHUSUS TOP DRIVER (SOP BMT 011) - FIX LOGIKA TOP DRIVERS PER MINGGU
+                # FITUR AI KHUSUS TOP DRIVER
                 if user_api_key:
                     with st.expander("👤 Rekomendasi AI: Action Plan Driver & Disiplin (SOP BMT 011)", expanded=False):
                         if st.button("✨ Generate Strategy & Preventive Plan"):
                             with st.spinner("🧠 AI sedang menyusun action plan disiplin driver berisiko tinggi..."):
-                                
-                                # PERBAIKAN UTAMA: Ambil Top 5 Driver berdasarkan KASUS FATIGUE TERTINGGI (Bukan abjad)
                                 top_fatigue_drivers = df_fatigue['Driver'].value_counts().head(5).index.tolist()
                                 
                                 driver_summary_list = []
@@ -1224,10 +1272,19 @@ else:
                                 """
                                 st.session_state['res_driver'] = generate_gemini_analysis(user_api_key, prompt_top_driver)
                         
-                        # TAMPILKAN HASIL DARI MEMORI SESSION STATE (WARNA TEKS GELAP)
+                        # PERBAIKAN: HASIL AI RATA KIRI KANAN (JUSTIFY)
                         if st.session_state['res_driver']:
                             st.markdown(f"""
-                            <div style="background:white; color:#0f172a; padding:20px; border-radius:16px; border-left:5px solid #2563eb; box-shadow:0 4px 15px rgba(0,0,0,0.05); line-height:1.6;">
+                            <div style="
+                                background: white;
+                                color: #0f172a;
+                                padding: 20px;
+                                border-radius: 16px;
+                                border-left: 5px solid #2563eb;
+                                box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+                                line-height: 1.65;
+                                text-align: justify;
+                            ">
                                 {st.session_state['res_driver']}
                             </div>
                             """, unsafe_allow_html=True)
