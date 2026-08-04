@@ -821,18 +821,28 @@ else:
             
             # ========== KPI CARDS ==========
             st.markdown("### 📊 Ringkasan")
-            c1, c2, c3, c4 = st.columns(4)
-            
-            with c1:
-                kpi("Total Alarm", fmt_num(total_alarm), "Semua jenis alarm", "🚨", "#ef4444")
-            with c2:
-                kpi("Fatigue", fmt_num(total_f), "Kasus fatigue", "😴", "#f59e0b")
-            with c3:
-                kpi("Overspeed", fmt_num(total_o), "Kasus overspeed", "🚗", "#3b82f6")
-            with c4:
-                kpi("Lokasi Rawan (Hotspot)", top_loc, f"{top_loc_val} kasus", "📍", "#8b5cf6")
-            
-            st.markdown("---")
+c1, c2, c3, c4 = st.columns(4)
+
+# Hitung spesifik Hotspot Fatigue & Persentasenya
+if not df_fatigue.empty:
+    fatigue_loc_counts = df_fatigue['Lokasi'].value_counts()
+    top_fatigue_loc = fatigue_loc_counts.index[0]
+    top_fatigue_val = fatigue_loc_counts.iloc[0]
+    fatigue_pct = (top_fatigue_val / len(df_fatigue)) * 100
+    fatigue_loc_footer = f"{top_fatigue_val} kasus ({fatigue_pct:.1f}% kasus fatigue)"
+else:
+    top_fatigue_loc = "N/A"
+    fatigue_loc_footer = "0 kasus"
+
+with c1:
+    kpi("Total Alarm", fmt_num(total_alarm), "Semua jenis alarm", "🚨", "#ef4444")
+with c2:
+    kpi("Fatigue", fmt_num(total_f), "Kasus fatigue valid", "😴", "#f59e0b")
+with c3:
+    kpi("Overspeed", fmt_num(total_o), "Kasus overspeed", "🚗", "#3b82f6")
+with c4:
+    # REVISI: Mengubah label menjadi spesifik "Lokasi Rawan Fatigue" dengan angka persentase riil
+    kpi("Lokasi Rawan Fatigue", top_fatigue_loc, fatigue_loc_footer, "📍", "#8b5cf6")
             
             # ========== RINGKASAN EKSEKUTIF DENGAN PERBAIKAN LOGIKA DRIVER & UNIT ==========
             st.markdown("### 📋 Ringkasan Eksekutif")
