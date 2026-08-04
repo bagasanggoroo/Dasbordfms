@@ -23,6 +23,11 @@ html, body, [class*="css"] {
     font-family: 'Inter', sans-serif;
 }
 
+/* LATAR BELAKANG UTAMA (SOFT & TIDAK PUTIH POLOS) */
+.stApp {
+    background-color: #f8fafc !important;
+}
+
 .block-container {
     padding-top: 1.2rem;
     padding-bottom: 2rem;
@@ -31,46 +36,60 @@ html, body, [class*="css"] {
     max-width: 1600px;
 }
 
-/* SIDEBAR ADAPTIF OTOMATIS MENGIKUTI TEMA STREAMLIT (LIGHT / DARK) */
+/* SIDEBAR ADAPTIF */
 [data-testid="stSidebar"] {
-    background-color: var(--background-color) !important;
+    background-color: #f1f5f9 !important;
 }
 
 [data-testid="stSidebar"] [data-testid="stMarkdownContainer"] p,
 [data-testid="stSidebar"] [data-testid="stMarkdownContainer"] span,
-[data-testid="stSidebar"] label,
-[data-testid="stSidebar"] .stFileUploader label {
-    color: var(--text-color) !important;
+[data-testid="stSidebar"] label {
+    color: #1e293b !important;
 }
 
-/* KPI CARDS STYLING */
+/* KPI CARDS (WARNA SOFT, ELEGAN, NYAMAN DILIHAT) */
 .kpi {
-    background-color: var(--background-secondary-color, rgba(255, 255, 255, 0.05));
-    padding: 18px 16px;
+    background-color: #ffffff;
+    padding: 20px 18px;
     border-radius: 16px;
-    box-shadow: 0 5px 20px rgba(0,0,0,.05);
-    transition: .25s;
-    border: 1px solid var(--border-color, #edf2f7);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
+    transition: all 0.3s ease;
+    border: 1px solid #e2e8f0;
     position: relative;
     box-sizing: border-box;
 }
+.kpi:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.06);
+}
 .kpi-icon { font-size: 26px; margin-bottom: 4px; }
-.kpi-title { font-size: 12px; opacity: 0.85; text-transform: uppercase; letter-spacing: .5px; font-weight: 600; }
-.kpi-value { font-size: 28px; font-weight: 700; margin-top: 4px; word-wrap: break-word; }
-.kpi-footer { margin-top: 6px; color: #2563eb; font-size: 12px; }
+.kpi-title { font-size: 12px; color: #64748b; text-transform: uppercase; letter-spacing: .6px; font-weight: 600; }
+.kpi-value { font-size: 28px; font-weight: 700; color: #0f172a; margin-top: 4px; }
+.kpi-footer { margin-top: 6px; color: #3b82f6; font-size: 12px; font-weight: 500; }
 
-/* BUTTON STYLING */
+/* BUTTON STYLING (SOFT BLUE) */
 .stButton > button {
-    background: #2563eb;
+    background: #3b82f6;
     color: white !important;
     border-radius: 10px;
     border: none;
     padding: .55rem 1rem;
     font-weight: 500;
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
+    transition: all 0.2s ease;
+}
+.stButton > button:hover {
+    background: #2563eb;
+    box-shadow: 0 6px 16px rgba(59, 130, 246, 0.3);
 }
 
 /* KONTAINER GRAFIK ISOLASI */
 .chart-box {
+    background-color: #ffffff;
+    padding: 15px;
+    border-radius: 16px;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.02);
     position: relative !important;
     display: block !important;
     width: 100% !important;
@@ -78,7 +97,7 @@ html, body, [class*="css"] {
     margin-bottom: 25px !important;
 }
 
-/* ==================== OPTIMISASI UTAMA PRINT PDF ==================== */
+/* ==================== OPTIMISASI PRINT PDF ==================== */
 @media print {
     section[data-testid="stSidebar"],
     header[data-testid="stHeader"],
@@ -128,6 +147,7 @@ html, body, [class*="css"] {
         padding: 0 !important;
         margin: 0 !important;
         width: 100% !important;
+        background-color: #ffffff !important;
     }
 
     .chart-box, .js-plotly-plot, [data-testid="stPlotlyChart"] {
@@ -141,6 +161,9 @@ html, body, [class*="css"] {
         page-break-inside: avoid !important;
         break-inside: avoid !important;
         margin-bottom: 25px !important;
+        background-color: #ffffff !important;
+        border: none !important;
+        box-shadow: none !important;
     }
 
     .kpi, div[data-testid="stMarkdownContainer"] {
