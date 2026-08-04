@@ -758,7 +758,7 @@ with st.sidebar:
 
 # ==================== HEADER DENGAN INTEGRASI LOGO ====================
 header_with_logo(
-    "🚛 Driver Management System",
+    "🚛 Fleet Management System",
     "PT. Bumiputera Maha Terpercaya<br>Monitoring Fatigue • Overspeed • Safety Analytics",
     "image.png"
 )
@@ -834,7 +834,7 @@ else:
             
             st.markdown("---")
             
-            # ========== RINGKASAN EKSEKUTIF DENGAN TOMBOL GEMINI AI ==========
+            # ========== RINGKASAN EKSEKUTIF DENGAN PERBAIKAN LOGIKA DRIVER & UNIT ==========
             st.markdown("### 📋 Ringkasan Eksekutif")
             col1, col2 = st.columns(2)
             
@@ -861,32 +861,41 @@ else:
                             insight("#dcfce7", "Shift Seimbang", f"{s2} vs {s1}")
             
             with col2:
-                driver_counts = df_fatigue['Driver'].value_counts()
-                if not driver_counts.empty:
-                    top_driver = driver_counts.index[0]
-                    top_val = driver_counts.iloc[0]
-                    if top_val >= 4:
-                        insight("#fee2e2", "Driver Risk High (SOP BMT 011)", f"{top_driver} ({top_val} kasus/minggu) — Batas threshold SP1 & Lubang 1!")
+                # PERBAIKAN 1: DRIVER RISK HIGH - Dihitung presisi per minggunya (Week)
+                if not df_fatigue.empty and 'Week' in df_fatigue.columns:
+                    weekly_driver_fatigue = df_fatigue.groupby(['Driver', 'Week']).size().reset_index(name='Weekly_Count')
+                    max_weekly_row = weekly_driver_fatigue.sort_values('Weekly_Count', ascending=False).iloc[0]
+                    
+                    top_driver_name = max_weekly_row['Driver']
+                    max_weekly_val = max_weekly_row['Weekly_Count']
+                    top_driver_total_all = df_fatigue['Driver'].value_counts().get(top_driver_name, 0)
+                    
+                    if max_weekly_val >= 4:
+                        insight("#fee2e2", "Driver Risk High (SOP BMT 011)", 
+                                f"{top_driver_name} ({max_weekly_val} kasus di Week {max_weekly_row['Week']} | Total: {top_driver_total_all} kasus) — Menyentuh threshold SP1 & Lubang 1!")
                     else:
-                        insight("#fef3c7", "Driver Berisiko", f"{top_driver} ({top_val} kasus) — perlu monitoring")
-                
-                unit_counts = df['Unit'].value_counts()
+                        insight("#fef3c7", "Driver Berisiko", 
+                                f"{top_driver_name} (Maks {max_weekly_val} kasus/minggu | Total: {top_driver_total_all} kasus) — Perlu monitoring")
+                else:
+                    top_driver_name = "N/A"
+                    max_weekly_val = 0
+
+                # PERBAIKAN 2: UNIT TEMUAN BERULANG - Diarahkan ke Live Streaming Monitoring CCR (Bukan perbaikan teknis)
+                unit_counts = df_fatigue['Unit'].value_counts()
                 if not unit_counts.empty:
                     top_unit = unit_counts.index[0]
                     top_val = unit_counts.iloc[0]
                     if top_val > 5:
-                        insight("#fee2e2", "Unit Temuan Berulang", f"{top_unit} ({top_val} temuan) — Jadwalkan Turing / Perbaikan Teknisi!")
+                        insight("#fee2e2", "Unit Temuan Berulang Valid (SOP BMT 011)", 
+                                f"{top_unit} ({top_val} temuan valid) — Prioritaskan untuk Live Streaming Monitoring CCR!")
                     else:
-                        insight("#dbeafe", "Unit Temuan Berulang", f"{top_unit} ({top_val} temuan)")
+                        insight("#dbeafe", "Unit Temuan Berulang", f"{top_unit} ({top_val} temuan valid)")
 
             # SEKSI AI NARRATIVE GENERATOR (LAPORAN EKSEKUTIF - PATUH SOP BMT & PPO BIB)
             st.markdown("#### 🤖 Laporan Narasi Otomatis (Gemini AI - Standard Compliance)")
             if user_api_key:
                 if st.button("✨ Generate Narasi Laporan Eksekutif dengan Gemini AI"):
                     with st.spinner("🧠 AI sedang menganalisis data berdasarkan SOP BMT 011 & PPO BIB 035..."):
-                        top_driver_name = df_fatigue['Driver'].value_counts().index[0] if not df_fatigue.empty else "N/A"
-                        top_driver_val = df_fatigue['Driver'].value_counts().iloc[0] if not df_fatigue.empty else 0
-                        
                         prompt_eksekutif = f"""
                         Anda adalah Senior Safety Specialist di PT. Bumiputera Maha Terpercaya (BMT) untuk operasional tambang PT Borneo Indobara (BIB).
                         Analisis data Fleet Management System (FMS) berikut dan buatkan Laporan Ringkasan Eksekutif K3 yang SEPENUHNYA PATUH pada SOP BMT-CHL-SOP 011 dan BIB-HSE-PPO-035.
@@ -908,7 +917,7 @@ else:
                         - Total Kasus Overspeed: {total_o} kasus
                         - Lokasi Rawan (Hotspot) Utama: {top_loc}
                         - Jam Puncak Rawan Fatigue: {top_jam}
-                        - Driver Berisiko Tertinggi: {top_driver_name} ({top_driver_val} kasus)
+                        - Driver Berisiko Tertinggi (Mingguan): {top_driver_name} ({max_weekly_val} kasus di minggu puncak)
 
                         LANGSUNG TAMPILKAN FORMAT BERIKUT (Gunakan tag HTML <b> untuk judul):
 
@@ -1157,7 +1166,7 @@ else:
                                 - Header Memorandum, pembuka formalitas, maupun tanda tangan di akhir.
                                 - DILARANG MENGGUNAKAN TANDA BINTANG (*) SAMA SEKALI DALAM TEKS OUTPUT.
 
-                                ATURAN SANKSI BERTIANAT BMT 011:
+                                ATURAN SANKSI BERTINGKAT BMT 011:
                                 - Batas Fatigue Valid: Maksimal 4x / minggu.
                                 - Minggu 1 (4x fatigue): SP1 + Lubang 1.
                                 - Minggu 2 (4x fatigue): SP2 + Lubang 2 + Dirumahkan 3 Hari + Pemanggilan Keluarga ke Office.
@@ -1169,7 +1178,7 @@ else:
                                 <b>📌 1. EVALUASI TINGKAT RISIKO & COMPLIANCE THRESHOLD</b><br>
                                 Petakan driver yang telah menyentuh atau mendekati threshold 4x fatigue valid per minggu.
 
-                                <br><b>🎯 2. ACTION PLAN TANDAK LANJUT DISIPLIN & SANKSI</b><br>
+                                <br><b>🎯 2. ACTION PLAN TINDAK LANJUT DISIPLIN & SANKSI</b><br>
                                 - <b>Penegakan Sanksi Bertingkat</b>: Rekomendasi penerbitan SP1/SP2/SP3 & Pemanggilan keluarga.<br>
                                 - <b>Pemeriksaan Fit to Work</b>: Verifikasi jam tidur (<4 jam dilarang bekerja) & konsumsi obat.<br>
                                 - <b>Prosedur Pengawalan Lapangan</b>: Prosedur penjemputan driver ke office oleh Safety Patrol & penyiapan driver spare.
@@ -1323,9 +1332,12 @@ else:
                 
                 recs = []
                 if not df_fatigue.empty:
-                    top_d = df_fatigue['Driver'].value_counts()
-                    if not top_d.empty and top_d.iloc[0] >= 4:
-                        recs.append(("🔴 PRIORITAS HIGH", "🚨", f"Penegakan Sanksi BMT 011: Driver {top_d.index[0]} mencapai {top_d.iloc[0]} kasus/minggu (SP1 + Lubang 1)"))
+                    if 'Week' in df_fatigue.columns:
+                        weekly_df = df_fatigue.groupby(['Driver', 'Week']).size().reset_index(name='Weekly_Count')
+                        high_risk_rows = weekly_df[weekly_df['Weekly_Count'] >= 4]
+                        if not high_risk_rows.empty:
+                            top_risk = high_risk_rows.sort_values('Weekly_Count', ascending=False).iloc[0]
+                            recs.append(("🔴 PRIORITAS HIGH", "🚨", f"Penegakan Sanksi BMT 011: Driver {top_risk['Driver']} mencapai {top_risk['Weekly_Count']} kasus di Week {top_risk['Week']} (SP1 + Lubang 1)"))
                     
                     shift_counts = df_fatigue['Shift'].value_counts()
                     if 'Shift 2' in shift_counts.index and 'Shift 1' in shift_counts.index:
@@ -1339,9 +1351,9 @@ else:
                         if any(j in top_j for j in ['02:00', '03:00', '04:00', '05:00']):
                             recs.append(("🟡 PENTING", "☕", f"Istirahat Fleksibel: Puncak fatigue di jam sirkadian {top_j}. Instruksikan istirahat 1 jam di rest area"))
                     
-                    unit_counts = df['Unit'].value_counts()
+                    unit_counts = df_fatigue['Unit'].value_counts()
                     if not unit_counts.empty and unit_counts.iloc[0] > 5:
-                        recs.append(("🟡 PENTING", "🔧", f"Laporan Turing Minergo: Unit {unit_counts.index[0]} ({unit_counts.iloc[0]} temuan). Cek kebersihan lensa & sudut DSM"))
+                        recs.append(("🟡 PENTING", "🎥", f"Monitoring Live Streaming CCR (SOP BMT 011): Unit {unit_counts.index[0]} ({unit_counts.iloc[0]} temuan valid) wajib diprioritaskan"))
                 
                 if recs:
                     for rec in recs:
