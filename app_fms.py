@@ -14,7 +14,7 @@ st.set_page_config(
     layout="wide"
 )
 
-# ==================== CSS CUSTOM STYLING (PERBAIKAN PRINT PDF) ====================
+# ==================== CSS CUSTOM STYLING (FIX SIDEBAR DARK & CHART CUT) ====================
 st.markdown("""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
@@ -31,12 +31,13 @@ html, body, [class*="css"] {
     max-width: 1600px;
 }
 
-/* SIDEBAR TEXT FIX */
-[data-testid="stSidebar"] [data-testid="stMarkdownContainer"] p,
-[data-testid="stSidebar"] [data-testid="stMarkdownContainer"] h1,
-[data-testid="stSidebar"] [data-testid="stMarkdownContainer"] h2,
-[data-testid="stSidebar"] [data-testid="stMarkdownContainer"] h3 {
-    color: var(--text-color, #0f172a) !important;
+/* PERBAIKAN UTAMA: TEKS SIDEBAR DI MODE DARK & LIGHT AGAR TERBACA JELAS */
+[data-testid="stSidebar"], [data-testid="stSidebar"] [class*="css"], [data-testid="stSidebar"] label, [data-testid="stSidebar"] span, [data-testid="stSidebar"] p, [data-testid="stSidebar"] div {
+    color: #f8fafc !important;
+}
+
+[data-testid="stSidebar"] input {
+    color: #0f172a !important;
 }
 
 /* KPI CARDS STYLING */
@@ -76,7 +77,6 @@ html, body, [class*="css"] {
 
 /* ==================== OPTIMISASI UTAMA PRINT PDF ==================== */
 @media print {
-    /* Sembunyikan Navigasi, Tombol, Sidebar, & Header Streamlit */
     section[data-testid="stSidebar"],
     header[data-testid="stHeader"],
     .stButton,
@@ -86,7 +86,6 @@ html, body, [class*="css"] {
         display: none !important;
     }
     
-    /* Paksa Tab Berurutan ke Bawah */
     div[data-testid="stTabs"] [role="tabpanel"] {
         display: block !important;
         opacity: 1 !important;
@@ -98,7 +97,6 @@ html, body, [class*="css"] {
         margin-bottom: 30px !important;
     }
 
-    /* KUNCI PERBAIKAN: PAKSA KOLOM KPI TETAP SEJAJAR HORIZONTAL (4 KARTU SEBAGAI GRID/FLEX) */
     div[data-testid="stHorizontalBlock"] {
         display: flex !important;
         flex-direction: row !important;
@@ -129,7 +127,6 @@ html, body, [class*="css"] {
         width: 100% !important;
     }
 
-    /* Isolasi Elemen Grafik Plotly Agar Tidak Menumpuk */
     .chart-box, .js-plotly-plot, [data-testid="stPlotlyChart"] {
         position: relative !important;
         display: block !important;
@@ -353,10 +350,15 @@ def plot_weekly_trend_with_trendline(df_fatigue):
     fig = go.Figure()
     fig.add_trace(go.Scatter(x=weekly['Week'], y=weekly['Total'], mode='lines+markers', name='Fatigue', line=dict(color='#ef4444', width=2.5)))
     fig.add_trace(go.Scatter(x=weekly['Week'], y=trendline_y, mode='lines', name=f'Garis Tren ({trend_status})', line=dict(color=trend_color, width=3, dash='dash')))
+    
+    # PERBAIKAN: HAPUS RANGESLIDER AGAR GRAFIK MINGGU TIDAK TERPOTONG / KEPOTONG BAWAHNYA
     fig.update_layout(
         title='📊 Tren Fatigue Mingguan (Week 1–52) + Garis Tren',
         plot_bgcolor='rgba(0,0,0,0)', paper_bgcolor='rgba(0,0,0,0)',
-        font=dict(family='Inter', size=12), margin=dict(l=20, r=20, t=50, b=20)
+        font=dict(family='Inter', size=12),
+        xaxis=dict(title="Minggu Ke- (Week)", showgrid=True, gridcolor='rgba(150,150,150,0.2)', dtick=1, rangeslider=dict(visible=False)),
+        yaxis=dict(title="Jumlah Temuan", showgrid=True, gridcolor='rgba(150,150,150,0.2)'),
+        margin=dict(l=20, r=20, t=50, b=40)
     )
     return fig, trend_status
 
@@ -509,7 +511,7 @@ else:
         jam_counts = df_fatigue['Jam_Range'].value_counts()
         top_jam = jam_counts.index[0] if not jam_counts.empty else "N/A"
 
-        # KPI CARDS (DIBUAT DALAM ST.COLUMNS)
+        # KPI CARDS
         st.markdown("### 📊 Ringkasan")
         c1, c2, c3, c4 = st.columns(4)
         top_fatigue_loc = df_fatigue['Lokasi'].value_counts().index[0] if not df_fatigue.empty else "N/A"
@@ -584,7 +586,6 @@ else:
             st.markdown("### 🗺️ Analisis Lokasi & Waktu")
             render_chart(plot_jam_distribution(df_fatigue, order_2h))
             
-            # FITUR AI KHUSUS DISTRIBUSI JAM RAWAN (PPO BIB-035)
             if user_api_key:
                 with st.expander("💡 Rekomendasi AI: Solusi Proaktif & Strategi Jam Rawan (PPO BIB-035)", expanded=False):
                     if st.button("✨ Generate Temporal Preventive Strategy"):
@@ -621,7 +622,6 @@ else:
             render_chart(plot_demografi(df_fatigue, df_overspeed, age_labels))
             render_chart(plot_top_driver(df_fatigue))
             
-            # FITUR AI KHUSUS DRIVER RISK (SOP BMT 011)
             if user_api_key:
                 with st.expander("👤 Rekomendasi AI: Action Plan Driver & Disiplin (SOP BMT 011)", expanded=False):
                     if st.button("✨ Generate Strategy & Preventive Plan"):
