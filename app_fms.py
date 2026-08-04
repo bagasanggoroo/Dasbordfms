@@ -106,34 +106,39 @@ div[data-testid="stDataFrame"] {
 
 /* ==================== OPTIMISASI PRINT / CETAK PDF ==================== */
 @media print {
-    /* Sembunyikan elemen navigasi yang tidak perlu di cetakan */
+    /* Sembunyikan Navigasi & Tombol Interaktif saat Cetak PDF */
     section[data-testid="stSidebar"],
     header[data-testid="stHeader"],
     .stButton,
     footer,
-    div[data-testid="stTabs"] [role="tablist"] {
+    div[data-testid="stTabs"] [role="tablist"],
+    .no-print {
         display: none !important;
     }
     
-    /* Paksa seluruh konten Tab tampil berurutan ke bawah secara utuh */
+    /* Tampilkan Semua Tab Secara Berurutan ke Bawah */
     div[data-testid="stTabs"] [role="tabpanel"] {
         display: block !important;
         opacity: 1 !important;
         visibility: visible !important;
-        page-break-after: always;
-        margin-bottom: 30px;
+        page-break-before: always;
+        margin-bottom: 25px;
     }
 
-    /* Penyesuaian margin dokumen cetak */
+    /* Penyesuaian Margin Cetak */
+    @page {
+        margin: 10mm;
+    }
+
     .block-container {
         padding: 0 !important;
         margin: 0 !important;
         width: 100% !important;
-        max-width: 100% !important;
     }
 
-    /* Memastikan grafik Plotly tercetak utuh tanpa terpotong */
-    .js-plotly-plot {
+    /* Mencegah Elemen Terpotong di Tengah Halaman */
+    .kpi, .js-plotly-plot, div[data-testid="stMarkdownContainer"] {
+        break-inside: avoid;
         page-break-inside: avoid;
     }
 }
@@ -865,7 +870,6 @@ else:
             st.markdown("### 📊 Ringkasan")
             c1, c2, c3, c4 = st.columns(4)
             
-            # Perhitungan Spesifik Hotspot Fatigue
             if not df_fatigue.empty:
                 fatigue_loc_counts = df_fatigue['Lokasi'].value_counts()
                 top_fatigue_loc = fatigue_loc_counts.index[0]
@@ -942,10 +946,11 @@ else:
                     else:
                         insight("#dbeafe", "Unit Temuan Berulang", f"{top_unit} ({top_val} temuan valid)")
 
-            # SEKSI AI NARRATIVE GENERATOR (LAPORAN EKSEKUTIF - PATUH SOP BMT & PPO BIB)
-            st.markdown("#### 🤖 Laporan Narasi Otomatis (Gemini AI - Standard Compliance)")
+            # SEKSI AI NARRATIVE GENERATOR (FORMAL HEADER & HIDDEN BUTTON ON PRINT)
+            st.markdown("#### 📄 Laporan Ringkasan Eksekutif K3")
             if user_api_key:
-                if st.button("✨ Generate Narasi Laporan Eksekutif dengan Gemini AI"):
+                # Tombol hanya muncul di layar browser, otomatis tersembunyi saat di-print/PDF
+                if st.button("✨ Generate Laporan Ringkasan Eksekutif"):
                     with st.spinner("🧠 AI sedang menganalisis data berdasarkan SOP BMT 011 & PPO BIB 035..."):
                         prompt_eksekutif = f"""
                         Anda adalah Senior Safety Specialist di PT. Bumiputera Maha Terpercaya (BMT) untuk operasional tambang PT Borneo Indobara (BIB).
@@ -987,7 +992,7 @@ else:
                         """
                         st.session_state['res_eksekutif'] = generate_gemini_analysis(user_api_key, prompt_eksekutif)
                 
-                # PERBAIKAN: HASIL AI RATA KIRI KANAN (JUSTIFY) & WARNA GELAP CONTRAS
+                # HASIL KONTEN RAPAT KIRI-KANAN (JUSTIFY) & BERBERSIH CETAKAN
                 if st.session_state['res_eksekutif']:
                     st.markdown(f"""
                     <div style="
@@ -1116,7 +1121,6 @@ else:
                                 """
                                 st.session_state['res_jam'] = generate_gemini_analysis(user_api_key, prompt_jam_rawan)
                         
-                        # PERBAIKAN: HASIL AI RATA KIRI KANAN (JUSTIFY)
                         if st.session_state['res_jam']:
                             st.markdown(f"""
                             <div style="
@@ -1272,7 +1276,6 @@ else:
                                 """
                                 st.session_state['res_driver'] = generate_gemini_analysis(user_api_key, prompt_top_driver)
                         
-                        # PERBAIKAN: HASIL AI RATA KIRI KANAN (JUSTIFY)
                         if st.session_state['res_driver']:
                             st.markdown(f"""
                             <div style="
