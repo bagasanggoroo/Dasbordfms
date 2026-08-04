@@ -31,13 +31,16 @@ html, body, [class*="css"] {
     max-width: 1600px;
 }
 
-/* PERBAIKAN UTAMA: TEKS SIDEBAR DI MODE DARK & LIGHT AGAR TERBACA JELAS */
-[data-testid="stSidebar"], [data-testid="stSidebar"] [class*="css"], [data-testid="stSidebar"] label, [data-testid="stSidebar"] span, [data-testid="stSidebar"] p, [data-testid="stSidebar"] div {
-    color: #f8fafc !important;
+/* SIDEBAR ADAPTIF OTOMATIS MENGIKUTI TEMA STREAMLIT (LIGHT / DARK) */
+[data-testid="stSidebar"] {
+    background-color: var(--background-color) !important;
 }
 
-[data-testid="stSidebar"] input {
-    color: #0f172a !important;
+[data-testid="stSidebar"] [data-testid="stMarkdownContainer"] p,
+[data-testid="stSidebar"] [data-testid="stMarkdownContainer"] span,
+[data-testid="stSidebar"] label,
+[data-testid="stSidebar"] .stFileUploader label {
+    color: var(--text-color) !important;
 }
 
 /* KPI CARDS STYLING */
