@@ -1148,60 +1148,62 @@ else:
                     else:
                         st.info("Tidak ada data unit")
                 
-                # FITUR AI KHUSUS TOP DRIVER (BERDASARKAN SOP BMT 011) - REVISI ACCURATE TOP DRIVERS
-if user_api_key:
-    with st.expander("👤 Rekomendasi AI: Action Plan Driver & Disiplin (SOP BMT 011)", expanded=False):
-        if st.button("✨ Generate Strategy & Preventive Plan"):
-            with st.spinner("🧠 AI sedang menyusun action plan disiplin driver berisiko tinggi..."):
-                
-                # PERBAIKAN: Ambil Top 5 Driver berdasarkan TOTAL KASUS FATIGUE TERTINGGI (Bukan abjad)
-                top_fatigue_drivers = df_fatigue['Driver'].value_counts().head(5).index.tolist()
-                df_top_fatigue = df_fatigue[df_fatigue['Driver'].isin(top_fatigue_drivers)]
-                
-                # Rekap total per driver & kasus per minggu (Week) tertinggi
-                driver_summary_list = []
-                for drv in top_fatigue_drivers:
-                    total_c = len(df_fatigue[df_fatigue['Driver'] == drv])
-                    drv_weekly = df_fatigue[df_fatigue['Driver'] == drv].groupby('Week').size()
-                    max_w = drv_weekly.max() if not drv_weekly.empty else 0
-                    peak_week = drv_weekly.idxmax() if not drv_weekly.empty else "N/A"
-                    driver_summary_list.append(f"- {drv}: Total {total_c} kasus (Puncak: {max_w} kasus di Week {peak_week})")
-                
-                driver_summary_text = "\n".join(driver_summary_list)
-                
-                prompt_top_driver = f"""
-                Anda adalah Senior Safety Specialist operasional tambang PT. BMT.
-                Berikut adalah DATA TOP 5 DRIVER DENGAN KASUS FATIGUE TERTINGGI dari log FMS:
-                {driver_summary_text}
+                # FITUR AI KHUSUS TOP DRIVER (SOP BMT 011) - FIX LOGIKA TOP DRIVERS PER MINGGU
+                if user_api_key:
+                    with st.expander("👤 Rekomendasi AI: Action Plan Driver & Disiplin (SOP BMT 011)", expanded=False):
+                        if st.button("✨ Generate Strategy & Preventive Plan"):
+                            with st.spinner("🧠 AI sedang menyusun action plan disiplin driver berisiko tinggi..."):
+                                
+                                # PERBAIKAN UTAMA: Ambil Top 5 Driver berdasarkan KASUS FATIGUE TERTINGGI (Bukan abjad)
+                                top_fatigue_drivers = df_fatigue['Driver'].value_counts().head(5).index.tolist()
+                                
+                                driver_summary_list = []
+                                for drv in top_fatigue_drivers:
+                                    total_c = len(df_fatigue[df_fatigue['Driver'] == drv])
+                                    if 'Week' in df_fatigue.columns:
+                                        drv_weekly = df_fatigue[df_fatigue['Driver'] == drv].groupby('Week').size()
+                                        max_w = drv_weekly.max() if not drv_weekly.empty else 0
+                                        peak_week = drv_weekly.idxmax() if not drv_weekly.empty else "N/A"
+                                        driver_summary_list.append(f"- {drv}: Total {total_c} kasus (Puncak: {max_w} kasus di Week {peak_week})")
+                                    else:
+                                        driver_summary_list.append(f"- {drv}: Total {total_c} kasus")
+                                
+                                driver_summary_text = "\n".join(driver_summary_list)
+                                
+                                prompt_top_driver = f"""
+                                Anda adalah Senior Safety Specialist operasional tambang PT. BMT.
+                                Berikut adalah DATA TOP 5 DRIVER DENGAN KASUS FATIGUE TERTINGGI dari log FMS:
+                                {driver_summary_text}
 
-                Susun ACTION PLAN DISIPLIN DRIVER yang patuh pada BMT-CHL-SOP 011 secara langsung tanpa basa-basi.
+                                Susun ACTION PLAN DISIPLIN DRIVER yang patuh pada BMT-CHL-SOP 011 secara langsung tanpa basa-basi.
 
-                DILARANG MEMBUAT:
-                - Header Memorandum, pembuka formalitas, maupun tanda tangan di akhir.
-                - DILARANG MENGGUNAKAN TANDA BINTANG (*) SAMA SEKALI DALAM TEKS OUTPUT.
+                                DILARANG MEMBUAT:
+                                - Header Memorandum, pembuka formalitas, maupun tanda tangan di akhir.
+                                - DILARANG MENGGUNAKAN TANDA BINTANG (*) SAMA SEKALI DALAM TEKS OUTPUT.
 
-                ATURAN SANKSI BERTINGKAT BMT 011:
-                - Threshold Peringatan: 4x Fatigue Valid dalam 1 MINGGU KERJA.
-                - Minggu 1 (>=4x fatigue/minggu): SP1 + Lubang 1.
-                - Minggu 2 (>=4x fatigue/minggu berturut-turut): SP2 + Lubang 2 + Dirumahkan 3 Hari + Pemanggilan Keluarga.
-                - Minggu 3 (>=4x fatigue/minggu berturut-turut): SP3 + Lubang 3.
+                                ATURAN SANKSI BERTINGKAT BMT 011:
+                                - Threshold Peringatan: 4x Fatigue Valid dalam 1 MINGGU KERJA.
+                                - Minggu 1 (>=4x fatigue/minggu): SP1 + Lubang 1.
+                                - Minggu 2 (>=4x fatigue/minggu berturut-turut): SP2 + Lubang 2 + Dirumahkan 3 Hari + Pemanggilan Keluarga ke Office.
+                                - Minggu 3 (>=4x fatigue/minggu berturut-turut): SP3 + Lubang 3.
+                                - Sanksi Pengawas: Jika terjadi pembiaran fatigue driver, SIMPER/Mine Permit Pengawas dicabut PERMANEN.
 
-                LANGSUNG TAMPILKAN FORMAT BERIKUT (Gunakan tag HTML <b> untuk judul):
+                                LANGSUNG TAMPILKAN FORMAT BERIKUT (Gunakan tag HTML <b> untuk judul):
 
-                <b>📌 1. EVALUASI TINGKAT RISIKO & COMPLIANCE THRESHOLD TOP DRIVER</b><br>
-                Uraikan ringkasan data Top 5 Driver berisiko tinggi di atas. Sebutkan secara jujur driver mana yang benar-benar menyentuh/melebihi threshold 4x fatigue per minggu dan mana yang masih di bawah threshold.
+                                <b>📌 1. EVALUASI TINGKAT RISIKO & COMPLIANCE THRESHOLD TOP DRIVER</b><br>
+                                Uraikan ringkasan data Top 5 Driver berisiko tinggi di atas. Sebutkan secara jujur driver mana yang benar-benar menyentuh/melebihi threshold 4x fatigue per minggu dan mana yang masih di bawah threshold.
 
-                <br><b>🎯 2. ACTION PLAN TINDAK LANJUT DISIPLIN & SANKSI</b><br>
-                - <b>Penegakan Sanksi Bertingkat</b>: Rekomendasi penerbitan SP1/SP2/SP3 bagi driver yang menyentuh threshold 4x/minggu.<br>
-                - <b>Pemeriksaan Fit to Work</b>: Verifikasi jam tidur (<4 jam dilarang bekerja) & konsumsi obat.<br>
-                - <b>Prosedur Pengawalan Lapangan</b>: Penjemputan driver ke office oleh Safety Patrol & penyiapan driver spare.
+                                <br><b>🎯 2. ACTION PLAN TINDAK LANJUT DISIPLIN & SANKSI</b><br>
+                                - <b>Penegakan Sanksi Bertingkat</b>: Rekomendasi penerbitan SP1/SP2/SP3 bagi driver yang menyentuh threshold 4x/minggu.<br>
+                                - <b>Pemeriksaan Fit to Work</b>: Verifikasi jam tidur (<4 jam dilarang bekerja) & konsumsi obat.<br>
+                                - <b>Prosedur Pengawalan Lapangan</b>: Penjemputan driver ke office oleh Safety Patrol & penyiapan driver spare.
 
-                <br><b>🚀 3. PENGAWASAN KEPADA PENGAWAS LAPANGAN</b><br>
-                Peringatan komitmen kepengawasan untuk mencegah pembiaran fatigue (Ancaman pencabutan SIMPER/Mine Permit permanen).
+                                <br><b>🚀 3. PENGAWASAN KEPADA PENGAWAS LAPANGAN</b><br>
+                                Peringatan komitmen kepengawasan untuk mencegah pembiaran fatigue (Ancaman pencabutan SIMPER/Mine Permit permanen).
 
-                Gunakan bahasa yang padat, lugas, langsung ke solusi, dan tegas.
-                """
-                st.session_state['res_driver'] = generate_gemini_analysis(user_api_key, prompt_top_driver)
+                                Gunakan bahasa yang padat, lugas, langsung ke solusi, dan tegas.
+                                """
+                                st.session_state['res_driver'] = generate_gemini_analysis(user_api_key, prompt_top_driver)
                         
                         # TAMPILKAN HASIL DARI MEMORI SESSION STATE (WARNA TEKS GELAP)
                         if st.session_state['res_driver']:
