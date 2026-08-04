@@ -104,9 +104,17 @@ div[data-testid="stDataFrame"] {
     border-radius: 12px;
 }
 
-/* ==================== OPTIMISASI UTAMA PRINT / CETAK PDF (MENCEGAH GRAFIK NUMPUK) ==================== */
+/* KONTAINER PEMBUNGKUS GRAFIK UTAMA */
+.chart-container {
+    position: relative;
+    width: 100%;
+    margin-bottom: 25px;
+    clear: both;
+}
+
+# ==================== OPTIMISASI CETAK PDF (ANTI-NUMPUK TOTAL) ====================
 @media print {
-    /* Sembunyikan Navigasi & Tombol Interaktif saat Cetak PDF */
+    /* Sembunyikan Navigasi, Tombol, Sidebar, & Header Streamlit */
     section[data-testid="stSidebar"],
     header[data-testid="stHeader"],
     .stButton,
@@ -116,21 +124,34 @@ div[data-testid="stDataFrame"] {
         display: none !important;
     }
     
-    /* Tampilkan Seluruh Tab Berurutan secara Terisolasi */
+    /* Paksa Semua Tab Tampil Berurutan dengan Pemisah Halaman */
     div[data-testid="stTabs"] [role="tabpanel"] {
         display: block !important;
         opacity: 1 !important;
         visibility: visible !important;
         position: relative !important;
+        float: none !important;
         clear: both !important;
-        page-break-before: always;
-        margin-bottom: 30px !important;
+        page-break-after: always !important;
+        margin-bottom: 40px !important;
     }
 
-    /* Penyesuaian Margin Halaman */
+    /* Paksa Kolom Ganda Menjadi 1 Kolom Tunggal Ke Bawah saat Print */
+    [data-testid="column"] {
+        width: 100% !important;
+        flex: 1 1 100% !important;
+        max-width: 100% !important;
+        display: block !important;
+        position: relative !important;
+        clear: both !important;
+        float: none !important;
+        margin-bottom: 20px !important;
+    }
+
+    /* Penyesuaian Kertas Cetak */
     @page {
         size: A4 portrait;
-        margin: 12mm 10mm 12mm 10mm;
+        margin: 10mm;
     }
 
     .block-container {
@@ -140,27 +161,22 @@ div[data-testid="stDataFrame"] {
         max-width: 100% !important;
     }
 
-    /* Isolasi Elemen Grafik Plotly Agar Tidak Menumpuk */
-    .js-plotly-plot, [data-testid="stPlotlyChart"] {
+    /* Mencegah Tumpukan pada Elemen Grafik Plotly */
+    .chart-container, .js-plotly-plot, [data-testid="stPlotlyChart"] {
         position: relative !important;
         display: block !important;
         clear: both !important;
         float: none !important;
         width: 100% !important;
-        max-height: 380px !important;
+        height: auto !important;
+        max-height: 400px !important;
         page-break-inside: avoid !important;
         break-inside: avoid !important;
-        margin-bottom: 20px !important;
+        margin-bottom: 25px !important;
     }
 
-    /* Mencegah KPI Card & Markdown Terpotong */
+    /* Mencegah KPI Card Terpotong */
     .kpi, div[data-testid="stMarkdownContainer"] {
-        page-break-inside: avoid !important;
-        break-inside: avoid !important;
-    }
-
-    /* Isolasi Kolom Layout Streamlit saat Print */
-    [data-testid="column"] {
         page-break-inside: avoid !important;
         break-inside: avoid !important;
     }
@@ -756,6 +772,13 @@ def plot_fatigue_vs_overspeed(df_fatigue, df_overspeed):
     )
     return fig
 
+# ==================== FUNGSI RENDER CHART BERSIH ====================
+def render_chart(fig):
+    if fig:
+        st.markdown('<div class="chart-container">', unsafe_allow_html=True)
+        st.plotly_chart(fig, use_container_width=True)
+        st.markdown('</div>', unsafe_allow_html=True)
+
 # ==================== FUNGSI INTEGRASI GEMINI AI GENERIK ====================
 def generate_gemini_analysis(api_key, prompt_text):
     try:
@@ -889,7 +912,7 @@ else:
             top_jam = jam_counts.index[0] if not jam_counts.empty else "N/A"
             top_jam_val = jam_counts.iloc[0] if not jam_counts.empty else 0
             
-            # ========== KPI CARDS (REVISI SPESIFIKASI LOKASI RAWAN FATIGUE) ==========
+            # ========== KPI CARDS ==========
             st.markdown("### 📊 Ringkasan")
             c1, c2, c3, c4 = st.columns(4)
             
@@ -914,7 +937,7 @@ else:
             
             st.markdown("---")
             
-            # ========== RINGKASAN EKSEKUTIF DENGAN PERBAIKAN LOGIKA DRIVER & UNIT ==========
+            # ========== RINGKASAN EKSEKUTIF ==========
             st.markdown("### 📋 Ringkasan Eksekutif")
             col1, col2 = st.columns(2)
             
@@ -969,7 +992,7 @@ else:
                     else:
                         insight("#dbeafe", "Unit Temuan Berulang", f"{top_unit} ({top_val} temuan valid)")
 
-            # SEKSI AI NARRATIVE GENERATOR (FORMAL HEADER & HIDDEN BUTTON ON PRINT)
+            # SEKSI AI NARRATIVE GENERATOR
             st.markdown("#### 📄 Laporan Ringkasan Eksekutif K3")
             if user_api_key:
                 if st.button("✨ Generate Laporan Ringkasan Eksekutif"):
@@ -1047,41 +1070,17 @@ else:
             # ========== TAB 1: OVERVIEW BULANAN ==========
             with tab1:
                 st.markdown("### 📉 Tren Temuan DSMS Bulanan")
-                
-                fig_f = plot_tren_generic(df_fatigue, title="Tren Bulanan Kasus Fatigue", color="#ef4444")
-                if fig_f:
-                    st.plotly_chart(fig_f, use_container_width=True)
-                else:
-                    st.info("Tidak ada data fatigue")
-                
-                fig_o = plot_tren_generic(df_overspeed, title="Tren Bulanan Kasus Overspeed", color="#f59e0b")
-                if fig_o:
-                    st.plotly_chart(fig_o, use_container_width=True)
-                else:
-                    st.info("Tidak ada data overspeed")
-
-                fig_total = plot_tren_generic(df, title="Tren Bulanan Total Seluruh Alarm DSMS", color="#2563eb")
-                if fig_total:
-                    st.plotly_chart(fig_total, use_container_width=True)
-                else:
-                    st.info("Tidak ada data alarm")
+                render_chart(plot_tren_generic(df_fatigue, title="Tren Bulanan Kasus Fatigue", color="#ef4444"))
+                render_chart(plot_tren_generic(df_overspeed, title="Tren Bulanan Kasus Overspeed", color="#f59e0b"))
+                render_chart(plot_tren_generic(df, title="Tren Bulanan Total Seluruh Alarm DSMS", color="#2563eb"))
 
                 st.markdown("---")
                 
                 c1, c2 = st.columns(2)
                 with c1:
-                    fig = plot_shift_comparison(df_fatigue)
-                    if fig:
-                        st.plotly_chart(fig, use_container_width=True)
-                    else:
-                        st.info("Tidak ada data shift")
-                
+                    render_chart(plot_shift_comparison(df_fatigue))
                 with c2:
-                    fig = plot_alarm_distribution(df_fatigue)
-                    if fig:
-                        st.plotly_chart(fig, use_container_width=True)
-                    else:
-                        st.info("Tidak ada data alarm")
+                    render_chart(plot_alarm_distribution(df_fatigue))
             
             # ========== TAB 2: TREN MINGGUAN (WEEK 1-52) ==========
             with tab2:
@@ -1091,18 +1090,14 @@ else:
                 fig_week, trend_status = plot_weekly_trend_with_trendline(df_fatigue)
                 if fig_week:
                     st.markdown(f"#### Status Tren Keseluruhan: **{trend_status}**")
-                    st.plotly_chart(fig_week, use_container_width=True)
+                    render_chart(fig_week)
                     st.info("💡 **Tips Navigasi:** Gunakan slider di bawah sumbu X grafik untuk menggeser/zoom rentang minggu tertentu (misal: Week 1–13).")
                 else:
                     st.warning("Data minggu tidak mencukupi untuk menampilkan grafik.")
 
             # ========== TAB 3: LOKASI & WAKTU ==========
             with tab3:
-                fig = plot_jam_distribution(df_fatigue, order_2h)
-                if fig:
-                    st.plotly_chart(fig, use_container_width=True)
-                else:
-                    st.warning("Tidak ada data jam")
+                render_chart(plot_jam_distribution(df_fatigue, order_2h))
                 
                 if user_api_key:
                     with st.expander("💡 Rekomendasi AI: Solusi Proaktif & Strategi Jam Rawan (PPO BIB-035)", expanded=False):
@@ -1180,40 +1175,26 @@ else:
                             margin=dict(l=20, r=20, t=40, b=20),
                             showlegend=False
                         )
-                        st.plotly_chart(fig, use_container_width=True)
+                        render_chart(fig)
                         st.caption("💡 Overspeed umumnya terjadi pada jam operasional puncak")
                 
                 st.markdown("---")
                 
                 c1, c2 = st.columns(2)
                 with c1:
-                    fig = plot_hotspot(df_fatigue, "Fatigue")
-                    if fig:
-                        st.plotly_chart(fig, use_container_width=True)
-                    else:
-                        st.info("Tidak ada data lokasi fatigue")
-                
+                    render_chart(plot_hotspot(df_fatigue, "Fatigue"))
                 with c2:
-                    fig = plot_hotspot(df_overspeed, "Overspeed")
-                    if fig:
-                        st.plotly_chart(fig, use_container_width=True)
-                    else:
-                        st.info("Tidak ada data lokasi overspeed")
+                    render_chart(plot_hotspot(df_overspeed, "Overspeed"))
             
             # ========== TAB 4: DRIVER & UNIT ==========
             with tab4:
-                fig = plot_demografi(df_fatigue, df_overspeed, age_labels)
-                st.plotly_chart(fig, use_container_width=True)
+                render_chart(plot_demografi(df_fatigue, df_overspeed, age_labels))
                 
                 st.markdown("---")
                 
                 c1, c2 = st.columns(2)
                 with c1:
-                    fig = plot_top_driver(df_fatigue)
-                    if fig:
-                        st.plotly_chart(fig, use_container_width=True)
-                    else:
-                        st.info("Tidak ada data driver")
+                    render_chart(plot_top_driver(df_fatigue))
                 
                 with c2:
                     if not df.empty:
@@ -1237,7 +1218,7 @@ else:
                             margin=dict(l=20, r=20, t=40, b=20),
                             showlegend=False, height=450
                         )
-                        st.plotly_chart(fig, use_container_width=True)
+                        render_chart(fig)
                     else:
                         st.info("Tidak ada data unit")
                 
@@ -1334,14 +1315,7 @@ else:
                 if type_filter != "Semua":
                     hm_df = hm_df[hm_df['Type'] == type_filter]
                 
-                fig = plot_heatmap(hm_df, order_months, top_n)
-                if fig:
-                    st.plotly_chart(fig, use_container_width=True)
-                    top_driver = hm_df['Driver'].value_counts().index[0] if not hm_df.empty else None
-                    if top_driver:
-                        st.caption(f"💡 Insight: Driver **{top_driver}** memiliki kasus terbanyak")
-                else:
-                    st.warning("Data tidak cukup untuk heatmap")
+                render_chart(plot_heatmap(hm_df, order_months, top_n))
             
             # ========== TAB 5: DATA LOGS ==========
             with tab5:
@@ -1400,7 +1374,7 @@ else:
                 st.markdown("### 📈 Prediksi Tren")
                 fig = plot_forecast(df_fatigue)
                 if fig:
-                    st.plotly_chart(fig, use_container_width=True)
+                    render_chart(fig)
                     
                     if not df_fatigue.empty:
                         monthly = df_fatigue.groupby('Month_Num').size()
@@ -1433,11 +1407,7 @@ else:
                 st.markdown("---")
                 
                 st.markdown("### 🔄 Fatigue vs Overspeed")
-                fig = plot_fatigue_vs_overspeed(df_fatigue, df_overspeed)
-                if fig:
-                    st.plotly_chart(fig, use_container_width=True)
-                else:
-                    st.info("Data tidak cukup")
+                render_chart(plot_fatigue_vs_overspeed(df_fatigue, df_overspeed))
                 
                 st.markdown("---")
                 
