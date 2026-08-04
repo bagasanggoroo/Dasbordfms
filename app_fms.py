@@ -9,8 +9,8 @@ from google import genai
 
 # ==================== KONFIGURASI HALAMAN ====================
 st.set_page_config(
-    page_title="Dashboard FMS - PT. Bumiputera Maha Terpercaya",
-    page_icon="🚛",
+    page_title="DSMS - PT. Bumiputera Maha Terpercaya",
+    page_icon="🛡️",
     layout="wide"
 )
 
@@ -157,7 +157,7 @@ def get_order_2h():
 # ==================== HEADER DENGAN INTEGRASI LOGO ====================
 def header_with_logo(title, subtitle, logo_path="image.png"):
     img_b64 = get_image_base64(logo_path)
-    logo_html = f'<img src="data:image/png;base64,{img_b64}" style="height: 55px; object-fit: contain;">' if img_b64 else '<span style="font-size:30px;">🚛</span>'
+    logo_html = f'<img src="data:image/png;base64,{img_b64}" style="height: 55px; object-fit: contain;">' if img_b64 else '<span style="font-size:30px;">🛡️</span>'
     
     st.markdown(f"""
     <div style="
@@ -733,15 +733,15 @@ def generate_gemini_analysis(api_key, prompt_text):
 with st.sidebar:
     st.markdown("""
     <div style="text-align:center; padding:10px 0 20px 0;">
-        <div style="font-size:40px;">🚛</div>
-        <div style="font-weight:700; font-size:1.2rem; color:white;">FMS Dashboard</div>
-        <div style="font-size:0.7rem; color:#94a3b8;">v3.0 · Enterprise</div>
+        <div style="font-size:40px;">👨‍✈️</div>
+        <div style="font-weight:700; font-size:1.2rem; color:white;">DSMS Dashboard</div>
+        <div style="font-size:0.7rem; color:#94a3b8;">v3.0 · Driver Safety & Compliance</div>
     </div>
     """, unsafe_allow_html=True)
     
     st.markdown("---")
     st.markdown("### 📁 Data Source")
-    uploaded_file = st.file_uploader("Upload File Log FMS", type=['xlsx', 'csv'])
+    uploaded_file = st.file_uploader("Upload File Log FMS / DSMS", type=['xlsx', 'csv'])
     
     st.markdown("---")
     st.markdown("### 🤖 Config Gemini AI")
@@ -756,10 +756,10 @@ with st.sidebar:
     st.markdown("---")
     st.caption("© 2026 PT. Bumiputera Maha Terpercaya")
 
-# ==================== HEADER DENGAN INTEGRASI LOGO ====================
+# ==================== HEADER UTAMA DENGAN JUDUL & IKON BARU ====================
 header_with_logo(
-    "🚛 Fleet Management System",
-    "PT. Bumiputera Maha Terpercaya<br>Monitoring Fatigue • Overspeed • Safety Analytics",
+    "🛡️ Driver Safety Management System",
+    "PT. Bumiputera Maha Terpercaya<br>Monitoring Fatigue • Driver Behavior Analytics • K3 Compliance",
     "image.png"
 )
 
@@ -898,7 +898,7 @@ else:
                     with st.spinner("🧠 AI sedang menganalisis data berdasarkan SOP BMT 011 & PPO BIB 035..."):
                         prompt_eksekutif = f"""
                         Anda adalah Senior Safety Specialist di PT. Bumiputera Maha Terpercaya (BMT) untuk operasional tambang PT Borneo Indobara (BIB).
-                        Analisis data Fleet Management System (FMS) berikut dan buatkan Laporan Ringkasan Eksekutif K3 yang SEPENUHNYA PATUH pada SOP BMT-CHL-SOP 011 dan BIB-HSE-PPO-035.
+                        Analisis data Driver Safety Management System (DSMS) berikut dan buatkan Laporan Ringkasan Eksekutif K3 yang SEPENUHNYA PATUH pada SOP BMT-CHL-SOP 011 dan BIB-HSE-PPO-035.
 
                         RULES PENULISAN (SANGAT KETAT):
                         - DILARANG MEMBUAT Header Memorandum (KEPADA, DARI, PERIHAL, dll).
@@ -911,7 +911,7 @@ else:
                         3. Intervensi Driver Fatigue Valid: Kecepatan maks 30 kph, hazard ON, dikawal (escorted) ke Rest Area/Office, dan verifikasi ADAS dengan handbrake & wheel chock.
                         4. Kampanye 7B: Berhenti, Beritahu, Bernafas, Beristirahat, Bekerja kembali, Berolahraga ringan, Berdoa.
 
-                        DATA UTAMA FMS:
+                        DATA UTAMA DSMS:
                         - Total Seluruh Alarm: {total_alarm} kasus
                         - Total Kasus Fatigue: {total_f} kasus
                         - Total Kasus Overspeed: {total_o} kasus
@@ -922,7 +922,7 @@ else:
                         LANGSUNG TAMPILKAN FORMAT BERIKUT (Gunakan tag HTML <b> untuk judul):
 
                         <b>📌 1. RINGKASAN SITUASI & EVALUASI COMPLIANCE SAFETY</b><br>
-                        Uraikan ringkasan temuan FMS, bahaya micro-sleep di jam rawan sirkadian BIB (02.00-06.00 WITA), serta evaluasi kepatuhan driver terhadap threshold 4x fatigue/minggu.
+                        Uraikan ringkasan temuan DSMS, bahaya micro-sleep di jam rawan sirkadian BIB (02.00-06.00 WITA), serta evaluasi kepatuhan driver terhadap threshold 4x fatigue/minggu.
 
                         <br><b>🎯 2. PENILAIAN RISIKO OPERASIONAL & AUDIT ATRIBUT</b><br>
                         - Risiko Fatalitas (Collision / Run-off-road) di area Hotspot.<br>
@@ -960,7 +960,7 @@ else:
             
             # ========== TAB 1: OVERVIEW BULANAN ==========
             with tab1:
-                st.markdown("### 📉 Tren Temuan FMS Bulanan")
+                st.markdown("### 📉 Tren Temuan DSMS Bulanan")
                 
                 fig_f = plot_tren_generic(df_fatigue, title="Tren Bulanan Kasus Fatigue", color="#ef4444")
                 if fig_f:
@@ -974,7 +974,7 @@ else:
                 else:
                     st.info("Tidak ada data overspeed")
 
-                fig_total = plot_tren_generic(df, title="Tren Bulanan Total Seluruh Alarm FMS", color="#2563eb")
+                fig_total = plot_tren_generic(df, title="Tren Bulanan Total Seluruh Alarm DSMS", color="#2563eb")
                 if fig_total:
                     st.plotly_chart(fig_total, use_container_width=True)
                 else:
@@ -1042,7 +1042,7 @@ else:
                                 LANGSUNG TAMPILKAN FORMAT BERIKUT (Gunakan tag HTML <b> untuk judul):
 
                                 <b>📌 1. ANALISIS POLA WAKTU & RITME SIRKADIAN (BIB-035)</b><br>
-                                Uraikan kecenderungan jam kritis FMS vs jam rawan resmi BIB (02.00 - 06.00 WITA).
+                                Uraikan kecenderungan jam kritis DSMS vs jam rawan resmi BIB (02.00 - 06.00 WITA).
 
                                 <br><b>🎯 2. ARAH STRATEGI & PENCEGAHAN TEMPORAL</b><br>
                                 - <b>Program Wake Up Call Radio</b>: Pengoperasian kata sandi harian per shift di jam kritis.<br>
@@ -1172,7 +1172,7 @@ else:
                                 
                                 prompt_top_driver = f"""
                                 Anda adalah Senior Safety Specialist operasional tambang PT. BMT.
-                                Berikut adalah DATA TOP 5 DRIVER DENGAN KASUS FATIGUE TERTINGGI dari log FMS:
+                                Berikut adalah DATA TOP 5 DRIVER DENGAN KASUS FATIGUE TERTINGGI dari log FMS/DSMS:
                                 {driver_summary_text}
 
                                 Susun ACTION PLAN DISIPLIN DRIVER yang patuh pada BMT-CHL-SOP 011 secara langsung tanpa basa-basi.
@@ -1289,7 +1289,7 @@ else:
                     st.download_button(
                         label="📥 Download CSV",
                         data=csv,
-                        file_name=f"data_fms_{datetime.now().strftime('%Y%m%d_%H%M')}.csv",
+                        file_name=f"data_dsms_{datetime.now().strftime('%Y%m%d_%H%M')}.csv",
                         mime='text/csv'
                     )
             
@@ -1386,4 +1386,4 @@ else:
 
 # ==================== FOOTER ====================
 st.markdown("---")
-st.caption("© 2026 PT. Bumiputera Maha Terpercaya | Dashboard FMS v3.0 (Patuh SOP BMT 011 & BIB 035)")
+st.caption("© 2026 PT. Bumiputera Maha Terpercaya | Driver Safety Management System v3.0 (Patuh SOP BMT 011 & BIB 035)")
