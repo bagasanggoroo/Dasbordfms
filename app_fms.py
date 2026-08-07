@@ -764,7 +764,7 @@ def generate_gemini_analysis(api_key, prompt_text):
     try:
         client = genai.Client(api_key=api_key)
         response = client.models.generate_content(
-            model='gemini-flash',
+            model='gemini-1.5-flash',  # ✅ BENAR
             contents=prompt_text,
         )
         return response.text
