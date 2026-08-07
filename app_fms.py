@@ -10,7 +10,7 @@ from google import genai
 # ==================== KONFIGURASI HALAMAN ====================
 st.set_page_config(
     page_title="Dashboard FMS - PT. Bumiputera Maha Terpercaya",
-    page_icon="🚛",
+    page_icon="🛡️",
     layout="wide"
 )
 
@@ -157,7 +157,7 @@ def get_order_2h():
 # ==================== HEADER DENGAN INTEGRASI LOGO ====================
 def header_with_logo(title, subtitle, logo_path="image.png"):
     img_b64 = get_image_base64(logo_path)
-    logo_html = f'<img src="data:image/png;base64,{img_b64}" style="height: 55px; object-fit: contain;">' if img_b64 else '<span style="font-size:30px;">🚛</span>'
+    logo_html = f'<img src="data:image/png;base64,{img_b64}" style="height: 55px; object-fit: contain;">' if img_b64 else '<span style="font-size:30px;">🛡️</span>'
     
     st.markdown(f"""
     <div style="
@@ -733,7 +733,7 @@ def generate_gemini_analysis(api_key, prompt_text):
 with st.sidebar:
     st.markdown("""
     <div style="text-align:center; padding:10px 0 20px 0;">
-        <div style="font-size:40px;">🚛</div>
+        <div style="font-size:40px;">🛡️</div>
         <div style="font-weight:700; font-size:1.2rem; color:white;">FMS Dashboard</div>
         <div style="font-size:0.7rem; color:#94a3b8;">v3.0 · Enterprise</div>
     </div>
