@@ -15,6 +15,7 @@ st.set_page_config(
 )
 
 # ==================== CSS CUSTOM STYLING (PERBAIKAN KONTRAST TEKS) ====================
+# ==================== CSS CUSTOM STYLING (PERBAIKAN KONTRAST TEKS & PRINT PDF) ====================
 st.markdown("""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
@@ -117,16 +118,38 @@ div[data-testid="stDataFrame"] {
 .js-plotly-plot .plotly .main-svg {
     border-radius: 12px;
 }
+
+/* ==================== KHUSUS SAAT CETAK / SIMPAN PDF (@media print) ==================== */
+@media print {
+    /* Sembunyikan Sidebar, Header Bawaan, Button, Footer */
+    section[data-testid="stSidebar"],
+    header[data-testid="stHeader"],
+    .stButton,
+    footer,
+    .no-print {
+        display: none !important;
+    }
+    
+    /* SEMBUNYIKAN JUDUL/TAB NAVIGASI (Overview Bulanan, Tren Mingguan, dll) */
+    div[data-testid="stTabs"] [role="tablist"],
+    div[data-testid="stTabs"] [data-baseweb="tab-list"] {
+        display: none !important;
+    }
+
+    @page {
+        size: A4 portrait;
+        margin: 10mm;
+    }
+
+    .block-container {
+        padding: 0 !important;
+        margin: 0 !important;
+        width: 100% !important;
+        background-color: #ffffff !important;
+    }
+}
 </style>
 """, unsafe_allow_html=True)
-
-# ==================== INISIALISASI SESSION STATE MEMORI AI ====================
-if 'res_eksekutif' not in st.session_state:
-    st.session_state['res_eksekutif'] = None
-if 'res_jam' not in st.session_state:
-    st.session_state['res_jam'] = None
-if 'res_driver' not in st.session_state:
-    st.session_state['res_driver'] = None
 
 # ==================== HELPER FUNCTIONS ====================
 def fmt_num(n):
