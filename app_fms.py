@@ -155,9 +155,15 @@ def get_order_2h():
     return [f"{i:02d}:00-{i+1:02d}:59" for i in range(0, 24, 2)]
 
 # ==================== HEADER DENGAN INTEGRASI LOGO ====================
-def header_with_logo(title, subtitle, logo_path="image.png"):
-    img_b64 = get_image_base64(logo_path)
-    logo_html = f'<img src="data:image/png;base64,{img_b64}" style="height: 55px; object-fit: contain;">' if img_b64 else '<span style="font-size:30px;">🚛</span>'
+header_with_logo(
+    "🛡️ Driver Safety Management System",
+    "PT. Bumiputera Maha Terpercaya<br>"
+    "<b>Monitoring Fatigue • Driver Behavior Analytics • K3 Compliance</b><br>"
+    "<span style='font-size:12px; opacity:0.85; display:inline-block; margin-top:4px;'>"
+    "Sistem analisis terintegrasi untuk memantau risiko fatigue pengemudi, perilaku berkendara, dan penegakan sanksi K3 secara real-time sesuai SOP BMT-CHL-SOP 011 & BIB-HSE-PPO-035."
+    "</span>",
+    "image.png"
+)
     
     st.markdown(f"""
     <div style="
