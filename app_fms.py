@@ -15,6 +15,7 @@ st.set_page_config(
 )
 
 # ==================== CSS CUSTOM STYLING (SOFT THEME & ADAPTIVE LIGHT/DARK) ====================
+st.markdown("""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
@@ -112,9 +113,12 @@ div[data-testid="stDataFrame"] {
     overflow: hidden;
 }
 
-/* PLOTLY CONTAINER */
+/* PLOTLY CONTAINER & FIX KONTRAST TEKS GRAFIK DI DARK/LIGHT MODE */
 .js-plotly-plot .plotly .main-svg {
     border-radius: 12px;
+}
+.js-plotly-plot .plotly text {
+    fill: var(--text-color) !important;
 }
 </style>
 """, unsafe_allow_html=True)
@@ -545,8 +549,8 @@ def plot_demografi(df_fatigue, df_overspeed, labels):
         title='Demografi Umur Driver (Rentang 5 Tahun)',
         plot_bgcolor='rgba(0,0,0,0)', paper_bgcolor='rgba(0,0,0,0)',
         font=dict(family='Inter', size=12),
-        xaxis=dict(showgrid=False, title="Rentang Umur (Tahun)"),
-        yaxis=dict(showgrid=True, gridcolor='rgba(150,150,150,0.2)', gridwidth=0.5),
+        xaxis=dict(showgrid=False, title="Rentang Umur (Tahun)", tickfont=dict(color='#475569')),
+        yaxis=dict(showgrid=True, gridcolor='rgba(150,150,150,0.2)', gridwidth=0.5, tickfont=dict(color='#475569')),
         barmode='group',
         legend=dict(orientation='h', yanchor='bottom', y=1.02, xanchor='center', x=0.5),
         margin=dict(l=20, r=20, t=40, b=20)
@@ -572,8 +576,8 @@ def plot_top_driver(df_fatigue):
     fig.update_layout(
         plot_bgcolor='rgba(0,0,0,0)', paper_bgcolor='rgba(0,0,0,0)',
         font=dict(family='Inter', size=11),
-        xaxis=dict(showgrid=True, gridcolor='rgba(150,150,150,0.2)', gridwidth=0.5, range=[0, max_val * 1.2]),
-        yaxis=dict(showgrid=False),
+        xaxis=dict(showgrid=True, gridcolor='rgba(150,150,150,0.2)', gridwidth=0.5, range=[0, max_val * 1.25], tickfont=dict(color='#475569')),
+        yaxis=dict(showgrid=False, tickfont=dict(color='#475569')),
         margin=dict(l=20, r=20, t=40, b=20),
         showlegend=False, height=500
     )
