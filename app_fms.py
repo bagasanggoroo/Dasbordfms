@@ -14,7 +14,14 @@ st.set_page_config(
     layout="wide"
 )
 
-# ==================== CSS CUSTOM STYLING (PERBAIKAN KONTRAST TEKS) ====================
+# ==================== INISIALISASI SESSION STATE MEMORI AI ====================
+if 'res_eksekutif' not in st.session_state:
+    st.session_state['res_eksekutif'] = None
+if 'res_jam' not in st.session_state:
+    st.session_state['res_jam'] = None
+if 'res_driver' not in st.session_state:
+    st.session_state['res_driver'] = None
+
 # ==================== CSS CUSTOM STYLING (PERBAIKAN KONTRAST TEKS & PRINT PDF) ====================
 st.markdown("""
 <style>
@@ -973,7 +980,7 @@ else:
                         """
                         st.session_state['res_eksekutif'] = generate_gemini_analysis(user_api_key, prompt_eksekutif)
                 
-                if st.session_state['res_eksekutif']:
+                if st.session_state.get('res_eksekutif'):
                     st.markdown(f"""
                     <div style="background:white; color:#0f172a; padding:20px; border-radius:16px; border-left:5px solid #2563eb; box-shadow:0 4px 15px rgba(0,0,0,0.05); line-height:1.6;">
                         {st.session_state['res_eksekutif']}
@@ -1090,7 +1097,7 @@ else:
                                 """
                                 st.session_state['res_jam'] = generate_gemini_analysis(user_api_key, prompt_jam_rawan)
                         
-                        if st.session_state['res_jam']:
+                        if st.session_state.get('res_jam'):
                             st.markdown(f"""
                             <div style="background:white; color:#0f172a; padding:20px; border-radius:16px; border-left:5px solid #2563eb; box-shadow:0 4px 15px rgba(0,0,0,0.05); line-height:1.6;">
                                 {st.session_state['res_jam']}
@@ -1223,7 +1230,7 @@ else:
                                 """
                                 st.session_state['res_driver'] = generate_gemini_analysis(user_api_key, prompt_top_driver)
                         
-                        if st.session_state['res_driver']:
+                        if st.session_state.get('res_driver'):
                             st.markdown(f"""
                             <div style="background:white; color:#0f172a; padding:20px; border-radius:16px; border-left:5px solid #2563eb; box-shadow:0 4px 15px rgba(0,0,0,0.05); line-height:1.6;">
                                 {st.session_state['res_driver']}
