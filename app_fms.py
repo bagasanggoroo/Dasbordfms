@@ -14,7 +14,7 @@ st.set_page_config(
     layout="wide"
 )
 
-# ==================== CSS CUSTOM STYLING (SOFT THEME & ADAPTIVE LIGHT/DARK) ====================
+# ==================== CSS CUSTOM STYLING (PERBAIKAN KONTRAST TEKS) ====================
 st.markdown("""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
@@ -31,13 +31,13 @@ html, body, [class*="css"] {
     max-width: 1600px;
 }
 
-/* FIX LATAR & TEKS UTAMA (ADAPTIF LIGHT & DARK MODE) */
+/* FIX LATAR & TEKS UTAMA */
 .stApp {
     background-color: var(--background-color) !important;
     color: var(--text-color) !important;
 }
 
-/* FIX SIDEBAR / PANEL KIRI (TEKS KONTRAST & TERBACA DI KEDUA TEMA) */
+/* FIX SIDEBAR / PANEL KIRI */
 [data-testid="stSidebar"] {
     background-color: var(--background-secondary-color) !important;
 }
@@ -50,7 +50,7 @@ html, body, [class*="css"] {
     color: var(--text-color) !important;
 }
 
-/* KPI CARDS ADAPTIF TEMA */
+/* KPI CARDS */
 .kpi {
     background-color: var(--background-secondary-color, #ffffff);
     padding: 22px;
@@ -106,19 +106,16 @@ html, body, [class*="css"] {
     box-shadow: 0 6px 16px rgba(37,99,235,0.3);
 }
 
-/* DATAFRAME STYLING ADAPTIF */
+/* DATAFRAME STYLING */
 div[data-testid="stDataFrame"] {
     border-radius: 14px;
     border: 1px solid var(--border-color, #e2e8f0);
     overflow: hidden;
 }
 
-/* PLOTLY CONTAINER & FIX KONTRAST TEKS GRAFIK DI DARK/LIGHT MODE */
+/* PLOTLY CONTAINER */
 .js-plotly-plot .plotly .main-svg {
     border-radius: 12px;
-}
-.js-plotly-plot .plotly text {
-    fill: var(--text-color) !important;
 }
 </style>
 """, unsafe_allow_html=True)
@@ -305,7 +302,7 @@ def rec_card(priority, icon, text):
     </div>
     """, unsafe_allow_html=True)
 
-# ==================== CHART FUNCTIONS ====================
+# ==================== CHART FUNCTIONS (DISET TEKS JELAS TERBACA) ====================
 def plot_tren_generic(df_target, title="Tren Bulanan", color="#2563eb"):
     if df_target.empty or 'Month_Num' not in df_target.columns:
         return None
@@ -319,29 +316,37 @@ def plot_tren_generic(df_target, title="Tren Bulanan", color="#2563eb"):
     fig = px.line(
         trend, x='Bulan', y='Total',
         markers=True, title=title,
-        color_discrete_sequence=[color]
+        color_discrete_sequence=[color],
+        text='Total'
     )
-    fig.update_traces(line=dict(width=3), marker=dict(size=10))
+    fig.update_traces(
+        line=dict(width=3), 
+        marker=dict(size=10),
+        textposition="top center",
+        textfont=dict(size=11, color='#0f172a', weight='bold')
+    )
     fig.update_layout(
-        plot_bgcolor='rgba(0,0,0,0)', paper_bgcolor='rgba(0,0,0,0)',
-        font=dict(family='Inter', size=12),
-        xaxis=dict(showgrid=False),
-        yaxis=dict(showgrid=True, gridcolor='rgba(150,150,150,0.2)', gridwidth=0.5, range=[0, max_val * 1.35]),
+        plot_bgcolor='#ffffff', paper_bgcolor='#ffffff',
+        font=dict(family='Inter', size=12, color='#0f172a'),
+        title=dict(font=dict(color='#0f172a', size=14, weight='bold')),
+        xaxis=dict(showgrid=False, tickfont=dict(color='#0f172a', size=11), title=dict(font=dict(color='#0f172a'))),
+        yaxis=dict(showgrid=True, gridcolor='#e2e8f0', gridwidth=1, range=[0, max_val * 1.35], tickfont=dict(color='#0f172a', size=11), title=dict(font=dict(color='#0f172a'))),
         hovermode='x unified',
         margin=dict(l=20, r=20, t=40, b=20)
     )
     
     for i, row in trend.iterrows():
         is_max = bool(row['Total'] == max_val)
-        fig.add_annotation(
-            x=row['Bulan'], y=row['Total'],
-            text=f"🔥 {row['Total']}" if is_max else str(row['Total']),
-            showarrow=is_max, arrowhead=1, arrowcolor=color,
-            yshift=14 if is_max else 10,
-            font=dict(size=12 if is_max else 11, weight='bold'),
-            bgcolor='#fee2e2' if is_max and color=='#ef4444' else ('#fef3c7' if is_max and color=='#f59e0b' else None),
-            bordercolor=color if is_max else None, borderwidth=1 if is_max else 0
-        )
+        if is_max:
+            fig.add_annotation(
+                x=row['Bulan'], y=row['Total'],
+                text=f"🔥 {row['Total']}",
+                showarrow=True, arrowhead=1, arrowcolor=color,
+                yshift=14,
+                font=dict(size=12, color='#0f172a', weight='bold'),
+                bgcolor='#fee2e2' if color=='#ef4444' else '#fef3c7',
+                bordercolor=color, borderwidth=1
+            )
     return fig
 
 def plot_weekly_trend_with_trendline(df_fatigue):
@@ -388,15 +393,16 @@ def plot_weekly_trend_with_trendline(df_fatigue):
 
     fig.update_layout(
         title='📊 Tren Temuan Fatigue Mingguan (Week 1–52) + Garis Tren',
-        plot_bgcolor='rgba(0,0,0,0)', paper_bgcolor='rgba(0,0,0,0)',
-        font=dict(family='Inter', size=12),
+        plot_bgcolor='#ffffff', paper_bgcolor='#ffffff',
+        font=dict(family='Inter', size=12, color='#0f172a'),
+        title_font=dict(color='#0f172a'),
         xaxis=dict(
-            title="Minggu Ke- (Week)", showgrid=True, gridcolor='rgba(150,150,150,0.2)',
-            dtick=1, rangeslider=dict(visible=False)
+            title="Minggu Ke- (Week)", showgrid=True, gridcolor='#e2e8f0',
+            dtick=1, rangeslider=dict(visible=False), tickfont=dict(color='#0f172a'), title_font=dict(color='#0f172a')
         ),
-        yaxis=dict(title="Jumlah Temuan", showgrid=True, gridcolor='rgba(150,150,150,0.2)'),
+        yaxis=dict(title="Jumlah Temuan", showgrid=True, gridcolor='#e2e8f0', tickfont=dict(color='#0f172a'), title_font=dict(color='#0f172a')),
         hovermode='x unified',
-        legend=dict(orientation='h', yanchor='bottom', y=1.02, xanchor='center', x=0.5),
+        legend=dict(orientation='h', yanchor='bottom', y=1.02, xanchor='center', x=0.5, font=dict(color='#0f172a')),
         margin=dict(l=20, r=20, t=50, b=20)
     )
     
@@ -417,12 +423,13 @@ def plot_shift_comparison(df_fatigue):
     )
     fig.update_traces(line=dict(width=2.5), marker=dict(size=8))
     fig.update_layout(
-        plot_bgcolor='rgba(0,0,0,0)', paper_bgcolor='rgba(0,0,0,0)',
-        font=dict(family='Inter', size=12),
-        xaxis=dict(showgrid=False),
-        yaxis=dict(showgrid=True, gridcolor='rgba(150,150,150,0.2)', gridwidth=0.5),
+        plot_bgcolor='#ffffff', paper_bgcolor='#ffffff',
+        font=dict(family='Inter', size=12, color='#0f172a'),
+        title_font=dict(color='#0f172a'),
+        xaxis=dict(showgrid=False, tickfont=dict(color='#0f172a')),
+        yaxis=dict(showgrid=True, gridcolor='#e2e8f0', gridwidth=1, tickfont=dict(color='#0f172a')),
         hovermode='x unified',
-        legend=dict(orientation='h', yanchor='bottom', y=1.02, xanchor='center', x=0.5),
+        legend=dict(orientation='h', yanchor='bottom', y=1.02, xanchor='center', x=0.5, font=dict(color='#0f172a')),
         margin=dict(l=20, r=20, t=40, b=20)
     )
     return fig
@@ -440,12 +447,13 @@ def plot_alarm_distribution(df_fatigue):
         title='Jenis Alarm', color='Jenis',
         color_discrete_sequence=colors, text='Total'
     )
-    fig.update_traces(textposition='outside', textfont=dict(size=12, weight='bold'))
+    fig.update_traces(textposition='outside', textfont=dict(size=12, color='#0f172a', weight='bold'))
     fig.update_layout(
-        plot_bgcolor='rgba(0,0,0,0)', paper_bgcolor='rgba(0,0,0,0)',
-        font=dict(family='Inter', size=12),
-        xaxis=dict(showgrid=True, gridcolor='rgba(150,150,150,0.2)', gridwidth=0.5),
-        yaxis=dict(showgrid=False),
+        plot_bgcolor='#ffffff', paper_bgcolor='#ffffff',
+        font=dict(family='Inter', size=12, color='#0f172a'),
+        title_font=dict(color='#0f172a'),
+        xaxis=dict(showgrid=True, gridcolor='#e2e8f0', gridwidth=1, tickfont=dict(color='#0f172a')),
+        yaxis=dict(showgrid=False, tickfont=dict(color='#0f172a')),
         margin=dict(l=20, r=20, t=40, b=20),
         showlegend=False
     )
@@ -474,7 +482,7 @@ def plot_jam_distribution(df_fatigue, order_2h):
     fig.update_traces(
         marker_color=colors,
         textposition='outside', 
-        textfont=dict(size=11, weight='bold')
+        textfont=dict(size=11, color='#0f172a', weight='bold')
     )
     
     max_row = rj[rj['Total'] == max_val].iloc[0]
@@ -488,10 +496,11 @@ def plot_jam_distribution(df_fatigue, order_2h):
     )
     
     fig.update_layout(
-        plot_bgcolor='rgba(0,0,0,0)', paper_bgcolor='rgba(0,0,0,0)',
-        font=dict(family='Inter', size=12),
-        xaxis=dict(showgrid=False, tickangle=45),
-        yaxis=dict(showgrid=True, gridcolor='rgba(150,150,150,0.2)', gridwidth=0.5, range=[0, max_val * 1.35]),
+        plot_bgcolor='#ffffff', paper_bgcolor='#ffffff',
+        font=dict(family='Inter', size=12, color='#0f172a'),
+        title_font=dict(color='#0f172a'),
+        xaxis=dict(showgrid=False, tickangle=45, tickfont=dict(color='#0f172a')),
+        yaxis=dict(showgrid=True, gridcolor='#e2e8f0', gridwidth=1, range=[0, max_val * 1.35], tickfont=dict(color='#0f172a')),
         margin=dict(l=20, r=20, t=50, b=20),
         showlegend=False
     )
@@ -514,12 +523,13 @@ def plot_hotspot(df, label="Fatigue"):
         loc_counts, x='Total', y='Lokasi', orientation='h',
         title=f'Top 10 Lokasi {label}', text='Total'
     )
-    fig.update_traces(marker_color=colors, textposition='outside', textfont=dict(size=11, weight='bold'))
+    fig.update_traces(marker_color=colors, textposition='outside', textfont=dict(size=11, color='#0f172a', weight='bold'))
     fig.update_layout(
-        plot_bgcolor='rgba(0,0,0,0)', paper_bgcolor='rgba(0,0,0,0)',
-        font=dict(family='Inter', size=12),
-        xaxis=dict(showgrid=True, gridcolor='rgba(150,150,150,0.2)', gridwidth=0.5, range=[0, max_val * 1.2]),
-        yaxis=dict(showgrid=False),
+        plot_bgcolor='#ffffff', paper_bgcolor='#ffffff',
+        font=dict(family='Inter', size=12, color='#0f172a'),
+        title_font=dict(color='#0f172a'),
+        xaxis=dict(showgrid=True, gridcolor='#e2e8f0', gridwidth=1, range=[0, max_val * 1.2], tickfont=dict(color='#0f172a')),
+        yaxis=dict(showgrid=False, tickfont=dict(color='#0f172a')),
         margin=dict(l=20, r=20, t=40, b=20),
         showlegend=False, height=400
     )
@@ -538,21 +548,24 @@ def plot_demografi(df_fatigue, df_overspeed, labels):
     fig.add_trace(go.Bar(
         x=merged['Kelompok'], y=merged['Fatigue'],
         name='Fatigue', marker_color='#ef4444',
-        text=merged['Fatigue'], textposition='outside'
+        text=merged['Fatigue'], textposition='outside',
+        textfont=dict(color='#0f172a', weight='bold')
     ))
     fig.add_trace(go.Bar(
         x=merged['Kelompok'], y=merged['Overspeed'],
         name='Overspeed', marker_color='#f59e0b',
-        text=merged['Overspeed'], textposition='outside'
+        text=merged['Overspeed'], textposition='outside',
+        textfont=dict(color='#0f172a', weight='bold')
     ))
     fig.update_layout(
         title='Demografi Umur Driver (Rentang 5 Tahun)',
-        plot_bgcolor='rgba(0,0,0,0)', paper_bgcolor='rgba(0,0,0,0)',
-        font=dict(family='Inter', size=12),
-        xaxis=dict(showgrid=False, title="Rentang Umur (Tahun)", tickfont=dict(color='#475569')),
-        yaxis=dict(showgrid=True, gridcolor='rgba(150,150,150,0.2)', gridwidth=0.5, tickfont=dict(color='#475569')),
+        plot_bgcolor='#ffffff', paper_bgcolor='#ffffff',
+        font=dict(family='Inter', size=12, color='#0f172a'),
+        title_font=dict(color='#0f172a'),
+        xaxis=dict(showgrid=False, title="Rentang Umur (Tahun)", tickfont=dict(color='#0f172a'), title_font=dict(color='#0f172a')),
+        yaxis=dict(showgrid=True, gridcolor='#e2e8f0', gridwidth=1, tickfont=dict(color='#0f172a'), title_font=dict(color='#0f172a')),
         barmode='group',
-        legend=dict(orientation='h', yanchor='bottom', y=1.02, xanchor='center', x=0.5),
+        legend=dict(orientation='h', yanchor='bottom', y=1.02, xanchor='center', x=0.5, font=dict(color='#0f172a')),
         margin=dict(l=20, r=20, t=40, b=20)
     )
     return fig
@@ -572,12 +585,13 @@ def plot_top_driver(df_fatigue):
         drv, x='Total', y='Driver', orientation='h',
         title='Top 20 Driver Fatigue', text='Total'
     )
-    fig.update_traces(marker_color=colors, textposition='outside', textfont=dict(size=10, weight='bold'))
+    fig.update_traces(marker_color=colors, textposition='outside', textfont=dict(size=10, color='#0f172a', weight='bold'))
     fig.update_layout(
-        plot_bgcolor='rgba(0,0,0,0)', paper_bgcolor='rgba(0,0,0,0)',
-        font=dict(family='Inter', size=11),
-        xaxis=dict(showgrid=True, gridcolor='rgba(150,150,150,0.2)', gridwidth=0.5, range=[0, max_val * 1.25], tickfont=dict(color='#475569')),
-        yaxis=dict(showgrid=False, tickfont=dict(color='#475569')),
+        plot_bgcolor='#ffffff', paper_bgcolor='#ffffff',
+        font=dict(family='Inter', size=11, color='#0f172a'),
+        title_font=dict(color='#0f172a'),
+        xaxis=dict(showgrid=True, gridcolor='#e2e8f0', gridwidth=1, range=[0, max_val * 1.25], tickfont=dict(color='#0f172a')),
+        yaxis=dict(showgrid=False, tickfont=dict(color='#0f172a')),
         margin=dict(l=20, r=20, t=40, b=20),
         showlegend=False, height=500
     )
@@ -607,14 +621,16 @@ def plot_heatmap(df_fatigue, order_months, top_n=15):
         text_auto=True, color_continuous_scale='YlOrRd', aspect='auto'
     )
     fig.update_layout(
-        plot_bgcolor='rgba(0,0,0,0)', paper_bgcolor='rgba(0,0,0,0)',
-        font=dict(family='Inter', size=11),
-        xaxis=dict(side='bottom'), yaxis=dict(title='Driver'),
+        plot_bgcolor='#ffffff', paper_bgcolor='#ffffff',
+        font=dict(family='Inter', size=11, color='#0f172a'),
+        title_font=dict(color='#0f172a'),
+        xaxis=dict(side='bottom', tickfont=dict(color='#0f172a')), 
+        yaxis=dict(title='Driver', tickfont=dict(color='#0f172a'), title_font=dict(color='#0f172a')),
         margin=dict(l=20, r=20, t=40, b=20),
         height=max(400, len(heatmap_data) * 25)
     )
-    fig.update_xaxes(title='Bulan')
-    fig.update_yaxes(title='Driver')
+    fig.update_xaxes(title='Bulan', title_font=dict(color='#0f172a'))
+    fig.update_yaxes(title='Driver', title_font=dict(color='#0f172a'))
     return fig
 
 def plot_forecast(df_fatigue):
@@ -658,12 +674,13 @@ def plot_forecast(df_fatigue):
     ))
     fig.update_layout(
         title='Prediksi Tren 3 Bulan ke Depan',
-        plot_bgcolor='rgba(0,0,0,0)', paper_bgcolor='rgba(0,0,0,0)',
-        font=dict(family='Inter', size=12),
-        xaxis=dict(showgrid=False),
-        yaxis=dict(showgrid=True, gridcolor='rgba(150,150,150,0.2)', gridwidth=0.5),
+        plot_bgcolor='#ffffff', paper_bgcolor='#ffffff',
+        font=dict(family='Inter', size=12, color='#0f172a'),
+        title_font=dict(color='#0f172a'),
+        xaxis=dict(showgrid=False, tickfont=dict(color='#0f172a')),
+        yaxis=dict(showgrid=True, gridcolor='#e2e8f0', gridwidth=1, tickfont=dict(color='#0f172a')),
         hovermode='x unified',
-        legend=dict(orientation='h', yanchor='bottom', y=1.02, xanchor='center', x=0.5),
+        legend=dict(orientation='h', yanchor='bottom', y=1.02, xanchor='center', x=0.5, font=dict(color='#0f172a')),
         margin=dict(l=20, r=20, t=40, b=20)
     )
     return fig
@@ -700,12 +717,13 @@ def plot_fatigue_vs_overspeed(df_fatigue, df_overspeed):
     ))
     fig.update_layout(
         title='Fatigue vs Overspeed per Driver',
-        plot_bgcolor='rgba(0,0,0,0)', paper_bgcolor='rgba(0,0,0,0)',
-        font=dict(family='Inter', size=11),
-        xaxis=dict(showgrid=False, tickangle=45),
-        yaxis=dict(showgrid=True, gridcolor='rgba(150,150,150,0.2)', gridwidth=0.5),
+        plot_bgcolor='#ffffff', paper_bgcolor='#ffffff',
+        font=dict(family='Inter', size=11, color='#0f172a'),
+        title_font=dict(color='#0f172a'),
+        xaxis=dict(showgrid=False, tickangle=45, tickfont=dict(color='#0f172a')),
+        yaxis=dict(showgrid=True, gridcolor='#e2e8f0', gridwidth=1, tickfont=dict(color='#0f172a')),
         barmode='group',
-        legend=dict(orientation='h', yanchor='bottom', y=1.02, xanchor='center', x=0.5),
+        legend=dict(orientation='h', yanchor='bottom', y=1.02, xanchor='center', x=0.5, font=dict(color='#0f172a')),
         margin=dict(l=20, r=20, t=40, b=20),
         height=450
     )
@@ -1070,12 +1088,13 @@ else:
                             rj_o, x='Jam', y='Total',
                             title='Distribusi Jam Overspeed', text='Total'
                         )
-                        fig.update_traces(marker_color=colors_o, textposition='outside', textfont=dict(size=11, weight='bold'))
+                        fig.update_traces(marker_color=colors_o, textposition='outside', textfont=dict(size=11, color='#0f172a', weight='bold'))
                         fig.update_layout(
-                            plot_bgcolor='rgba(0,0,0,0)', paper_bgcolor='rgba(0,0,0,0)',
-                            font=dict(family='Inter', size=12),
-                            xaxis=dict(showgrid=False, tickangle=45),
-                            yaxis=dict(showgrid=True, gridcolor='rgba(150,150,150,0.2)', gridwidth=0.5, range=[0, max_o_val * 1.25]),
+                            plot_bgcolor='#ffffff', paper_bgcolor='#ffffff',
+                            font=dict(family='Inter', size=12, color='#0f172a'),
+                            title_font=dict(color='#0f172a'),
+                            xaxis=dict(showgrid=False, tickangle=45, tickfont=dict(color='#0f172a')),
+                            yaxis=dict(showgrid=True, gridcolor='#e2e8f0', gridwidth=1, range=[0, max_o_val * 1.25], tickfont=dict(color='#0f172a')),
                             margin=dict(l=20, r=20, t=40, b=20),
                             showlegend=False
                         )
@@ -1127,12 +1146,13 @@ else:
                             unit, x='Total', y='Unit', orientation='h',
                             title='Top 10 Unit dengan Temuan Berulang', text='Total'
                         )
-                        fig.update_traces(marker_color=colors_u, textposition='outside', textfont=dict(size=11, weight='bold'))
+                        fig.update_traces(marker_color=colors_u, textposition='outside', textfont=dict(size=11, color='#0f172a', weight='bold'))
                         fig.update_layout(
-                            plot_bgcolor='rgba(0,0,0,0)', paper_bgcolor='rgba(0,0,0,0)',
-                            font=dict(family='Inter', size=11),
-                            xaxis=dict(showgrid=True, gridcolor='rgba(150,150,150,0.2)', gridwidth=0.5, range=[0, max_u * 1.2]),
-                            yaxis=dict(showgrid=False),
+                            plot_bgcolor='#ffffff', paper_bgcolor='#ffffff',
+                            font=dict(family='Inter', size=11, color='#0f172a'),
+                            title_font=dict(color='#0f172a'),
+                            xaxis=dict(showgrid=True, gridcolor='#e2e8f0', gridwidth=1, range=[0, max_u * 1.2], tickfont=dict(color='#0f172a')),
+                            yaxis=dict(showgrid=False, tickfont=dict(color='#0f172a')),
                             margin=dict(l=20, r=20, t=40, b=20),
                             showlegend=False, height=450
                         )
