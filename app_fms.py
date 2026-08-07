@@ -758,8 +758,12 @@ with st.sidebar:
 
 # ==================== HEADER DENGAN INTEGRASI LOGO ====================
 header_with_logo(
-    "🚛 Fleet Management System",
-    "PT. Bumiputera Maha Terpercaya<br>Monitoring Fatigue • Overspeed • Safety Analytics",
+    "🛡️ Driver Safety Management System",
+    "PT. Bumiputera Maha Terpercaya<br>"
+    "<b>Monitoring Fatigue • Driver Behavior Analytics • K3 Compliance</b><br>"
+    "<span style='font-size:12px; opacity:0.85; display:inline-block; margin-top:4px;'>"
+    "Sistem analisis terintegrasi untuk memantau risiko fatigue pengemudi, perilaku berkendara, dan penegakan sanksi K3 secara real-time sesuai SOP BMT-CHL-SOP 011 & BIB-HSE-PPO-035."
+    "</span>",
     "image.png"
 )
 
