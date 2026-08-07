@@ -15,17 +15,11 @@ st.set_page_config(
 )
 
 # ==================== CSS CUSTOM STYLING (SOFT THEME & ADAPTIVE LIGHT/DARK) ====================
-st.markdown("""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
 html, body, [class*="css"] {
     font-family: 'Inter', sans-serif;
-}
-
-/* LATAR BELAKANG UTAMA (SOFT SLATE - TIDAK PUTIH POLOS) */
-.stApp {
-    background-color: #f8fafc !important;
 }
 
 .block-container {
@@ -36,31 +30,38 @@ html, body, [class*="css"] {
     max-width: 1600px;
 }
 
-/* SIDEBAR ADAPTIF OTOMATIS (TERBACA JELAS DI LIGHT & DARK MODE) */
-[data-testid="stSidebar"] {
+/* FIX LATAR & TEKS UTAMA (ADAPTIF LIGHT & DARK MODE) */
+.stApp {
     background-color: var(--background-color) !important;
-}
-
-[data-testid="stSidebar"] [data-testid="stMarkdownContainer"] p,
-[data-testid="stSidebar"] [data-testid="stMarkdownContainer"] span,
-[data-testid="stSidebar"] label,
-[data-testid="stSidebar"] .stFileUploader label {
     color: var(--text-color) !important;
 }
 
-/* KPI CARDS ADAPTIF & ELEGAN */
+/* FIX SIDEBAR / PANEL KIRI (TEKS KONTRAST & TERBACA DI KEDUA TEMA) */
+[data-testid="stSidebar"] {
+    background-color: var(--background-secondary-color) !important;
+}
+
+[data-testid="stSidebar"] *, 
+[data-testid="stSidebar"] p,
+[data-testid="stSidebar"] span,
+[data-testid="stSidebar"] label,
+[data-testid="stSidebar"] div {
+    color: var(--text-color) !important;
+}
+
+/* KPI CARDS ADAPTIF TEMA */
 .kpi {
-    background-color: #ffffff;
+    background-color: var(--background-secondary-color, #ffffff);
     padding: 22px;
     border-radius: 18px;
-    box-shadow: 0 4px 15px rgba(0,0,0,.03);
+    box-shadow: 0 4px 15px rgba(0,0,0,.05);
     transition: all .25s ease;
-    border: 1px solid #e2e8f0;
+    border: 1px solid var(--border-color, #e2e8f0);
     position: relative;
 }
 .kpi:hover {
     transform: translateY(-4px);
-    box-shadow: 0 10px 25px rgba(0,0,0,.07);
+    box-shadow: 0 10px 25px rgba(0,0,0,.1);
 }
 .kpi-icon {
     font-size: 28px;
@@ -68,7 +69,7 @@ html, body, [class*="css"] {
 }
 .kpi-title {
     font-size: 13px;
-    color: #64748b;
+    opacity: 0.8;
     text-transform: uppercase;
     letter-spacing: .8px;
     font-weight: 600;
@@ -76,20 +77,20 @@ html, body, [class*="css"] {
 .kpi-value {
     font-size: 34px;
     font-weight: 700;
-    color: #0f172a;
+    color: var(--text-color);
     margin-top: 6px;
 }
 .kpi-footer {
     margin-top: 8px;
-    color: #2563eb;
+    color: #3b82f6;
     font-size: 13px;
     font-weight: 500;
 }
 
-/* BUTTON STYLING (SOFT BLUE) */
+/* BUTTON STYLING */
 .stButton > button {
     background: #3b82f6;
-    color: white !important;
+    color: #ffffff !important;
     border-radius: 10px;
     border: none;
     padding: .55rem 1rem;
@@ -99,110 +100,21 @@ html, body, [class*="css"] {
 }
 .stButton > button:hover {
     background: #2563eb;
-    color: white !important;
+    color: #ffffff !important;
     transform: translateY(-2px);
     box-shadow: 0 6px 16px rgba(37,99,235,0.3);
 }
 
-/* DATAFRAME STYLING */
+/* DATAFRAME STYLING ADAPTIF */
 div[data-testid="stDataFrame"] {
     border-radius: 14px;
-    border: 1px solid #e2e8f0;
-    background-color: #ffffff;
+    border: 1px solid var(--border-color, #e2e8f0);
     overflow: hidden;
 }
 
 /* PLOTLY CONTAINER */
 .js-plotly-plot .plotly .main-svg {
     border-radius: 12px;
-}
-
-/* KONTAINER GRAFIK ISOLASI & PRINT FIX */
-.chart-box {
-    background-color: #ffffff;
-    padding: 15px;
-    border-radius: 16px;
-    border: 1px solid #e2e8f0;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.02);
-    position: relative !important;
-    display: block !important;
-    width: 100% !important;
-    clear: both !important;
-    margin-bottom: 25px !important;
-}
-
-@media print {
-    section[data-testid="stSidebar"],
-    header[data-testid="stHeader"],
-    .stButton,
-    footer,
-    div[data-testid="stTabs"] [role="tablist"],
-    .no-print {
-        display: none !important;
-    }
-    
-    div[data-testid="stTabs"] [role="tabpanel"] {
-        display: block !important;
-        opacity: 1 !important;
-        visibility: visible !important;
-        position: relative !important;
-        float: none !important;
-        clear: both !important;
-        page-break-after: always !important;
-        margin-bottom: 30px !important;
-    }
-
-    div[data-testid="stHorizontalBlock"] {
-        display: flex !important;
-        flex-direction: row !important;
-        flex-wrap: nowrap !important;
-        justify-content: space-between !important;
-        align-items: stretch !important;
-        gap: 10px !important;
-        width: 100% !important;
-    }
-
-    div[data-testid="stHorizontalBlock"] > div[data-testid="column"] {
-        flex: 1 1 25% !important;
-        width: 25% !important;
-        min-width: 0 !important;
-        max-width: 25% !important;
-        display: block !important;
-        margin-bottom: 0 !important;
-    }
-
-    @page {
-        size: A4 portrait;
-        margin: 10mm;
-    }
-
-    .block-container {
-        padding: 0 !important;
-        margin: 0 !important;
-        width: 100% !important;
-        background-color: #ffffff !important;
-    }
-
-    .chart-box, .js-plotly-plot, [data-testid="stPlotlyChart"] {
-        position: relative !important;
-        display: block !important;
-        clear: both !important;
-        float: none !important;
-        width: 100% !important;
-        height: auto !important;
-        max-height: 380px !important;
-        page-break-inside: avoid !important;
-        break-inside: avoid !important;
-        margin-bottom: 25px !important;
-        background-color: #ffffff !important;
-        border: none !important;
-        box-shadow: none !important;
-    }
-
-    .kpi, div[data-testid="stMarkdownContainer"] {
-        page-break-inside: avoid !important;
-        break-inside: avoid !important;
-    }
 }
 </style>
 """, unsafe_allow_html=True)
