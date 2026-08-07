@@ -9,18 +9,23 @@ from google import genai
 
 # ==================== KONFIGURASI HALAMAN ====================
 st.set_page_config(
-    page_title="Dashboard FMS - PT. Bumiputera Maha Terpercaya",
+    page_title="DSMS - PT. Bumiputera Maha Terpercaya",
     page_icon="🛡️",
     layout="wide"
 )
 
-# ==================== CSS CUSTOM STYLING (THEME-ADAPTIVE & DARK/LIGHT FIX) ====================
+# ==================== CSS CUSTOM STYLING (SOFT THEME & ADAPTIVE LIGHT/DARK) ====================
 st.markdown("""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
 html, body, [class*="css"] {
     font-family: 'Inter', sans-serif;
+}
+
+/* LATAR BELAKANG UTAMA (SOFT SLATE - TIDAK PUTIH POLOS) */
+.stApp {
+    background-color: #f8fafc !important;
 }
 
 .block-container {
@@ -31,19 +36,31 @@ html, body, [class*="css"] {
     max-width: 1600px;
 }
 
-/* KPI CARDS ADAPTIF TEMA */
+/* SIDEBAR ADAPTIF OTOMATIS (TERBACA JELAS DI LIGHT & DARK MODE) */
+[data-testid="stSidebar"] {
+    background-color: var(--background-color) !important;
+}
+
+[data-testid="stSidebar"] [data-testid="stMarkdownContainer"] p,
+[data-testid="stSidebar"] [data-testid="stMarkdownContainer"] span,
+[data-testid="stSidebar"] label,
+[data-testid="stSidebar"] .stFileUploader label {
+    color: var(--text-color) !important;
+}
+
+/* KPI CARDS ADAPTIF & ELEGAN */
 .kpi {
-    background-color: var(--background-secondary-color, rgba(255, 255, 255, 0.05));
+    background-color: #ffffff;
     padding: 22px;
     border-radius: 18px;
-    box-shadow: 0 5px 20px rgba(0,0,0,.05);
-    transition: .25s;
-    border: 1px solid var(--border-color, #edf2f7);
+    box-shadow: 0 4px 15px rgba(0,0,0,.03);
+    transition: all .25s ease;
+    border: 1px solid #e2e8f0;
     position: relative;
 }
 .kpi:hover {
-    transform: translateY(-6px);
-    box-shadow: 0 15px 35px rgba(0,0,0,.10);
+    transform: translateY(-4px);
+    box-shadow: 0 10px 25px rgba(0,0,0,.07);
 }
 .kpi-icon {
     font-size: 28px;
@@ -51,49 +68,141 @@ html, body, [class*="css"] {
 }
 .kpi-title {
     font-size: 13px;
-    opacity: 0.8;
+    color: #64748b;
     text-transform: uppercase;
     letter-spacing: .8px;
-    font-weight: 500;
+    font-weight: 600;
 }
 .kpi-value {
     font-size: 34px;
     font-weight: 700;
+    color: #0f172a;
     margin-top: 6px;
 }
 .kpi-footer {
     margin-top: 8px;
     color: #2563eb;
     font-size: 13px;
+    font-weight: 500;
 }
 
-/* BUTTON STYLING */
+/* BUTTON STYLING (SOFT BLUE) */
 .stButton > button {
-    background: #2563eb;
+    background: #3b82f6;
     color: white !important;
     border-radius: 10px;
     border: none;
     padding: .55rem 1rem;
     font-weight: 500;
-    transition: .2s;
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
+    transition: all .2s ease;
 }
 .stButton > button:hover {
-    background: #1d4ed8;
+    background: #2563eb;
     color: white !important;
     transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(37,99,235,0.3);
+    box-shadow: 0 6px 16px rgba(37,99,235,0.3);
 }
 
 /* DATAFRAME STYLING */
 div[data-testid="stDataFrame"] {
     border-radius: 14px;
-    border: 1px solid var(--border-color, #edf2f7);
+    border: 1px solid #e2e8f0;
+    background-color: #ffffff;
     overflow: hidden;
 }
 
 /* PLOTLY CONTAINER */
 .js-plotly-plot .plotly .main-svg {
     border-radius: 12px;
+}
+
+/* KONTAINER GRAFIK ISOLASI & PRINT FIX */
+.chart-box {
+    background-color: #ffffff;
+    padding: 15px;
+    border-radius: 16px;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.02);
+    position: relative !important;
+    display: block !important;
+    width: 100% !important;
+    clear: both !important;
+    margin-bottom: 25px !important;
+}
+
+@media print {
+    section[data-testid="stSidebar"],
+    header[data-testid="stHeader"],
+    .stButton,
+    footer,
+    div[data-testid="stTabs"] [role="tablist"],
+    .no-print {
+        display: none !important;
+    }
+    
+    div[data-testid="stTabs"] [role="tabpanel"] {
+        display: block !important;
+        opacity: 1 !important;
+        visibility: visible !important;
+        position: relative !important;
+        float: none !important;
+        clear: both !important;
+        page-break-after: always !important;
+        margin-bottom: 30px !important;
+    }
+
+    div[data-testid="stHorizontalBlock"] {
+        display: flex !important;
+        flex-direction: row !important;
+        flex-wrap: nowrap !important;
+        justify-content: space-between !important;
+        align-items: stretch !important;
+        gap: 10px !important;
+        width: 100% !important;
+    }
+
+    div[data-testid="stHorizontalBlock"] > div[data-testid="column"] {
+        flex: 1 1 25% !important;
+        width: 25% !important;
+        min-width: 0 !important;
+        max-width: 25% !important;
+        display: block !important;
+        margin-bottom: 0 !important;
+    }
+
+    @page {
+        size: A4 portrait;
+        margin: 10mm;
+    }
+
+    .block-container {
+        padding: 0 !important;
+        margin: 0 !important;
+        width: 100% !important;
+        background-color: #ffffff !important;
+    }
+
+    .chart-box, .js-plotly-plot, [data-testid="stPlotlyChart"] {
+        position: relative !important;
+        display: block !important;
+        clear: both !important;
+        float: none !important;
+        width: 100% !important;
+        height: auto !important;
+        max-height: 380px !important;
+        page-break-inside: avoid !important;
+        break-inside: avoid !important;
+        margin-bottom: 25px !important;
+        background-color: #ffffff !important;
+        border: none !important;
+        box-shadow: none !important;
+    }
+
+    .kpi, div[data-testid="stMarkdownContainer"] {
+        page-break-inside: avoid !important;
+        break-inside: avoid !important;
+    }
 }
 </style>
 """, unsafe_allow_html=True)
@@ -157,7 +266,7 @@ def get_order_2h():
 # ==================== HEADER DENGAN INTEGRASI LOGO ====================
 def header_with_logo(title, subtitle, logo_path="image.png"):
     img_b64 = get_image_base64(logo_path)
-    logo_html = f'<img src="data:image/png;base64,{img_b64}" style="height: 55px; object-fit: contain;">' if img_b64 else '<span style="font-size:30px;">🛡️</span>'
+    logo_html = f'<img src="data:image/png;base64,{img_b64}" style="height: 55px; object-fit: contain;">' if img_b64 else '<span style="font-size:30px;">🚛</span>'
     
     st.markdown(f"""
     <div style="
@@ -367,7 +476,7 @@ def plot_weekly_trend_with_trendline(df_fatigue):
         font=dict(family='Inter', size=12),
         xaxis=dict(
             title="Minggu Ke- (Week)", showgrid=True, gridcolor='rgba(150,150,150,0.2)',
-            dtick=1, rangeslider=dict(visible=True)
+            dtick=1, rangeslider=dict(visible=False)
         ),
         yaxis=dict(title="Jumlah Temuan", showgrid=True, gridcolor='rgba(150,150,150,0.2)'),
         hovermode='x unified',
@@ -686,56 +795,25 @@ def plot_fatigue_vs_overspeed(df_fatigue, df_overspeed):
     )
     return fig
 
-# ==================== FUNGSI INTEGRASI GEMINI AI GENERIK ====================
+# ==================== FUNGSI INTEGRASI GEMINI AI ====================
 def generate_gemini_analysis(api_key, prompt_text):
     try:
-        client = genai.Client(
-            api_key=api_key,
-            http_options={'api_version': 'v1'}
+        client = genai.Client(api_key=api_key)
+        response = client.models.generate_content(
+            model='gemini-flash',
+            contents=prompt_text,
         )
-        
-        available_models = []
-        try:
-            for m in client.models.list():
-                if hasattr(m, 'supported_actions') and 'generateContent' in m.supported_actions:
-                    available_models.append(m.name)
-                elif hasattr(m, 'supported_generation_methods') and 'generateContent' in m.supported_generation_methods:
-                    available_models.append(m.name)
-        except Exception:
-            pass
-
-        candidate_models = available_models if available_models else [
-            'models/gemini-2.0-flash',
-            'models/gemini-1.5-flash',
-            'models/gemini-1.5-pro',
-            'gemini-2.0-flash',
-            'gemini-1.5-flash'
-        ]
-
-        last_err = ""
-        for model_name in candidate_models:
-            try:
-                response = client.models.generate_content(
-                    model=model_name,
-                    contents=prompt_text,
-                )
-                return response.text
-            except Exception as err:
-                last_err = str(err)
-                continue
-
-        return f"❌ Gagal menghasilkan analisis AI. Error: {last_err}"
-        
+        return response.text
     except Exception as e:
-        return f"❌ Gagal mengonfigurasi Gemini Client: {str(e)}"
+        return f"❌ Error saat memproses AI: {str(e)}"
 
 # ==================== SIDEBAR ====================
 with st.sidebar:
     st.markdown("""
     <div style="text-align:center; padding:10px 0 20px 0;">
         <div style="font-size:40px;">🛡️</div>
-        <div style="font-weight:700; font-size:1.2rem; color:white;">FMS Dashboard</div>
-        <div style="font-size:0.7rem; color:#94a3b8;">v3.0 · Enterprise</div>
+        <div style="font-weight:700; font-size:1.2rem;">DSMS Dashboard</div>
+        <div style="font-size:0.7rem; opacity:0.8;">v3.0 · Enterprise</div>
     </div>
     """, unsafe_allow_html=True)
     
@@ -774,7 +852,7 @@ if uploaded_file is None:
     col1, col2, col3 = st.columns(3)
     with col1:
         st.markdown("""
-        <div style="background:white; padding:30px; border-radius:18px; text-align:center; border:1px solid #edf2f7; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
+        <div style="background:white; padding:30px; border-radius:18px; text-align:center; border:1px solid #e2e8f0; box-shadow: 0 4px 12px rgba(0,0,0,0.03);">
             <div style="font-size:40px;">📊</div>
             <div style="font-weight:700; color:#0f172a; font-size:1.1rem; margin-top:8px;">Analisis Lengkap</div>
             <div style="font-size:0.85rem; color:#475569; margin-top:4px;">Tren fatigue, overspeed, performa</div>
@@ -782,7 +860,7 @@ if uploaded_file is None:
         """, unsafe_allow_html=True)
     with col2:
         st.markdown("""
-        <div style="background:white; padding:30px; border-radius:18px; text-align:center; border:1px solid #edf2f7; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
+        <div style="background:white; padding:30px; border-radius:18px; text-align:center; border:1px solid #e2e8f0; box-shadow: 0 4px 12px rgba(0,0,0,0.03);">
             <div style="font-size:40px;">🗺️</div>
             <div style="font-weight:700; color:#0f172a; font-size:1.1rem; margin-top:8px;">Spatial & Temporal</div>
             <div style="font-size:0.85rem; color:#475569; margin-top:4px;">Hotspot & pola waktu</div>
@@ -790,7 +868,7 @@ if uploaded_file is None:
         """, unsafe_allow_html=True)
     with col3:
         st.markdown("""
-        <div style="background:white; padding:30px; border-radius:18px; text-align:center; border:1px solid #edf2f7; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
+        <div style="background:white; padding:30px; border-radius:18px; text-align:center; border:1px solid #e2e8f0; box-shadow: 0 4px 12px rgba(0,0,0,0.03);">
             <div style="font-size:40px;">👥</div>
             <div style="font-weight:700; color:#0f172a; font-size:1.1rem; margin-top:8px;">Driver & Fleet</div>
             <div style="font-size:0.85rem; color:#475569; margin-top:4px;">Demografi & performa</div>
@@ -838,7 +916,7 @@ else:
             
             st.markdown("---")
             
-            # ========== RINGKASAN EKSEKUTIF DENGAN PERBAIKAN LOGIKA DRIVER & UNIT ==========
+            # ========== RINGKASAN EKSEKUTIF ==========
             st.markdown("### 📋 Ringkasan Eksekutif")
             col1, col2 = st.columns(2)
             
@@ -865,7 +943,6 @@ else:
                             insight("#dcfce7", "Shift Seimbang", f"{s2} vs {s1}")
             
             with col2:
-                # PERBAIKAN 1: DRIVER RISK HIGH - Dihitung presisi per minggunya (Week)
                 if not df_fatigue.empty and 'Week' in df_fatigue.columns:
                     weekly_driver_fatigue = df_fatigue.groupby(['Driver', 'Week']).size().reset_index(name='Weekly_Count')
                     max_weekly_row = weekly_driver_fatigue.sort_values('Weekly_Count', ascending=False).iloc[0]
@@ -884,7 +961,6 @@ else:
                     top_driver_name = "N/A"
                     max_weekly_val = 0
 
-                # PERBAIKAN 2: UNIT TEMUAN BERULANG - Diarahkan ke Live Streaming Monitoring CCR (Bukan perbaikan teknis)
                 unit_counts = df_fatigue['Unit'].value_counts()
                 if not unit_counts.empty:
                     top_unit = unit_counts.index[0]
@@ -895,7 +971,7 @@ else:
                     else:
                         insight("#dbeafe", "Unit Temuan Berulang", f"{top_unit} ({top_val} temuan valid)")
 
-            # SEKSI AI NARRATIVE GENERATOR (LAPORAN EKSEKUTIF - PATUH SOP BMT & PPO BIB)
+            # SEKSI AI NARRATIVE GENERATOR
             st.markdown("#### 🤖 Laporan Narasi Otomatis (Gemini AI - Standard Compliance)")
             if user_api_key:
                 if st.button("✨ Generate Narasi Laporan Eksekutif dengan Gemini AI"):
@@ -921,7 +997,7 @@ else:
                         - Total Kasus Overspeed: {total_o} kasus
                         - Lokasi Rawan (Hotspot) Utama: {top_loc}
                         - Jam Puncak Rawan Fatigue: {top_jam}
-                        - Driver Berisiko Tertinggi (Mingguan): {top_driver_name} ({max_weekly_val} kasus di minggu puncak)
+                        - Driver Berisiko Tinggi (Mingguan): {top_driver_name} ({max_weekly_val} kasus di minggu puncak)
 
                         LANGSUNG TAMPILKAN FORMAT BERIKUT (Gunakan tag HTML <b> untuk judul):
 
@@ -940,7 +1016,6 @@ else:
                         """
                         st.session_state['res_eksekutif'] = generate_gemini_analysis(user_api_key, prompt_eksekutif)
                 
-                # TAMPILKAN HASIL DARI MEMORI SESSION STATE (WARNA TEKS GELAP BIAR TERBACA DI DARK MODE)
                 if st.session_state['res_eksekutif']:
                     st.markdown(f"""
                     <div style="background:white; color:#0f172a; padding:20px; border-radius:16px; border-left:5px solid #2563eb; box-shadow:0 4px 15px rgba(0,0,0,0.05); line-height:1.6;">
@@ -1001,7 +1076,7 @@ else:
                     else:
                         st.info("Tidak ada data alarm")
             
-            # ========== TAB 2: TREN MINGGUAN (WEEK 1-52) ==========
+            # ========== TAB 2: TREN MINGGUAN ==========
             with tab2:
                 st.markdown("### 📅 Analisis Tren Fatigue Mingguan (Week 1 - 52)")
                 st.caption("Dilengkapi dengan Garis Tren (Trendline) untuk melihat arah perkembangan kasus sepanjang tahun.")
@@ -1010,7 +1085,6 @@ else:
                 if fig_week:
                     st.markdown(f"#### Status Tren Keseluruhan: **{trend_status}**")
                     st.plotly_chart(fig_week, use_container_width=True)
-                    st.info("💡 **Tips Navigasi:** Gunakan slider di bawah sumbu X grafik untuk menggeser/zoom rentang minggu tertentu (misal: Week 1–13).")
                 else:
                     st.warning("Data minggu tidak mencukupi untuk menampilkan grafik.")
 
@@ -1022,7 +1096,6 @@ else:
                 else:
                     st.warning("Tidak ada data jam")
                 
-                # FITUR AI KHUSUS GRAFIK JAM RAWAN FATIGUE (BERDASARKAN PPO BIB-035)
                 if user_api_key:
                     with st.expander("💡 Rekomendasi AI: Solusi Proaktif & Strategi Jam Rawan (PPO BIB-035)", expanded=False):
                         if st.button("✨ Generate Temporal Preventive Strategy"):
@@ -1060,7 +1133,6 @@ else:
                                 """
                                 st.session_state['res_jam'] = generate_gemini_analysis(user_api_key, prompt_jam_rawan)
                         
-                        # TAMPILKAN HASIL DARI MEMORI SESSION STATE (WARNA TEKS GELAP)
                         if st.session_state['res_jam']:
                             st.markdown(f"""
                             <div style="background:white; color:#0f172a; padding:20px; border-radius:16px; border-left:5px solid #2563eb; box-shadow:0 4px 15px rgba(0,0,0,0.05); line-height:1.6;">
@@ -1152,49 +1224,46 @@ else:
                     else:
                         st.info("Tidak ada data unit")
                 
-                # FITUR AI KHUSUS TOP DRIVER (BERDASARKAN SOP BMT 011)
                 if user_api_key:
                     with st.expander("👤 Rekomendasi AI: Action Plan Driver & Disiplin (SOP BMT 011)", expanded=False):
                         if st.button("✨ Generate Strategy & Preventive Plan"):
                             with st.spinner("🧠 AI sedang menyusun action plan disiplin driver..."):
-                                driver_breakdown = df_fatigue.groupby(['Driver', 'Type']).size().unstack(fill_value=0)
-                                driver_summary = driver_breakdown.head(5).to_dict()
+                                top_driver_fatigue = df_fatigue['Driver'].value_counts().head(5).to_dict()
                                 
                                 prompt_top_driver = f"""
-Anda adalah Senior Safety Specialist operasional tambang PT. BMT.
-Berdasarkan data driver dengan frekuensi fatigue terbanyak berikut: {top_driver_fatigue}
+                                Anda adalah Senior Safety Specialist operasional tambang PT. BMT.
+                                Berdasarkan data driver dengan frekuensi fatigue terbanyak berikut: {top_driver_fatigue}
 
-Susun ACTION PLAN DISIPLIN DRIVER yang patuh pada BMT-CHL-SOP 011 secara langsung tanpa basa-basi.
+                                Susun ACTION PLAN DISIPLIN DRIVER yang patuh pada BMT-CHL-SOP 011 secara langsung tanpa basa-basi.
 
-DILARANG MEMBUAT:
-- Header Memorandum, pembuka formalitas, maupun tanda tangan di akhir.
-- DILARANG MENGGUNAKAN TANDA BINTANG (*) SAMA SEKALI DALAM TEKS OUTPUT.
+                                DILARANG MEMBUAT:
+                                - Header Memorandum, pembuka formalitas, maupun tanda tangan di akhir.
+                                - DILARANG MENGGUNAKAN TANDA BINTANG (*) SAMA SEKALI DALAM TEKS OUTPUT.
 
-ATURAN SANKSI BERTINGKAT BMT 011:
-- Batas Fatigue Valid: Maksimal 4x / minggu.
-- Minggu 1 (4x fatigue): SP1 + Lubang 1.
-- Minggu 2 (4x fatigue): SP2 + Lubang 2 + Dirumahkan 3 Hari + Pemanggilan Keluarga ke Office.
-- Minggu 3 (4x fatigue): SP3 + Lubang 3.
-- Sanksi Pengawas: Jika terjadi pembiaran fatigue driver, SIMPER/Mine Permit Pengawas dicabut PERMANEN.
+                                ATURAN SANKSI BERTINGKAT BMT 011:
+                                - Batas Fatigue Valid: Maksimal 4x / minggu.
+                                - Minggu 1 (4x fatigue): SP1 + Lubang 1.
+                                - Minggu 2 (4x fatigue): SP2 + Lubang 2 + Dirumahkan 3 Hari + Pemanggilan Keluarga ke Office.
+                                - Minggu 3 (4x fatigue): SP3 + Lubang 3.
+                                - Sanksi Pengawas: Jika terjadi pembiaran fatigue driver, SIMPER/Mine Permit Pengawas dicabut PERMANEN.
 
-LANGSUNG TAMPILKAN FORMAT BERIKUT (Gunakan tag HTML <b> untuk judul):
+                                LANGSUNG TAMPILKAN FORMAT BERIKUT (Gunakan tag HTML <b> untuk judul):
 
-<b>📌 1. EVALUASI TINGKAT RISIKO & COMPLIANCE THRESHOLD</b><br>
-Uraikan secara spesifik driver dari data ({top_driver_fatigue}) beserta jumlah kejadiannya. Evaluasi posisinya terhadap threshold 4x fatigue/minggu sesuai SOP BMT 011.
+                                <b>📌 1. EVALUASI TINGKAT RISIKO & COMPLIANCE THRESHOLD</b><br>
+                                Uraikan secara spesifik driver dari data ({top_driver_fatigue}) beserta jumlah kejadiannya. Evaluasi posisinya terhadap threshold 4x fatigue/minggu sesuai SOP BMT 011.
 
-<br><b>🎯 2. ACTION PLAN TINDAK LANJUT DISIPLIN & SANKSI</b><br>
-- <b>Penegakan Sanksi Bertingkat</b>: Rekomendasi penerbitan SP1/SP2/SP3 & Pemanggilan keluarga.<br>
-- <b>Pemeriksaan Fit to Work</b>: Verifikasi jam tidur (<4 jam dilarang bekerja) & konsumsi obat.<br>
-- <b>Prosedur Pengawalan Lapangan</b>: Prosedur penjemputan driver ke office oleh Safety Patrol & penyiapan driver spare.
+                                <br><b>🎯 2. ACTION PLAN TINDAK LANJUT DISIPLIN & SANKSI</b><br>
+                                - <b>Penegakan Sanksi Bertingkat</b>: Rekomendasi penerbitan SP1/SP2/SP3 & Pemanggilan keluarga.<br>
+                                - <b>Pemeriksaan Fit to Work</b>: Verifikasi jam tidur (<4 jam dilarang bekerja) & konsumsi obat.<br>
+                                - <b>Prosedur Pengawalan Lapangan</b>: Prosedur penjemputan driver ke office oleh Safety Patrol & penyiapan driver spare.
 
-<br><b>🚀 3. PENGAWASAN KEPADA PENGAWAS LAPANGAN</b><br>
-Peringatan komitmen kepengawasan untuk mencegah pembiaran fatigue (Ancaman pencabutan SIMPER permanen).
+                                <br><b>🚀 3. PENGAWASAN KEPADA PENGAWAS LAPANGAN</b><br>
+                                Peringatan komitmen kepengawasan untuk mencegah pembiaran fatigue (Ancaman pencabutan SIMPER permanen).
 
-Gunakan bahasa yang padat, lugas, langsung ke solusi, dan tegas.
-"""
+                                Gunakan bahasa yang padat, lugas, langsung ke solusi, dan tegas.
+                                """
                                 st.session_state['res_driver'] = generate_gemini_analysis(user_api_key, prompt_top_driver)
                         
-                        # TAMPILKAN HASIL DARI MEMORI SESSION STATE (WARNA TEKS GELAP)
                         if st.session_state['res_driver']:
                             st.markdown(f"""
                             <div style="background:white; color:#0f172a; padding:20px; border-radius:16px; border-left:5px solid #2563eb; box-shadow:0 4px 15px rgba(0,0,0,0.05); line-height:1.6;">
@@ -1375,4 +1444,4 @@ Gunakan bahasa yang padat, lugas, langsung ke solusi, dan tegas.
 
 # ==================== FOOTER ====================
 st.markdown("---")
-st.caption("© 2026 PT. Bumiputera Maha Terpercaya | Dashboard FMS v3.0 (Patuh SOP BMT 011 & BIB 035)")
+st.caption("© 2026 PT. Bumiputera Maha Terpercaya | DSMS Dashboard v3.0 (Patuh SOP BMT 011 & BIB 035)")
