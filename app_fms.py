@@ -764,7 +764,7 @@ def generate_gemini_analysis(api_key, prompt_text):
     try:
         client = genai.Client(api_key=api_key)
         response = client.models.generate_content(
-            model='gemini-2.5-flash',  # ✅ BARIS 333: Gunakan gemini-2.5-flash
+            model='gemini-2.0-flash',  # ✅ MODEL AKTIF & STABIL
             contents=prompt_text,
         )
         return response.text
