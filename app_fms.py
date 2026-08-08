@@ -5,6 +5,7 @@ import plotly.express as px
 import plotly.graph_objects as go
 from datetime import datetime
 import base64
+import time
 from google import genai
 
 # ==================== KONFIGURASI HALAMAN ====================
@@ -786,7 +787,7 @@ def generate_gemini_analysis(api_key, prompt_text):
                 
                 # Jika errornya 429 dan ada instruksi tunggu singkat, jeda otomatis
                 if "429" in err_msg and attempt == 0:
-                    time.sleep(2)  # Tunggu 2 detik lalu coba lagi sekali lagi
+                    time.sleep(2)  # Jeda 2 detik lalu coba lagi
                     continue
                 else:
                     break  # Lanjut coba nama model berikutnya di list
