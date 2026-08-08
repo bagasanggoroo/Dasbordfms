@@ -764,13 +764,12 @@ def generate_gemini_analysis(api_key, prompt_text):
     try:
         client = genai.Client(api_key=api_key)
         response = client.models.generate_content(
-            model='gemini-2.0-flash-lite',  # ✅ MODEL AKTIF & STABIL
+            model='gemini-2.0-flash-lite',  # ✅ Pakai versi lite untuk hemat kuota
             contents=prompt_text,
         )
         return response.text
     except Exception as e:
         return f"❌ Error saat memproses AI: {str(e)}"
-
 # ==================== SIDEBAR ====================
 with st.sidebar:
     st.markdown("""
