@@ -307,7 +307,7 @@ def kpi_advanced(title, value, footer, icon="📊", status="NORMAL", delta_text=
     delta_html = f'<span style="font-size:13px; font-weight:600; margin-left:8px; color:{"#ef4444" if "▲" in delta_text else "#22c55e"};">{delta_text}</span>' if delta_text else ""
     extra_html = f'<div style="font-size:11px; font-weight:600; color:#dc2626; margin-top:3px;">⚠️ {extra_info}</div>' if extra_info else ""
 
-    st.markdown(f"""
+    html_content = f"""
     <div class="kpi" style="border-top:4px solid {color}; padding: 18px 20px; background:#ffffff; border-radius:16px; border-left:1px solid #e2e8f0; border-right:1px solid #e2e8f0; border-bottom:1px solid #e2e8f0;">
         <div style="display:flex; justify-content:space-between; align-items:flex-start;">
             <div class="kpi-icon" style="font-size:24px;">{icon}</div>
@@ -321,7 +321,8 @@ def kpi_advanced(title, value, footer, icon="📊", status="NORMAL", delta_text=
         {extra_html}
         <div class="kpi-footer" style="margin-top:8px; color:#2563eb; font-size:12px; font-weight:600; border-top:1px dashed #f1f5f9; padding-top:6px;">{footer}</div>
     </div>
-    """, unsafe_allow_html=True)
+    """
+    st.markdown(html_content, unsafe_allow_html=True)
 
 def insight(color, title, text, icon="💡"):
     st.markdown(f"""
