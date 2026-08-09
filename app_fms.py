@@ -129,7 +129,6 @@ div[data-testid="stDataFrame"] {
 
 /* ==================== KHUSUS SAAT CETAK / SIMPAN PDF (@media print) ==================== */
 @media print {
-    /* Sembunyikan Sidebar, Header Bawaan, Button, Footer */
     section[data-testid="stSidebar"],
     header[data-testid="stHeader"],
     .stButton,
@@ -138,7 +137,6 @@ div[data-testid="stDataFrame"] {
         display: none !important;
     }
     
-    /* SEMBUNYIKAN JUDUL/TAB NAVIGASI (Overview Bulanan, Tren Mingguan, dll) */
     div[data-testid="stTabs"] [role="tablist"],
     div[data-testid="stTabs"] [data-baseweb="tab-list"] {
         display: none !important;
@@ -239,13 +237,6 @@ def header_with_logo(title, subtitle, logo_path="image.png"):
     </div>
     """, unsafe_allow_html=True)
 
-# Pemanggilan Header (Menggantikan baris 505-514):
-header_with_logo(
-    "🛡️ Driver Safety Management System (DSMS)",
-    "PT. Bumiputera Maha Terpercaya • Dashboard Pemantauan Kepatuhan K3 & Analisis Perilaku Pengemudi",
-    "image.png"
-)
-
 # ==================== DATA PROCESSING WITH CACHE ====================
 @st.cache_data
 def load_and_process_data(file):
@@ -330,14 +321,6 @@ def kpi_advanced(title, value, footer, icon="📊", status="NORMAL", delta_text=
         {extra_html}
         <div class="kpi-footer" style="margin-top:8px; color:#2563eb; font-size:12px; font-weight:600; border-top:1px dashed #f1f5f9; padding-top:6px;">{footer}</div>
     </div>
-    """, unsafe_allow_html=True), value, footer, icon="📊", color="#2563eb"):
-    st.markdown(f"""
-    <div class="kpi" style="border-top:4px solid {color};">
-        <div class="kpi-icon">{icon}</div>
-        <div class="kpi-title">{title}</div>
-        <div class="kpi-value">{value}</div>
-        <div class="kpi-footer">{footer}</div>
-    </div>
     """, unsafe_allow_html=True)
 
 def insight(color, title, text, icon="💡"):
@@ -359,7 +342,7 @@ def rec_card(priority, icon, text):
     </div>
     """, unsafe_allow_html=True)
 
-# ==================== CHART FUNCTIONS (DISET TEKS JELAS TERBACA) ====================
+# ==================== CHART FUNCTIONS ====================
 def plot_tren_generic(df_target, title="Tren Bulanan", color="#2563eb"):
     if df_target.empty or 'Month_Num' not in df_target.columns:
         return None
@@ -788,7 +771,6 @@ def plot_fatigue_vs_overspeed(df_fatigue, df_overspeed):
 
 # ==================== FUNGSI INTEGRASI GEMINI AI ====================
 def generate_gemini_analysis(api_key, prompt_text):
-    # Utamakan model yang kuota RPD-nya masih banyak (Gemma 4 / Flash Lite)
     models_to_try = [
         'gemma-4-26b',
         'gemini-2.0-flash-lite',
@@ -807,9 +789,10 @@ def generate_gemini_analysis(api_key, prompt_text):
             return response.text
         except Exception as e:
             last_error = str(e)
-            continue  # Lanjut ke model berikutnya jika kuota habis
+            continue
                     
     return f"❌ Gagal memproses AI. Detail Error Terakhir: {last_error}"
+
 # ==================== SIDEBAR ====================
 with st.sidebar:
     st.markdown("""
@@ -839,12 +822,8 @@ with st.sidebar:
 
 # ==================== HEADER DENGAN INTEGRASI LOGO ====================
 header_with_logo(
-    "🛡️ Driver Safety Management System",
-    "PT. Bumiputera Maha Terpercaya<br>"
-    "<b>Monitoring Fatigue • Driver Behavior Analytics • K3 Compliance</b><br>"
-    "<span style='font-size:12px; opacity:0.85; display:inline-block; margin-top:4px;'>"
-    "Sistem analisis terintegrasi untuk memantau risiko fatigue pengemudi, perilaku berkendara, dan penegakan sanksi K3 secara real-time sesuai SOP BMT-CHL-SOP 011 & BIB-HSE-PPO-035."
-    "</span>",
+    "🛡️ Driver Safety Management System (DSMS)",
+    "PT. Bumiputera Maha Terpercaya • Dashboard Pemantauan Kepatuhan K3 & Analisis Perilaku Pengemudi",
     "image.png"
 )
 
@@ -906,96 +885,96 @@ else:
             
             # ========== KPI CARDS ==========
             ratio_f_o = f"{total_f / total_o:.1f} : 1" if total_o > 0 else "N/A"
-s2_count = len(df_fatigue[df_fatigue['Shift'] == 'Shift 2'])
-s2_pct = (s2_count / total_f * 100) if total_f > 0 else 0
+            s2_count = len(df_fatigue[df_fatigue['Shift'] == 'Shift 2'])
+            s2_pct = (s2_count / total_f * 100) if total_f > 0 else 0
 
-if 'Week' in df_fatigue.columns:
-    weekly_driver = df_fatigue.groupby(['Driver', 'Week']).size().reset_index(name='Count')
-    sp1_drivers_count = len(weekly_driver[weekly_driver['Count'] >= 4]['Driver'].unique())
-else:
-    sp1_drivers_count = 0
+            if 'Week' in df_fatigue.columns:
+                weekly_driver = df_fatigue.groupby(['Driver', 'Week']).size().reset_index(name='Count')
+                sp1_drivers_count = len(weekly_driver[weekly_driver['Count'] >= 4]['Driver'].unique())
+            else:
+                sp1_drivers_count = 0
 
-st.markdown("### 📊 Ringkasan Eksekutif K3")
-c1, c2, c3, c4 = st.columns(4)
+            st.markdown("### 📊 Ringkasan Eksekutif K3")
+            c1, c2, c3, c4 = st.columns(4)
 
-with c1:
-    kpi_advanced(
-        title="TOTAL ALARM FMS",
-        value=fmt_num(total_alarm),
-        footer=f"Ratio Fatigue vs Overspeed = {ratio_f_o}",
-        icon="🚨",
-        status="CRITICAL" if total_alarm > 200 else "NORMAL",
-        color="#ef4444"
-    )
-    
-with c2:
-    kpi_advanced(
-        title="PENGEMUDI MENGANTUK (FATIGUE)",
-        value=fmt_num(total_f),
-        delta_text="▲ 12% vs Bulan Lalu",
-        extra_info=f"{sp1_drivers_count} Driver capai threshold SP1 (≥4x/minggu)",
-        footer=f"{s2_pct:.0f}% Terjadi di Shift Malam (Shift 2)",
-        icon="😴",
-        status="CRITICAL" if sp1_drivers_count > 0 else "ALERT",
-        color="#f59e0b"
-    )
-    
-with c3:
-    kpi_advanced(
-        title="OVERSPEED",
-        value=fmt_num(total_o),
-        footer="Puncak di Jam 14:00 - 16:00 WITA",
-        icon="🚗",
-        status="NORMAL" if total_o < 50 else "ALERT",
-        color="#3b82f6"
-    )
-    
-with c4:
-    kpi_advanced(
-        title="LOKASI HOTSPOT UTAMA",
-        value=top_loc,
-        footer=f"{top_loc_val} Kasus Fatigue Valid | Dominasi Shift 2",
-        icon="📍",
-        status="ALERT",
-        color="#8b5cf6"
-    )
+            with c1:
+                kpi_advanced(
+                    title="TOTAL ALARM FMS",
+                    value=fmt_num(total_alarm),
+                    footer=f"Ratio Fatigue vs Overspeed = {ratio_f_o}",
+                    icon="🚨",
+                    status="CRITICAL" if total_alarm > 200 else "NORMAL",
+                    color="#ef4444"
+                )
+                
+            with c2:
+                kpi_advanced(
+                    title="PENGEMUDI MENGANTUK (FATIGUE)",
+                    value=fmt_num(total_f),
+                    delta_text="▲ 12% vs Bulan Lalu",
+                    extra_info=f"{sp1_drivers_count} Driver capai threshold SP1 (≥4x/minggu)",
+                    footer=f"{s2_pct:.0f}% Terjadi di Shift Malam (Shift 2)",
+                    icon="😴",
+                    status="CRITICAL" if sp1_drivers_count > 0 else "ALERT",
+                    color="#f59e0b"
+                )
+                
+            with c3:
+                kpi_advanced(
+                    title="OVERSPEED",
+                    value=fmt_num(total_o),
+                    footer="Puncak di Jam 14:00 - 16:00 WITA",
+                    icon="🚗",
+                    status="NORMAL" if total_o < 50 else "ALERT",
+                    color="#3b82f6"
+                )
+                
+            with c4:
+                kpi_advanced(
+                    title="LOKASI HOTSPOT UTAMA",
+                    value=top_loc,
+                    footer=f"{top_loc_val} Kasus Fatigue Valid | Dominasi Shift 2",
+                    icon="📍",
+                    status="ALERT",
+                    color="#8b5cf6"
+                )
 
-# ========== SHORTCUT BANNER ALERT INTERAKTIF (Poin 4) ==========
-st.markdown("---")
-alert_col1, alert_col2 = st.columns(2)
+            # ========== SHORTCUT BANNER ALERT INTERAKTIF ==========
+            st.markdown("---")
+            alert_col1, alert_col2 = st.columns(2)
 
-with alert_col1:
-    st.markdown(f"""
-    <div style="background:#fef2f2; border:1px solid #fca5a5; padding:12px 16px; border-radius:12px;">
-        <span style="font-weight:700; color:#991b1b; font-size:13px;">🚨 ACTION REQUIRED (SOP BMT-011)</span><br>
-        <span style="color:#7f1d1d; font-size:12px;">Terdeteksi <b>{sp1_drivers_count} Driver</b> mendekati/mencapai threshold SP1 minggu ini.</span>
-    </div>
-    """, unsafe_allow_html=True)
-    if st.button("🔍 Lihat 5 Driver Kritis Minggu Ini (≥4x Fatigue)", key="btn_critical_driver"):
-        st.info("💡 Filter diterapkan: Silakan cek Tab '👥 Driver & Unit' di bawah.")
+            with alert_col1:
+                st.markdown(f"""
+                <div style="background:#fef2f2; border:1px solid #fca5a5; padding:12px 16px; border-radius:12px;">
+                    <span style="font-weight:700; color:#991b1b; font-size:13px;">🚨 ACTION REQUIRED (SOP BMT-011)</span><br>
+                    <span style="color:#7f1d1d; font-size:12px;">Terdeteksi <b>{sp1_drivers_count} Driver</b> mendekati/mencapai threshold SP1 minggu ini.</span>
+                </div>
+                """, unsafe_allow_html=True)
+                if st.button("🔍 Lihat 5 Driver Kritis Minggu Ini (≥4x Fatigue)", key="btn_critical_driver"):
+                    st.info("💡 Filter diterapkan: Silakan cek Tab '👥 Driver & Unit' di bawah.")
 
-with alert_col2:
-    unit_counts = df_fatigue['Unit'].value_counts()
-    top_unit_repeat = unit_counts.index[0] if not unit_counts.empty else "N/A"
-    st.markdown(f"""
-    <div style="background:#f0f9ff; border:1px solid #7dd3fc; padding:12px 16px; border-radius:12px;">
-        <span style="font-weight:700; color:#0369a1; font-size:13px;">📍 MONITORING CCR INTERVENTIONAL</span><br>
-        <span style="color:#0c4a6e; font-size:12px;">Unit <b>{top_unit_repeat}</b> terdeteksi temuan berulang. Wajib Live Stream.</span>
-    </div>
-    """, unsafe_allow_html=True)
-    
-    if not unit_counts.empty:
-        repeat_units_df = unit_counts.reset_index()
-        repeat_units_df.columns = ['Unit', 'Total_Temuan_Valid']
-        csv_units = repeat_units_df.to_csv(index=False).encode('utf-8')
-        
-        st.download_button(
-            label="📥 Download List Unit Terulang untuk Live CCR Monitoring",
-            data=csv_units,
-            file_name=f"list_unit_terulang_ccr_{datetime.now().strftime('%Y%m%d')}.csv",
-            mime='text/csv',
-            key="btn_download_unit"
-        )
+            with alert_col2:
+                unit_counts = df_fatigue['Unit'].value_counts()
+                top_unit_repeat = unit_counts.index[0] if not unit_counts.empty else "N/A"
+                st.markdown(f"""
+                <div style="background:#f0f9ff; border:1px solid #7dd3fc; padding:12px 16px; border-radius:12px;">
+                    <span style="font-weight:700; color:#0369a1; font-size:13px;">📍 MONITORING CCR INTERVENTIONAL</span><br>
+                    <span style="color:#0c4a6e; font-size:12px;">Unit <b>{top_unit_repeat}</b> terdeteksi temuan berulang. Wajib Live Stream.</span>
+                </div>
+                """, unsafe_allow_html=True)
+                
+                if not unit_counts.empty:
+                    repeat_units_df = unit_counts.reset_index()
+                    repeat_units_df.columns = ['Unit', 'Total_Temuan_Valid']
+                    csv_units = repeat_units_df.to_csv(index=False).encode('utf-8')
+                    
+                    st.download_button(
+                        label="📥 Download List Unit Terulang untuk Live CCR Monitoring",
+                        data=csv_units,
+                        file_name=f"list_unit_terulang_ccr_{datetime.now().strftime('%Y%m%d')}.csv",
+                        mime='text/csv',
+                        key="btn_download_unit"
+                    )
             
             st.markdown("---")
             
