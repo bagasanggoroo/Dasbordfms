@@ -814,12 +814,21 @@ with st.sidebar:
     st.caption("© 2026 PT. Bumiputera Maha Terpercaya")
 
 def insight(color, title, text, icon="💡"):
-    st.markdown(f"""
-    <div style="background:{color}; padding:16px 20px; border-radius:14px; margin-bottom:10px; border-left:5px solid {color}; color:#0f172a;">
-        <div style="font-weight:600; font-size:0.95rem; color:#0f172a;">{icon} {title}</div>
-        <div style="font-size:0.85rem; color:#334155; margin-top:4px;">{text}</div>
-    </div>
-    """, unsafe_allow_html=True)
+    html_insight = """<div style="background:{color}; padding:16px 20px; border-radius:14px; margin-bottom:10px; border-left:5px solid {color}; color:#0f172a;">
+<div style="font-weight:600; font-size:0.95rem; color:#0f172a;">{icon} {title}</div>
+<div style="font-size:0.85rem; color:#334155; margin-top:4px;">{text}</div>
+</div>""".format(color=color, title=title, text=text, icon=icon)
+    st.markdown(html_insight, unsafe_allow_html=True)
+
+def rec_card(priority, icon, text):
+    bg = '#fef2f2' if 'PRIORITAS' in priority else '#fffbeb'
+    border = '#ef4444' if 'PRIORITAS' in priority else '#f59e0b'
+    html_rec = """<div style="background:{bg}; padding:12px 16px; border-radius:12px; border-left:5px solid {border}; margin:6px 0; color:#1e293b;">
+<span style="font-weight:600; font-size:0.85rem;">{priority}</span> 
+<span style="font-size:1rem;">{icon}</span> 
+<span style="font-size:0.9rem; color:#1e293b;">{text}</span>
+</div>""".format(bg=bg, border=border, priority=priority, icon=icon, text=text)
+    st.markdown(html_rec, unsafe_allow_html=True)
 # ==================== HEADER DENGAN INTEGRASI LOGO ====================
 header_with_logo(
     "🛡️ Driver Safety Management System (DSMS)",
