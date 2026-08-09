@@ -947,32 +947,6 @@ else:
                     status="ALERT",
                     color="#8b5cf6"
                 )
-
-            # ========== SHORTCUT BANNER ALERT INTERAKTIF (TANPA TOMBOL DOWNLOAD) ==========
-            st.markdown("---")
-            alert_col1, alert_col2 = st.columns(2)
-
-            with alert_col1:
-                st.markdown(f"""
-                <div style="background:#fef2f2; border:1px solid #fca5a5; padding:12px 16px; border-radius:12px;">
-                    <span style="font-weight:700; color:#991b1b; font-size:13px;">🚨 ACTION REQUIRED (SOP BMT-011)</span><br>
-                    <span style="color:#7f1d1d; font-size:12px;">Terdeteksi <b>{sp1_drivers_count} Driver</b> mendekati/mencapai threshold SP1 minggu ini.</span>
-                </div>
-                """, unsafe_allow_html=True)
-                if st.button("🔍 Lihat 5 Driver Kritis Minggu Ini (≥4x Fatigue)", key="btn_critical_driver"):
-                    st.info("💡 Filter diterapkan: Silakan cek Tab '👥 Driver & Unit' di bawah.")
-
-            with alert_col2:
-                unit_counts = df_fatigue['Unit'].value_counts()
-                top_unit_repeat = unit_counts.index[0] if not unit_counts.empty else "N/A"
-                st.markdown(f"""
-                <div style="background:#f0f9ff; border:1px solid #7dd3fc; padding:12px 16px; border-radius:12px; height:100%;">
-                    <span style="font-weight:700; color:#0369a1; font-size:13px;">📍 MONITORING CCR INTERVENTIONAL</span><br>
-                    <span style="color:#0c4a6e; font-size:12px;">Unit <b>{top_unit_repeat}</b> terdeteksi temuan berulang. Wajib Live Stream.</span>
-                </div>
-                """, unsafe_allow_html=True)
-            
-            st.markdown("---")
             
             # ========== RINGKASAN EKSEKUTIF ==========
             st.markdown("### 📋 Ringkasan Eksekutif")
