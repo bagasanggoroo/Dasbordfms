@@ -308,40 +308,32 @@ def kpi_advanced(title, value, footer, icon="📊", status="NORMAL", delta_text=
     delta_html = f'<span style="font-size:13px; font-weight:600; margin-left:8px; color:{delta_color};">{delta_text}</span>' if delta_text else ""
     extra_html = f'<div style="font-size:11px; font-weight:600; color:#dc2626; margin-top:3px;">⚠️ {extra_info}</div>' if extra_info else ""
 
-    st.markdown(f"""
-<div style="background:#ffffff; border-radius:16px; border:1px solid #e2e8f0; border-top:4px solid {color}; padding:18px 20px; box-shadow:0 4px 12px rgba(0,0,0,0.03);">
-    <div style="display:flex; justify-content:space-between; align-items:flex-start;">
-        <div style="font-size:24px;">{icon}</div>
-        <span style="background:{status_bg}; color:{status_color}; border:1px solid {status_border}; padding:2px 8px; border-radius:12px; font-size:10px; font-weight:700;">{status}</span>
-    </div>
-    <div style="font-size:11px; color:#64748b; font-weight:700; text-transform:uppercase; margin-top:8px;">{title}</div>
-    <div style="display:flex; align-items:baseline;">
-        <div style="font-size:30px; font-weight:800; color:#0f172a;">{value}</div>
-        {delta_html}
-    </div>
-    {extra_html}
-    <div style="margin-top:8px; color:#2563eb; font-size:12px; font-weight:600; border-top:1px dashed #f1f5f9; padding-top:6px;">{footer}</div>
+    html_card = """<div style="background:#ffffff; border-radius:16px; border:1px solid #e2e8f0; border-top:4px solid {color}; padding:18px 20px; box-shadow:0 4px 12px rgba(0,0,0,0.03);">
+<div style="display:flex; justify-content:space-between; align-items:flex-start;">
+<div style="font-size:24px;">{icon}</div>
+<span style="background:{status_bg}; color:{status_color}; border:1px solid {status_border}; padding:2px 8px; border-radius:12px; font-size:10px; font-weight:700;">{status}</span>
 </div>
-""", unsafe_allow_html=True)
-
-def insight(color, title, text, icon="💡"):
-    st.markdown(f"""
-    <div style="background:{color}; padding:16px 20px; border-radius:14px; margin-bottom:10px; border-left:5px solid {color}; color:#0f172a;">
-        <div style="font-weight:600; font-size:0.95rem; color:#0f172a;">{icon} {title}</div>
-        <div style="font-size:0.85rem; color:#334155; margin-top:4px;">{text}</div>
-    </div>
-    """, unsafe_allow_html=True)
-
-def rec_card(priority, icon, text):
-    bg = '#fef2f2' if 'PRIORITAS' in priority else '#fffbeb'
-    border = '#ef4444' if 'PRIORITAS' in priority else '#f59e0b'
-    st.markdown(f"""
-    <div style="background:{bg}; padding:12px 16px; border-radius:12px; border-left:5px solid {border}; margin:6px 0; color:#1e293b;">
-        <span style="font-weight:600; font-size:0.85rem;">{priority}</span> 
-        <span style="font-size:1rem;">{icon}</span> 
-        <span style="font-size:0.9rem; color:#1e293b;">{text}</span>
-    </div>
-    """, unsafe_allow_html=True)
+<div style="font-size:11px; color:#64748b; font-weight:700; text-transform:uppercase; margin-top:8px;">{title}</div>
+<div style="display:flex; align-items:baseline;">
+<div style="font-size:30px; font-weight:800; color:#0f172a;">{value}</div>
+{delta_html}
+</div>
+{extra_html}
+<div style="margin-top:8px; color:#2563eb; font-size:12px; font-weight:600; border-top:1px dashed #f1f5f9; padding-top:6px;">{footer}</div>
+</div>""".format(
+        color=color,
+        icon=icon,
+        status_bg=status_bg,
+        status_color=status_color,
+        status_border=status_border,
+        status=status,
+        title=title,
+        value=value,
+        delta_html=delta_html,
+        extra_html=extra_html,
+        footer=footer
+    )
+    st.markdown(html_card, unsafe_allow_html=True)
 
 # ==================== CHART FUNCTIONS ====================
 def plot_tren_generic(df_target, title="Tren Bulanan", color="#2563eb"):
