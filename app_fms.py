@@ -298,31 +298,32 @@ def load_and_process_data(file):
     
     return df, cols, labels
 
-# ==================== UI COMPONENTS ====================
+# ==================== UI COMPONENTS (FIXED KPI ADVANCED) ====================
 def kpi_advanced(title, value, footer, icon="📊", status="NORMAL", delta_text="", extra_info="", color="#2563eb"):
     status_bg = "#dcfce7" if status == "NORMAL" else ("#fef3c7" if status == "ALERT" else "#fee2e2")
     status_color = "#166534" if status == "NORMAL" else ("#92400e" if status == "ALERT" else "#991b1b")
     status_border = "#86efac" if status == "NORMAL" else ("#fde68a" if status == "ALERT" else "#fca5a5")
     
-    delta_html = f'<span style="font-size:13px; font-weight:600; margin-left:8px; color:{"#ef4444" if "▲" in delta_text else "#22c55e"};">{delta_text}</span>' if delta_text else ""
+    delta_color = "#ef4444" if "▲" in str(delta_text) else "#22c55e"
+    delta_html = f'<span style="font-size:13px; font-weight:600; margin-left:8px; color:{delta_color};">{delta_text}</span>' if delta_text else ""
     extra_html = f'<div style="font-size:11px; font-weight:600; color:#dc2626; margin-top:3px;">⚠️ {extra_info}</div>' if extra_info else ""
 
-    html_content = f"""
-    <div class="kpi" style="border-top:4px solid {color}; padding: 18px 20px; background:#ffffff; border-radius:16px; border-left:1px solid #e2e8f0; border-right:1px solid #e2e8f0; border-bottom:1px solid #e2e8f0;">
+    html_card = f"""
+    <div style="background:#ffffff; border-radius:16px; border:1px solid #e2e8f0; border-top:4px solid {color}; padding:18px 20px; box-shadow:0 4px 12px rgba(0,0,0,0.03);">
         <div style="display:flex; justify-content:space-between; align-items:flex-start;">
-            <div class="kpi-icon" style="font-size:24px;">{icon}</div>
-            <span style="background:{status_bg}; color:{status_color}; border:1px solid {status_border}; padding:2px 8px; border-radius:12px; font-size:10px; font-weight:700; letter-spacing:0.5px;">{status}</span>
+            <div style="font-size:24px;">{icon}</div>
+            <span style="background:{status_bg}; color:{status_color}; border:1px solid {status_border}; padding:2px 8px; border-radius:12px; font-size:10px; font-weight:700;">{status}</span>
         </div>
-        <div class="kpi-title" style="font-size:11px; color:#64748b; font-weight:700; text-transform:uppercase; margin-top:8px;">{title}</div>
+        <div style="font-size:11px; color:#64748b; font-weight:700; text-transform:uppercase; margin-top:8px;">{title}</div>
         <div style="display:flex; align-items:baseline;">
-            <div class="kpi-value" style="font-size:30px; font-weight:800; color:#0f172a;">{value}</div>
+            <div style="font-size:30px; font-weight:800; color:#0f172a;">{value}</div>
             {delta_html}
         </div>
         {extra_html}
-        <div class="kpi-footer" style="margin-top:8px; color:#2563eb; font-size:12px; font-weight:600; border-top:1px dashed #f1f5f9; padding-top:6px;">{footer}</div>
+        <div style="margin-top:8px; color:#2563eb; font-size:12px; font-weight:600; border-top:1px dashed #f1f5f9; padding-top:6px;">{footer}</div>
     </div>
     """
-    st.markdown(html_content, unsafe_allow_html=True)
+    st.markdown(html_card, unsafe_allow_html=True)
 
 def insight(color, title, text, icon="💡"):
     st.markdown(f"""
