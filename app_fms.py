@@ -903,7 +903,7 @@ else:
             else:
                 sp1_drivers_count = 0
 
-            st.markdown("### 📊 Ringkasan Eksekutif K3")
+            st.markdown("### 📊 Indikator Kunci K3 Operasional")
             c1, c2, c3, c4 = st.columns(4)
 
             with c1:
@@ -949,7 +949,7 @@ else:
                 )
             
             # ========== RINGKASAN EKSEKUTIF ==========
-            st.markdown("### 📋 Ringkasan Eksekutif")
+            st.markdown("### 📋 Insight Temuan Rawan & Pola Risiko")
             col1, col2 = st.columns(2)
             
             with col1:
