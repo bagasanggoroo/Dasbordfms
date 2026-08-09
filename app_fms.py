@@ -1002,10 +1002,6 @@ else:
                 else:
                     top_driver_name = "N/A"
                     max_weekly_val = 0
-                else:
-                    top_driver_name = "N/A"
-                    max_weekly_val = 0
-
                 unit_counts = df_fatigue['Unit'].value_counts()
                 if not unit_counts.empty:
                     top_unit = unit_counts.index[0]
