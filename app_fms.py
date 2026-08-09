@@ -975,20 +975,33 @@ else:
                             insight("#dcfce7", "Shift Seimbang", f"{s2} vs {s1}")
             
             with col2:
-                if not df_fatigue.empty and 'Week' in df_fatigue.columns:
-                    weekly_driver_fatigue = df_fatigue.groupby(['Driver', 'Week']).size().reset_index(name='Weekly_Count')
-                    max_weekly_row = weekly_driver_fatigue.sort_values('Weekly_Count', ascending=False).iloc[0]
-                    
-                    top_driver_name = max_weekly_row['Driver']
-                    max_weekly_val = max_weekly_row['Weekly_Count']
-                    top_driver_total_all = df_fatigue['Driver'].value_counts().get(top_driver_name, 0)
-                    
-                    if max_weekly_val >= 4:
-                        insight("#fee2e2", "Driver Risk High (SOP BMT 011)", 
-                                f"{top_driver_name} ({max_weekly_val} kasus di Week {max_weekly_row['Week']} | Total: {top_driver_total_all} kasus) — Menyentuh threshold SP1 & Lubang 1!")
+                if not df_fatigue.empty:
+                    # 1. Total driver unik yang mencapai threshold SP1 (>=4 kasus dalam seminggu)
+                    if 'Week' in df_fatigue.columns:
+                        weekly_counts = df_fatigue.groupby(['Driver', 'Week']).size().reset_index(name='Weekly_Count')
+                        sp1_drivers = weekly_counts[weekly_counts['Weekly_Count'] >= 4]['Driver'].unique().tolist()
+                        sp1_count = len(sp1_drivers)
                     else:
-                        insight("#fef3c7", "Driver Berisiko", 
-                                f"{top_driver_name} (Maks {max_weekly_val} kasus/minggu | Total: {top_driver_total_all} kasus) — Perlu monitoring")
+                        sp1_drivers = []
+                        sp1_count = 0
+
+                    # 2. Ambil Top 3 Driver akumulasi total kejadian terbanyak sepanjang tahun
+                    top_drivers = df_fatigue['Driver'].value_counts().head(3)
+                    top_drivers_text = ", ".join([f"{drv} ({cnt}x)" for drv, cnt in top_drivers.items()])
+                    
+                    top_driver_name = top_drivers.index[0] if not top_drivers.empty else "N/A"
+                    max_weekly_val = top_drivers.iloc[0] if not top_drivers.empty else 0
+
+                    if sp1_count > 0:
+                        sp1_names = ", ".join(sp1_drivers[:3]) + ("..." if sp1_count > 3 else "")
+                        insight("#fee2e2", "Driver Risk High (SOP BMT 011)", 
+                                f"Terdeteksi {sp1_count} driver capai threshold SP1 (≥4x/minggu): {sp1_names}. Perlu evaluasi khusus!")
+                    else:
+                        insight("#fef3c7", "Top 3 Driver Berisiko (Akumulasi)", 
+                                f"Driver tertinggi: {top_drivers_text} — Masuk kategori pengawasan berkala.")
+                else:
+                    top_driver_name = "N/A"
+                    max_weekly_val = 0
                 else:
                     top_driver_name = "N/A"
                     max_weekly_val = 0
