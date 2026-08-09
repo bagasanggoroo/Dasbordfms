@@ -940,7 +940,7 @@ else:
                     color="#8b5cf6"
                 )
 
-            # ========== SHORTCUT BANNER ALERT INTERAKTIF ==========
+            # ========== SHORTCUT BANNER ALERT INTERAKTIF (TANPA TOMBOL DOWNLOAD) ==========
             st.markdown("---")
             alert_col1, alert_col2 = st.columns(2)
 
@@ -958,24 +958,11 @@ else:
                 unit_counts = df_fatigue['Unit'].value_counts()
                 top_unit_repeat = unit_counts.index[0] if not unit_counts.empty else "N/A"
                 st.markdown(f"""
-                <div style="background:#f0f9ff; border:1px solid #7dd3fc; padding:12px 16px; border-radius:12px;">
+                <div style="background:#f0f9ff; border:1px solid #7dd3fc; padding:12px 16px; border-radius:12px; height:100%;">
                     <span style="font-weight:700; color:#0369a1; font-size:13px;">📍 MONITORING CCR INTERVENTIONAL</span><br>
                     <span style="color:#0c4a6e; font-size:12px;">Unit <b>{top_unit_repeat}</b> terdeteksi temuan berulang. Wajib Live Stream.</span>
                 </div>
                 """, unsafe_allow_html=True)
-                
-                if not unit_counts.empty:
-                    repeat_units_df = unit_counts.reset_index()
-                    repeat_units_df.columns = ['Unit', 'Total_Temuan_Valid']
-                    csv_units = repeat_units_df.to_csv(index=False).encode('utf-8')
-                    
-                    st.download_button(
-                        label="📥 Download List Unit Terulang untuk Live CCR Monitoring",
-                        data=csv_units,
-                        file_name=f"list_unit_terulang_ccr_{datetime.now().strftime('%Y%m%d')}.csv",
-                        mime='text/csv',
-                        key="btn_download_unit"
-                    )
             
             st.markdown("---")
             
