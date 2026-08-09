@@ -813,6 +813,13 @@ with st.sidebar:
     st.markdown("---")
     st.caption("© 2026 PT. Bumiputera Maha Terpercaya")
 
+def insight(color, title, text, icon="💡"):
+    st.markdown(f"""
+    <div style="background:{color}; padding:16px 20px; border-radius:14px; margin-bottom:10px; border-left:5px solid {color}; color:#0f172a;">
+        <div style="font-weight:600; font-size:0.95rem; color:#0f172a;">{icon} {title}</div>
+        <div style="font-size:0.85rem; color:#334155; margin-top:4px;">{text}</div>
+    </div>
+    """, unsafe_allow_html=True)
 # ==================== HEADER DENGAN INTEGRASI LOGO ====================
 header_with_logo(
     "🛡️ Driver Safety Management System (DSMS)",
