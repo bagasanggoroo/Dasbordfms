@@ -764,10 +764,10 @@ def plot_fatigue_vs_overspeed(df_fatigue, df_overspeed):
 
 # ==================== FUNGSI INTEGRASI GEMINI AI ====================
 def generate_gemini_analysis(api_key, prompt_text):
-    # Nama model resmi yang didukung SDK google-genai
+    # Mengutamakan gemini-2.5-flash-lite yang sisa RPD-nya masih 18/20
     models_to_try = [
-        'gemini-2.5-flash',
-        'gemini-2.0-flash'
+        'gemini-2.5-flash-lite',
+        'gemini-2.5-flash'
     ]
     
     client = genai.Client(api_key=api_key)
