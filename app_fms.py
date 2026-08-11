@@ -1286,34 +1286,40 @@ else:
                     with st.expander("👤 Rekomendasi AI: Action Plan Driver & Disiplin (SOP BMT 011)", expanded=False):
                         if st.button("✨ Generate Strategy & Preventive Plan"):
                             with st.spinner("🧠 AI sedang menyusun action plan disiplin driver..."):
-                                top_driver_fatigue = df_fatigue['Driver'].value_counts().head(5).to_dict()
+                                violators_7d = {drv: cnt for drv, cnt in driver_max_counts.items() if cnt >= 4}
+                                total_accumulated = df_fatigue['Driver'].value_counts().head(5).to_dict()
                                 
                                 prompt_top_driver = f"""
                                 Anda adalah Senior Safety Specialist operasional tambang PT. BMT.
-                                Berdasarkan data driver dengan frekuensi fatigue terbanyak berikut: {top_driver_fatigue}
+                                
+                                DATA EVALUASI KEPATUHAN DRIVER:
+                                1. Driver Melanggar Threshold (≥4x Fatigue dalam 7 Hari Berturut-turut): {violators_7d if violators_7d else 'TIDAK ADA DRIVER MELANGGAR THRESHOLD 7 HARI'}
+                                2. Top 5 Driver Akumulasi Kejadian Sepanjang Data (Pengawasan Berkala): {total_accumulated}
 
                                 Susun ACTION PLAN DISIPLIN DRIVER yang patuh pada BMT-CHL-SOP 011 secara langsung tanpa basa-basi.
 
-                                DILARANG MEMBUAT:
-                                - Header Memorandum, pembuka formalitas, maupun tanda tangan di akhir.
+                                RULES PENULISAN & PENILAIAN SANKSI (SANGAT KETAT):
+                                - Sanksi SP1/SP2/SP3 HANYA diberikan kepada driver yang ADA dalam daftar "Driver Melanggar Threshold (≥4x dalam 7 Hari)".
+                                - Driver yang hanya ada di daftar "Akumulasi Sepanjang Data" dan TIDAK melanggar 4x/7-hari MASUK KATEGORI PENGAWASAN BERKALA (DILARANG diberi SP1/SP2/SP3).
+                                - DILARANG MEMBUAT Header Memorandum, pembuka formalitas, maupun tanda tangan di akhir.
                                 - DILARANG MENGGUNAKAN TANDA BINTANG (*) SAMA SEKALI DALAM TEKS OUTPUT.
 
                                 ATURAN SANKSI BERTINGKAT BMT 011:
-                                - Batas Fatigue Valid: Maksimal 4x / 7 hari berturut-turut.
-                                - Periode 1 (4x fatigue): SP1 + Lubang 1.
-                                - Periode 2 (4x fatigue berturut-turut): SP2 + Lubang 2 + Dirumahkan 3 Hari + Pemanggilan Keluarga ke Office.
-                                - Periode 3 (4x fatigue): SP3 + Lubang 3.
+                                - Threshold Kritis: Maksimal 4x fatigue valid dalam rentang 7 hari berturut-turut.
+                                - Periode 1 (4x/7 hari): SP1 + Lubang 1.
+                                - Periode 2 (4x/7 hari berulang): SP2 + Lubang 2 + Dirumahkan 3 Hari + Pemanggilan Keluarga ke Office.
+                                - Periode 3 (4x/7 hari berulang): SP3 + Lubang 3.
                                 - Sanksi Pengawas: Jika terjadi pembiaran fatigue driver, SIMPER/Mine Permit Pengawas dicabut PERMANEN.
 
                                 LANGSUNG TAMPILKAN FORMAT BERIKUT (Gunakan tag HTML <b> untuk judul):
 
                                 <b>📌 1. EVALUASI TINGKAT RISIKO & COMPLIANCE THRESHOLD</b><br>
-                                Uraikan secara spesifik driver dari data ({top_driver_fatigue}) beserta jumlah kejadiannya. Evaluasi posisinya terhadap threshold 4x fatigue/7 hari sesuai SOP BMT 011.
+                                Uraikan hasil evaluasi driver yang melanggar threshold 4x/7 hari ({violators_7d}) vs driver akumulasi ({total_accumulated}) secara akurat sesuai SOP BMT 011.
 
                                 <br><b>🎯 2. ACTION PLAN TINDAK LANJUT DISIPLIN & SANKSI</b><br>
-                                - <b>Penegakan Sanksi Bertingkat</b>: Rekomendasi penerbitan SP1/SP2/SP3 & Pemanggilan keluarga.<br>
+                                - <b>Penegakan Sanksi Bertingkat</b>: Penerbitan SP1/SP2/SP3 HANYA bagi driver yang terbukti melanggar 4x dalam 7 hari.<br>
                                 - <b>Pemeriksaan Fit to Work</b>: Verifikasi jam tidur (<4 jam dilarang bekerja) & konsumsi obat.<br>
-                                - <b>Prosedur Pengawalan Lapangan</b>: Prosedur penjemputan driver ke office oleh Safety Patrol & penyiapan driver spare.
+                                - <b>Prosedur Pengawalan Lapangan</b>: Prosedur penjemputan driver fatigue ke office oleh Safety Patrol & penyiapan driver spare.
 
                                 <br><b>🚀 3. PENGAWASAN KEPADA PENGAWAS LAPANGAN</b><br>
                                 Peringatan komitmen kepengawasan untuk mencegah pembiaran fatigue (Ancaman pencabutan SIMPER permanen).
