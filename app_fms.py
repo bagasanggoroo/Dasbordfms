@@ -206,37 +206,28 @@ def get_order_2h():
     return [f"{i:02d}:00-{i+1:02d}:59" for i in range(0, 24, 2)]
 
 # ==================== HEADER DENGAN INTEGRASI LOGO ====================
-def header_with_logo(title, subtitle, logo_path="image.png"):
-    img_b64 = get_image_base64(logo_path)
-    logo_html = f'<img src="data:image/png;base64,{img_b64}" style="height: 48px; object-fit: contain;">' if img_b64 else '<span style="font-size:28px;">🚛</span>'
+def generate_gemini_analysis(api_key, prompt_text):
+    # Menggunakan model versi stabil yang aktif untuk API generateContent
+    models_to_try = [
+        'gemini-2.0-flash-lite',
+        'gemini-2.0-flash'
+    ]
     
-    st.markdown(f"""
-    <div style="
-        background: linear-gradient(135deg, #0f172a, #1d4ed8);
-        padding: 22px 28px;
-        border-radius: 18px;
-        color: white;
-        box-shadow: 0 10px 25px rgba(0,0,0,0.12);
-        margin-bottom: 20px;
-    ">
-        <div style="display: flex; align-items: center; justify-content: space-between; gap: 15px;">
-            <div>
-                <h1 style="margin: 0; font-size: 26px; font-weight: 700; color: white;">{title}</h1>
-                <p style="margin: 4px 0 0 0; opacity: 0.9; font-size: 13px; color: #cbd5e1;">{subtitle}</p>
-            </div>
-            <div style="display: flex; align-items: center; gap: 12px; flex-shrink: 0;">
-                <div style="text-align: right;">
-                    <span style="background: rgba(34, 197, 94, 0.2); color: #4ade80; border: 1px solid #22c55e; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; display: inline-block; margin-bottom: 4px;">✓ SOP BMT-011 Compliant</span><br>
-                    <span style="background: rgba(34, 197, 94, 0.2); color: #4ade80; border: 1px solid #22c55e; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; display: inline-block;">✓ PPO BIB-035 Compliant</span>
-                </div>
-                <div style="background: white; padding: 6px 12px; border-radius: 12px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
-                    {logo_html}
-                </div>
-            </div>
-        </div>
-    </div>
-    """, unsafe_allow_html=True)
+    client = genai.Client(api_key=api_key)
+    last_error = ""
 
+    for model_name in models_to_try:
+        try:
+            response = client.models.generate_content(
+                model=model_name,
+                contents=prompt_text,
+            )
+            return response.text
+        except Exception as e:
+            last_error = str(e)
+            continue
+                    
+    return f"❌ Gagal memproses AI. Detail Error Terakhir: {last_error}"
 # ==================== DATA PROCESSING WITH CACHE ====================
 @st.cache_data
 def load_and_process_data(file):
