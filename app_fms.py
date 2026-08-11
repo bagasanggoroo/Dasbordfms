@@ -1067,9 +1067,9 @@ else:
                         Uraikan ringkasan temuan FMS, bahaya micro-sleep di jam rawan sirkadian BIB (02.00-06.00 WITA), serta evaluasi kepatuhan driver terhadap threshold 4x fatigue/minggu.
 
                         <br><b>🎯 2. PENILAIAN RISIKO OPERASIONAL & AUDIT ATRIBUT</b><br>
-                        - Risiko Fatalitas (Collision / Run-off-road) di area Hotspot.<br>
-                        - Audit Atribut Driver (Evaluasi larangan kacamata hitam, topi, dan penutup mulut/masker sesuai SOP 011).<br>
-                        - Driver Berisiko Tinggi & Sanksi Bertingkat (SP1/SP2/SP3).
+                        - Risiko Potensi Bahaya: Kombinasi fatigue dan overspeed di area Hotspot {top_loc} menciptakan potensi bahaya kejadian tabrakan (collision) maupun unit keluar jalur/terbalik (run-off-road). DILARANG menggunakan kata "insiden".<br>
+                        - Audit Atribut Driver & Kabin: Evaluasi sensor DSM terhadap larangan kacamata hitam/reflektif, topi, penutup mulut/masker, dan tali/kabel sesuai SOP 011.<br>
+                        - Driver Berisiko Tinggi & Sanksi Bertingkat: {driver_status_text}.
 
                         <br><b>🚀 3. ACTION PLAN TAKTIS TIM K3/SAFETY (BERDASARKAN KAMPANYE 7B & SOP 011)</b><br>
                         Berikan 3 langkah taktis instruksi kerja tim Safety/CCR (Pengawalan ke rest area, pergantian driver spare, dan verifikasi fisik ADAS).
