@@ -877,25 +877,26 @@ else:
 
             df_fatigue = df[df['Type'].isin(['Mata Tertutup', 'Mengantuk'])].copy()
             df_overspeed = df[df['Type'] == 'Overspeed'].copy()
+
             if not df_fatigue.empty:
-            top_driver_series = df_fatigue['Driver'].value_counts()
-            top_driver_name = top_driver_series.index[0]
-            top_driver_count = top_driver_series.iloc[0]
+                top_driver_series = df_fatigue['Driver'].value_counts()
+                top_driver_name = top_driver_series.index[0]
+                top_driver_count = top_driver_series.iloc[0]
 
-            if 'Week' in df_fatigue.columns:
-                weekly_driver_counts = df_fatigue[df_fatigue['Driver'] == top_driver_name].groupby('Week').size()
-                max_weekly_count = weekly_driver_counts.max() if not weekly_driver_counts.empty else 0
+                if 'Week' in df_fatigue.columns:
+                    weekly_driver_counts = df_fatigue[df_fatigue['Driver'] == top_driver_name].groupby('Week').size()
+                    max_weekly_count = weekly_driver_counts.max() if not weekly_driver_counts.empty else 0
+                else:
+                    max_weekly_count = 0
+
+                if max_weekly_count >= 4:
+                    driver_status_text = f"{top_driver_name} ({top_driver_count}x total kejadian, melampaui threshold minggu puncak dengan {max_weekly_count}x/minggu — Perlu sanksi SP1/pembinaan)"
+                else:
+                    driver_status_text = f"{top_driver_name} ({top_driver_count}x total kejadian sepanjang periode, namun secara mingguan tidak melebihi threshold 4x/minggu — Masuk kategori pengawasan berkala)"
             else:
+                top_driver_name = "N/A"
                 max_weekly_count = 0
-
-            if max_weekly_count >= 4:
-                driver_status_text = f"{top_driver_name} ({top_driver_count}x total kejadian, melampaui threshold minggu puncak dengan {max_weekly_count}x/minggu — Perlu sanksi SP1/pembinaan)"
-            else:
-                driver_status_text = f"{top_driver_name} ({top_driver_count}x total kejadian sepanjang periode, namun secara mingguan tidak melebihi threshold 4x/minggu — Masuk kategori pengawasan berkala)"
-        else:
-            top_driver_name = "N/A"
-            max_weekly_count = 0
-            driver_status_text = "Tidak terdeteksi driver berisiko tinggi."
+                driver_status_text = "Tidak terdeteksi driver berisiko tinggi."
             
             order_months = get_order_months()
             order_2h = get_order_2h()
