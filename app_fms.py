@@ -1046,6 +1046,7 @@ else:
                         - DILARANG MEMBUAT Header Memorandum (KEPADA, DARI, PERIHAL, dll).
                         - DILARANG MEMBUAT pembuka formalitas atau salam/penutup/tanda tangan.
                         - DILARANG MENGGUNAKAN TANDA BINTANG (*) SAMA SEKALI DALAM TEKS OUTPUT.
+                        - DILARANG MENGGUNAKAN KATA "INSIDEN", gunakan kata "kejadian alarm" atau "temuan alarm".
 
                         ACUAN STANDAR REGULASI:
                         1. Threshold Fatigue Valid BMT/BIB: Maksimal 4x temuan/minggu. Jika >=4x dikenakan sanksi bertingkat (SP1+Lubang 1).
@@ -1295,36 +1296,38 @@ else:
                                 top_driver_fatigue = df_fatigue['Driver'].value_counts().head(5).to_dict()
                                 
                                 prompt_top_driver = f"""
-                                Anda adalah Senior Safety Specialist operasional tambang PT. BMT.
-                                Berdasarkan data driver dengan frekuensi fatigue terbanyak berikut: {top_driver_fatigue}
+                                Anda adalah Senior Safety Specialist operasional tambang PT. BMT (Mitra Kerja PT Borneo Indobara).
+                                Berdasarkan data akumulasi total kejadian fatigue driver terbanyak (sepanjang periode FMS) berikut: {top_driver_fatigue}
 
-                                Susun ACTION PLAN DISIPLIN DRIVER yang patuh pada BMT-CHL-SOP 011 secara langsung tanpa basa-basi.
+                                Susun ACTION PLAN DISIPLIN DRIVER & PENGAWAS yang SEPENUHNYA PATUH pada BMT-CHL-SOP 011.
 
-                                DILARANG MEMBUAT:
-                                - Header Memorandum, pembuka formalitas, maupun tanda tangan di akhir.
+                                RULES PENULISAN (KETAT):
+                                - DILARANG MEMBUAT Header Memorandum, pembuka/penutup formalitas, maupun tanda tangan.
                                 - DILARANG MENGGUNAKAN TANDA BINTANG (*) SAMA SEKALI DALAM TEKS OUTPUT.
+                                - PERHATIKAN LOGIKA DATA: Angka pada data adalah TOTAL AKUMULASI PERIODE. Jangan menganggap angka tersebut terjadi dalam 1 minggu yang sama, kecuali terbukti dari data mingguan.
 
-                                ATURAN SANKSI BERTINGKAT BMT 011:
-                                - Batas Fatigue Valid: Maksimal 4x / minggu.
-                                - Minggu 1 (4x fatigue): SP1 + Lubang 1.
-                                - Minggu 2 (4x fatigue): SP2 + Lubang 2 + Dirumahkan 3 Hari + Pemanggilan Keluarga ke Office.
-                                - Minggu 3 (4x fatigue): SP3 + Lubang 3.
-                                - Sanksi Pengawas: Jika terjadi pembiaran fatigue driver, SIMPER/Mine Permit Pengawas dicabut PERMANEN.
+                                ACUAN SANKSI BERTINGKAT & THRESHOLD BMT 011:
+                                1. Batas Threshold Kritis: Driver wajib dievaluasi khusus jika mencapai minimal 4x temuan fatigue DALAM 1 MINGGU.
+                                2. Penegakan Sanksi Bertingkat (Berdasarkan Evaluasi Mingguan Kritis):
+                                   - Minggu ke-1 (>=4x/minggu): SP1 + Lubang 1.
+                                   - Minggu ke-2 (>=4x/minggu berturut-turut): SP2 + Lubang 2 + Dirumahkan 3 Hari + Pemanggilan Keluarga ke Office.
+                                   - Minggu ke-3 (>=4x/minggu): SP3 + Lubang 3 + Rekomendasi Pemutusan Hubungan Kerja (PHK) / Pencabutan SIMPER.
+                                3. Sanksi Pembiaran Pengawas: Supervisor/Foreman yang membiarkan driver fatigue beroperasi akan dikenakan sanksi tegas hingga PENCABUTAN SIMPER / MINE PERMIT PERMANEN.
 
-                                LANGSUNG TAMPILKAN FORMAT BERIKUT (Gunakan tag HTML <b> untuk judul):
+                                LANGSUNG TAMPILKAN FORMAT BERIKUT (Gunakan tag HTML <b> untuk judul & subjudul agar rapi):
 
                                 <b>📌 1. EVALUASI TINGKAT RISIKO & COMPLIANCE THRESHOLD</b><br>
-                                Uraikan secara spesifik driver dari data ({top_driver_fatigue}) beserta jumlah kejadiannya. Evaluasi posisinya terhadap threshold 4x fatigue/minggu sesuai SOP BMT 011.
+                                Uraikan daftar driver dengan akumulasi fatigue tertinggi dari data {top_driver_fatigue}. Jelaskan bahwa angka ini adalah akumulasi total periode yang memerlukan verifikasi data mingguan (apakah ada yang menembus threshold >=4x/minggu untuk penjatuhan SP).
 
                                 <br><b>🎯 2. ACTION PLAN TINDAK LANJUT DISIPLIN & SANKSI</b><br>
-                                - <b>Penegakan Sanksi Bertingkat</b>: Rekomendasi penerbitan SP1/SP2/SP3 & Pemanggilan keluarga.<br>
-                                - <b>Pemeriksaan Fit to Work</b>: Verifikasi jam tidur (<4 jam dilarang bekerja) & konsumsi obat.<br>
-                                - <b>Prosedur Pengawalan Lapangan</b>: Prosedur penjemputan driver ke office oleh Safety Patrol & penyiapan driver spare.
+                                - <b>Penegakan Sanksi Bertingkat:</b> Uraikan tahapan penjatuhan SP1, SP2 (dirumahkan 3 hari & panggil keluarga), hingga SP3 sesuai ketentuan SOP BMT 011 jika driver terbukti memenuhi threshold mingguan.<br>
+                                - <b>Pemeriksaan Fit to Work:</b> Wajib verifikasi jam tidur (<4 jam DILARANG BEROPERASI/STOP), cek tekanan darah, dan obat-obatan yang menyebabkan kantuk.<br>
+                                - <b>Prosedur Pengawalan Lapangan:</b> Penjemputan driver fatigue valid di rest area oleh Safety Patrol menuju office untuk konseling, serta mobilisasi driver spare.
 
                                 <br><b>🚀 3. PENGAWASAN KEPADA PENGAWAS LAPANGAN</b><br>
-                                Peringatan komitmen kepengawasan untuk mencegah pembiaran fatigue (Ancaman pencabutan SIMPER permanen).
+                                Peringatan tegas bagi Supervisor dan Foreman lapangan mengenai larangan pembiaran driver fatigue, dengan ancaman sanksi PENCABUTAN SIMPER / MINE PERMIT PERMANEN.
 
-                                Gunakan bahasa yang padat, lugas, langsung ke solusi, dan tegas.
+                                Gunakan bahasa yang padat, lugas, tegas, dan berorientasi K3 pertambangan.
                                 """
                                 st.session_state['res_driver'] = generate_gemini_analysis(user_api_key, prompt_top_driver)
                         
