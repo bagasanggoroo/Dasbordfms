@@ -205,6 +205,17 @@ def get_order_months():
 def get_order_2h():
     return [f"{i:02d}:00-{i+1:02d}:59" for i in range(0, 24, 2)]
 
+def get_max_7day_fatigue(df_driver_fatigue):
+    if df_driver_fatigue.empty:
+        return 0
+    max_cnt = 0
+    df_sorted = df_driver_fatigue.sort_values('Tanggal')
+    for d in df_sorted['Tanggal'].unique():
+        cnt = len(df_sorted[(df_sorted['Tanggal'] >= d) & (df_sorted['Tanggal'] <= d + pd.Timedelta(days=6))])
+        if cnt > max_cnt:
+            max_cnt = cnt
+    return max_cnt
+
 # ==================== HEADER DENGAN INTEGRASI LOGO ====================
 def header_with_logo(title, subtitle, logo_path="image.png"):
     img_b64 = get_image_base64(logo_path)
@@ -879,23 +890,22 @@ else:
             df_overspeed = df[df['Type'] == 'Overspeed'].copy()
 
             if not df_fatigue.empty:
-                top_driver_series = df_fatigue['Driver'].value_counts()
-                top_driver_name = top_driver_series.index[0]
-                top_driver_count = top_driver_series.iloc[0]
-
-                if 'Week' in df_fatigue.columns:
-                    weekly_driver_counts = df_fatigue[df_fatigue['Driver'] == top_driver_name].groupby('Week').size()
-                    max_weekly_count = weekly_driver_counts.max() if not weekly_driver_counts.empty else 0
-                else:
-                    max_weekly_count = 0
+                driver_max_counts = {}
+                for drv, grp in df_fatigue.groupby('Driver'):
+                    driver_max_counts[drv] = get_max_7day_fatigue(grp)
+                
+                sorted_drivers = sorted(driver_max_counts.items(), key=lambda x: x[1], reverse=True)
+                top_driver_name, max_weekly_count = sorted_drivers[0] if sorted_drivers else ("N/A", 0)
+                top_driver_count = len(df_fatigue[df_fatigue['Driver'] == top_driver_name])
 
                 if max_weekly_count >= 4:
-                    driver_status_text = f"{top_driver_name} ({top_driver_count}x total kejadian, melampaui threshold minggu puncak dengan {max_weekly_count}x/minggu — Perlu sanksi SP1/pembinaan)"
+                    driver_status_text = f"{top_driver_name} ({top_driver_count}x total kejadian, melampaui threshold 7 hari berturut-turut dengan {max_weekly_count}x kasus — Perlu sanksi SP1/pembinaan)"
                 else:
-                    driver_status_text = f"{top_driver_name} ({top_driver_count}x total kejadian sepanjang periode, namun secara mingguan tidak melebihi threshold 4x/minggu — Masuk kategori pengawasan berkala)"
+                    driver_status_text = f"{top_driver_name} ({top_driver_count}x total kejadian sepanjang periode, maks 7-hari berturut-turut {max_weekly_count}x — Masuk kategori pengawasan berkala)"
             else:
                 top_driver_name = "N/A"
                 max_weekly_count = 0
+                driver_max_counts = {}
                 driver_status_text = "Tidak terdeteksi driver berisiko tinggi."
             
             order_months = get_order_months()
@@ -918,11 +928,8 @@ else:
             s2_count = len(df_fatigue[df_fatigue['Shift'] == 'Shift 2'])
             s2_pct = (s2_count / total_f * 100) if total_f > 0 else 0
 
-            if 'Week' in df_fatigue.columns:
-                weekly_driver = df_fatigue.groupby(['Driver', 'Week']).size().reset_index(name='Count')
-                sp1_drivers_count = len(weekly_driver[weekly_driver['Count'] >= 4]['Driver'].unique())
-            else:
-                sp1_drivers_count = 0
+            sp1_drivers = [drv for drv, cnt in driver_max_counts.items() if cnt >= 4] if not df_fatigue.empty else []
+            sp1_drivers_count = len(sp1_drivers)
 
             st.markdown("### 📊 Indikator Kunci K3 Operasional")
             c1, c2, c3, c4 = st.columns(4)
@@ -942,7 +949,7 @@ else:
                     title="PENGEMUDI MENGANTUK (FATIGUE)",
                     value=fmt_num(total_f),
                     delta_text="▲ 12% vs Bulan Lalu",
-                    extra_info=f"{sp1_drivers_count} Driver capai threshold SP1 (≥4x/minggu)",
+                    extra_info=f"{sp1_drivers_count} Driver capai threshold SP1 (≥4x/7-Hari)",
                     footer=f"{s2_pct:.0f}% Terjadi di Shift Malam (Shift 2)",
                     icon="😴",
                     status="CRITICAL" if sp1_drivers_count > 0 else "ALERT",
@@ -997,26 +1004,13 @@ else:
             
             with col2:
                 if not df_fatigue.empty:
-                    # 1. Total driver unik yang mencapai threshold SP1 (>=4 kasus dalam seminggu)
-                    if 'Week' in df_fatigue.columns:
-                        weekly_counts = df_fatigue.groupby(['Driver', 'Week']).size().reset_index(name='Weekly_Count')
-                        sp1_drivers = weekly_counts[weekly_counts['Weekly_Count'] >= 4]['Driver'].unique().tolist()
-                        sp1_count = len(sp1_drivers)
-                    else:
-                        sp1_drivers = []
-                        sp1_count = 0
-
-                    # 2. Ambil Top 3 Driver akumulasi total kejadian terbanyak sepanjang tahun
                     top_drivers = df_fatigue['Driver'].value_counts().head(3)
                     top_drivers_text = ", ".join([f"{drv} ({cnt}x)" for drv, cnt in top_drivers.items()])
-                    
-                    top_driver_name = top_drivers.index[0] if not top_drivers.empty else "N/A"
-                    max_weekly_val = top_drivers.iloc[0] if not top_drivers.empty else 0
 
-                    if sp1_count > 0:
-                        sp1_names = ", ".join(sp1_drivers[:3]) + ("..." if sp1_count > 3 else "")
+                    if sp1_drivers_count > 0:
+                        sp1_names = ", ".join(sp1_drivers[:3]) + ("..." if sp1_drivers_count > 3 else "")
                         insight("#fee2e2", "Driver Risk High (SOP BMT 011)", 
-                                f"Terdeteksi {sp1_count} driver capai threshold SP1 (≥4x/minggu): {sp1_names}. Perlu evaluasi khusus!")
+                                f"Terdeteksi {sp1_drivers_count} driver capai threshold SP1 (≥4x/7-Hari): {sp1_names}. Perlu evaluasi khusus!")
                     else:
                         insight("#fef3c7", "Top 3 Driver Berisiko (Akumulasi)", 
                                 f"Driver tertinggi: {top_drivers_text} — Masuk kategori pengawasan berkala.")
@@ -1046,10 +1040,9 @@ else:
                         - DILARANG MEMBUAT Header Memorandum (KEPADA, DARI, PERIHAL, dll).
                         - DILARANG MEMBUAT pembuka formalitas atau salam/penutup/tanda tangan.
                         - DILARANG MENGGUNAKAN TANDA BINTANG (*) SAMA SEKALI DALAM TEKS OUTPUT.
-                        - DILARANG MENGGUNAKAN KATA "INSIDEN", gunakan kata "kejadian alarm" atau "temuan alarm".
 
                         ACUAN STANDAR REGULASI:
-                        1. Threshold Fatigue Valid BMT/BIB: Maksimal 4x temuan/minggu. Jika >=4x dikenakan sanksi bertingkat (SP1+Lubang 1).
+                        1. Threshold Fatigue Valid BMT/BIB: Maksimal 4x temuan/7 hari berturut-turut. Jika >=4x dikenakan sanksi bertingkat (SP1+Lubang 1).
                         2. Jam Rawan Utama PPO BIB-035: Pukul 02.00 - 06.00 WITA (Wajib intensifkan Wake Up Call kata sandi).
                         3. Intervensi Driver Fatigue Valid: Pengawas FMS wajib intervensi driver untuk menepi di Rest Area terdekat (kecepatan maks 30 km/jam & hazard ON), terapkan prosedur parkir aman (handbrake ON & pasang wheel chock), kemudian Safety Patrol/Pengawas melakukan penjemputan ke office untuk pengarahan, konseling, dan pemulangan driver.
                         4. Kampanye 7B: Berhenti, Beritahu, Bernafas, Beristirahat, Bekerja kembali, Berolahraga ringan, Berdoa.
@@ -1060,12 +1053,12 @@ else:
                         - Total Kasus Overspeed: {total_o} kasus
                         - Lokasi Rawan (Hotspot) Utama: {top_loc}
                         - Jam Puncak Rawan Fatigue: {top_jam}
-                        - Driver Berisiko Tinggi (Mingguan): {top_driver_name} ({max_weekly_val} kasus di minggu puncak)
+                        - Driver Berisiko Tinggi (7-Hari Rolling): {top_driver_name} ({max_weekly_count} kasus)
 
                         LANGSUNG TAMPILKAN FORMAT BERIKUT (Gunakan tag HTML <b> untuk judul):
 
                         <b>📌 1. RINGKASAN SITUASI & EVALUASI COMPLIANCE SAFETY</b><br>
-                        Uraikan ringkasan temuan FMS, bahaya micro-sleep di jam rawan sirkadian BIB (02.00-06.00 WITA), serta evaluasi kepatuhan driver terhadap threshold 4x fatigue/minggu.
+                        Uraikan ringkasan temuan FMS, bahaya micro-sleep di jam rawan sirkadian BIB (02.00-06.00 WITA), serta evaluasi kepatuhan driver terhadap threshold 4x fatigue/7 hari.
 
                         <br><b>🎯 2. PENILAIAN RISIKO OPERASIONAL & AUDIT ATRIBUT</b><br>
                         - Risiko Potensi Bahaya: Kombinasi fatigue dan overspeed di area Hotspot {top_loc} menciptakan potensi bahaya kejadian tabrakan (collision) maupun unit keluar jalur/terbalik (run-off-road). DILARANG menggunakan kata "insiden".<br>
@@ -1296,38 +1289,36 @@ else:
                                 top_driver_fatigue = df_fatigue['Driver'].value_counts().head(5).to_dict()
                                 
                                 prompt_top_driver = f"""
-                                Anda adalah Senior Safety Specialist operasional tambang PT. BMT (Mitra Kerja PT Borneo Indobara).
-                                Berdasarkan data akumulasi total kejadian fatigue driver terbanyak (sepanjang periode FMS) berikut: {top_driver_fatigue}
+                                Anda adalah Senior Safety Specialist operasional tambang PT. BMT.
+                                Berdasarkan data driver dengan frekuensi fatigue terbanyak berikut: {top_driver_fatigue}
 
-                                Susun ACTION PLAN DISIPLIN DRIVER & PENGAWAS yang SEPENUHNYA PATUH pada BMT-CHL-SOP 011.
+                                Susun ACTION PLAN DISIPLIN DRIVER yang patuh pada BMT-CHL-SOP 011 secara langsung tanpa basa-basi.
 
-                                RULES PENULISAN (KETAT):
-                                - DILARANG MEMBUAT Header Memorandum, pembuka/penutup formalitas, maupun tanda tangan.
+                                DILARANG MEMBUAT:
+                                - Header Memorandum, pembuka formalitas, maupun tanda tangan di akhir.
                                 - DILARANG MENGGUNAKAN TANDA BINTANG (*) SAMA SEKALI DALAM TEKS OUTPUT.
-                                - PERHATIKAN LOGIKA DATA: Angka pada data adalah TOTAL AKUMULASI PERIODE. Jangan menganggap angka tersebut terjadi dalam 1 minggu yang sama, kecuali terbukti dari data mingguan.
 
-                                ACUAN SANKSI BERTINGKAT & THRESHOLD BMT 011:
-                                1. Batas Threshold Kritis: Driver wajib dievaluasi khusus jika mencapai minimal 4x temuan fatigue DALAM 1 MINGGU.
-                                2. Penegakan Sanksi Bertingkat (Berdasarkan Evaluasi Mingguan Kritis):
-                                   - Minggu ke-1 (>=4x/minggu): SP1 + Lubang 1.
-                                   - Minggu ke-2 (>=4x/minggu berturut-turut): SP2 + Lubang 2 + Dirumahkan 3 Hari + Pemanggilan Keluarga ke Office.
-                                   - Minggu ke-3 (>=4x/minggu): SP3 + Lubang 3 + Rekomendasi Pemutusan Hubungan Kerja (PHK) / Pencabutan SIMPER.
-                                3. Sanksi Pembiaran Pengawas: Supervisor/Foreman yang membiarkan driver fatigue beroperasi akan dikenakan sanksi tegas hingga PENCABUTAN SIMPER / MINE PERMIT PERMANEN.
+                                ATURAN SANKSI BERTINGKAT BMT 011:
+                                - Batas Fatigue Valid: Maksimal 4x / 7 hari berturut-turut.
+                                - Periode 1 (4x fatigue): SP1 + Lubang 1.
+                                - Periode 2 (4x fatigue berturut-turut): SP2 + Lubang 2 + Dirumahkan 3 Hari + Pemanggilan Keluarga ke Office.
+                                - Periode 3 (4x fatigue): SP3 + Lubang 3.
+                                - Sanksi Pengawas: Jika terjadi pembiaran fatigue driver, SIMPER/Mine Permit Pengawas dicabut PERMANEN.
 
-                                LANGSUNG TAMPILKAN FORMAT BERIKUT (Gunakan tag HTML <b> untuk judul & subjudul agar rapi):
+                                LANGSUNG TAMPILKAN FORMAT BERIKUT (Gunakan tag HTML <b> untuk judul):
 
                                 <b>📌 1. EVALUASI TINGKAT RISIKO & COMPLIANCE THRESHOLD</b><br>
-                                Uraikan daftar driver dengan akumulasi fatigue tertinggi dari data {top_driver_fatigue}. Jelaskan bahwa angka ini adalah akumulasi total periode yang memerlukan verifikasi data mingguan (apakah ada yang menembus threshold >=4x/minggu untuk penjatuhan SP).
+                                Uraikan secara spesifik driver dari data ({top_driver_fatigue}) beserta jumlah kejadiannya. Evaluasi posisinya terhadap threshold 4x fatigue/7 hari sesuai SOP BMT 011.
 
                                 <br><b>🎯 2. ACTION PLAN TINDAK LANJUT DISIPLIN & SANKSI</b><br>
-                                - <b>Penegakan Sanksi Bertingkat:</b> Uraikan tahapan penjatuhan SP1, SP2 (dirumahkan 3 hari & panggil keluarga), hingga SP3 sesuai ketentuan SOP BMT 011 jika driver terbukti memenuhi threshold mingguan.<br>
-                                - <b>Pemeriksaan Fit to Work:</b> Wajib verifikasi jam tidur (<4 jam DILARANG BEROPERASI/STOP), cek tekanan darah, dan obat-obatan yang menyebabkan kantuk.<br>
-                                - <b>Prosedur Pengawalan Lapangan:</b> Penjemputan driver fatigue valid di rest area oleh Safety Patrol menuju office untuk konseling, serta mobilisasi driver spare.
+                                - <b>Penegakan Sanksi Bertingkat</b>: Rekomendasi penerbitan SP1/SP2/SP3 & Pemanggilan keluarga.<br>
+                                - <b>Pemeriksaan Fit to Work</b>: Verifikasi jam tidur (<4 jam dilarang bekerja) & konsumsi obat.<br>
+                                - <b>Prosedur Pengawalan Lapangan</b>: Prosedur penjemputan driver ke office oleh Safety Patrol & penyiapan driver spare.
 
                                 <br><b>🚀 3. PENGAWASAN KEPADA PENGAWAS LAPANGAN</b><br>
-                                Peringatan tegas bagi Supervisor dan Foreman lapangan mengenai larangan pembiaran driver fatigue, dengan ancaman sanksi PENCABUTAN SIMPER / MINE PERMIT PERMANEN.
+                                Peringatan komitmen kepengawasan untuk mencegah pembiaran fatigue (Ancaman pencabutan SIMPER permanen).
 
-                                Gunakan bahasa yang padat, lugas, tegas, dan berorientasi K3 pertambangan.
+                                Gunakan bahasa yang padat, lugas, langsung ke solusi, dan tegas.
                                 """
                                 st.session_state['res_driver'] = generate_gemini_analysis(user_api_key, prompt_top_driver)
                         
@@ -1472,12 +1463,8 @@ else:
                 
                 recs = []
                 if not df_fatigue.empty:
-                    if 'Week' in df_fatigue.columns:
-                        weekly_df = df_fatigue.groupby(['Driver', 'Week']).size().reset_index(name='Weekly_Count')
-                        high_risk_rows = weekly_df[weekly_df['Weekly_Count'] >= 4]
-                        if not high_risk_rows.empty:
-                            top_risk = high_risk_rows.sort_values('Weekly_Count', ascending=False).iloc[0]
-                            recs.append(("🔴 PRIORITAS HIGH", "🚨", f"Penegakan Sanksi BMT 011: Driver {top_risk['Driver']} mencapai {top_risk['Weekly_Count']} kasus di Week {top_risk['Week']} (SP1 + Lubang 1)"))
+                    if sp1_drivers_count > 0:
+                        recs.append(("🔴 PRIORITAS HIGH", "🚨", f"Penegakan Sanksi BMT 011: Driver {sp1_drivers[0]} mencapai threshold ≥4x fatigue dalam 7 hari berturut-turut (SP1 + Lubang 1)"))
                     
                     shift_counts = df_fatigue['Shift'].value_counts()
                     if 'Shift 2' in shift_counts.index and 'Shift 1' in shift_counts.index:
