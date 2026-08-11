@@ -1039,7 +1039,7 @@ else:
                 if st.button("✨ Generate Narasi Laporan Eksekutif dengan Gemini AI"):
                     with st.spinner("🧠 AI sedang menganalisis data berdasarkan SOP BMT 011 & PPO BIB 035..."):
                         prompt_eksekutif = f"""
-                        Anda adalah Senior Safety Specialist di PT. Bumiputera Maha Terpercaya (BMT) untuk operasional tambang PT Borneo Indobara (BIB).
+                        Anda adalah Senior Safety Specialist di PT. Bumiputera Maha Terpercaya untuk operasional tambang PT. Borneo Indobara (BIB).
                         Analisis data Fleet Management System (FMS) berikut dan buatkan Laporan Ringkasan Eksekutif K3 yang SEPENUHNYA PATUH pada SOP BMT-CHL-SOP 011 dan BIB-HSE-PPO-035.
 
                         RULES PENULISAN (SANGAT KETAT):
@@ -1050,7 +1050,7 @@ else:
                         ACUAN STANDAR REGULASI:
                         1. Threshold Fatigue Valid BMT/BIB: Maksimal 4x temuan/minggu. Jika >=4x dikenakan sanksi bertingkat (SP1+Lubang 1).
                         2. Jam Rawan Utama PPO BIB-035: Pukul 02.00 - 06.00 WITA (Wajib intensifkan Wake Up Call kata sandi).
-                        3. Intervensi Driver Fatigue Valid: Kecepatan maks 30 kph, hazard ON, dikawal (escorted) ke Rest Area/Office, dan verifikasi ADAS dengan handbrake & wheel chock.
+                        3. Intervensi Driver Fatigue Valid: Pengawas FMS wajib intervensi driver untuk menepi di Rest Area terdekat (kecepatan maks 30 km/jam & hazard ON), terapkan prosedur parkir aman (handbrake ON & pasang wheel chock), kemudian Safety Patrol/Pengawas melakukan penjemputan ke office untuk pengarahan, konseling, dan pemulangan driver.
                         4. Kampanye 7B: Berhenti, Beritahu, Bernafas, Beristirahat, Bekerja kembali, Berolahraga ringan, Berdoa.
 
                         DATA UTAMA FMS:
