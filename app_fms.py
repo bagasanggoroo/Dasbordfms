@@ -877,6 +877,10 @@ with st.sidebar:
         user_api_key = st.text_input("Masukkan Gemini API Key", type="password", help="Dapatkan API Key gratis di Google AI Studio")
     
     st.markdown("---")
+    st.markdown("### 🖨️ Export PDF Mode")
+    export_pdf_mode = st.checkbox("📄 Aktifkan Mode Cetak PDF (Tampilkan Semua Tab)", value=False, help="Centang ini untuk mengabungkan seluruh menu/tab berurutan ke bawah agar siap dicetak utuh menjadi 1 file PDF.")
+
+    st.markdown("---")
     st.caption("© 2026 PT. Bumiputera Maha Terpercaya")
 
 def insight(color, title, text, icon="💡"):
@@ -1134,18 +1138,8 @@ else:
             
             st.markdown("---")
             
-            # ========== TABS UTAMA ==========
-            tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs([
-                "📊 Overview Bulanan",
-                "📅 Tren Mingguan (Week 1-52)",
-                "🗺️ Lokasi & Waktu",
-                "👥 Driver & Unit",
-                "📋 Data Logs",
-                "🧠 Analisis Lanjutan"
-            ])
-            
-            # ========== TAB 1: OVERVIEW BULANAN ==========
-            with tab1:
+            # ==================== DEFINE CONTENT MODUL ====================
+            def render_overview_bulanan():
                 st.markdown("### 📉 Tren Temuan FMS Bulanan")
                 
                 fig_f = plot_tren_generic(df_fatigue, title="Tren Bulanan Kasus Fatigue", color="#ef4444")
@@ -1182,9 +1176,8 @@ else:
                         st.plotly_chart(fig, use_container_width=True)
                     else:
                         st.info("Tidak ada data alarm")
-            
-            # ========== TAB 2: TREN MINGGUAN ==========
-            with tab2:
+
+            def render_tren_mingguan():
                 st.markdown("### 📅 Analisis Tren Fatigue Mingguan (Week 1 - 52)")
                 st.caption("Dilengkapi dengan Garis Tren (Trendline) untuk melihat arah perkembangan kasus sepanjang tahun.")
                 
@@ -1195,8 +1188,7 @@ else:
                 else:
                     st.warning("Data minggu tidak mencukupi untuk menampilkan grafik.")
 
-            # ========== TAB 3: LOKASI & WAKTU ==========
-            with tab3:
+            def render_lokasi_waktu():
                 fig = plot_jam_distribution(df_fatigue, order_2h)
                 if fig:
                     st.plotly_chart(fig, use_container_width=True)
@@ -1286,10 +1278,8 @@ else:
                         st.plotly_chart(fig, use_container_width=True)
                     else:
                         st.info("Tidak ada data lokasi overspeed")
-            
-            # ========== TAB 4: DRIVER & UNIT ==========
-            with tab4:
-                # --- [HALAMAN 1 SAAT CETAK: Demografi & Top Drivers/Units] ---
+
+            def render_driver_unit():
                 fig = plot_demografi(df_fatigue, df_overspeed, age_labels)
                 st.plotly_chart(fig, use_container_width=True)
                 
@@ -1330,10 +1320,8 @@ else:
                     else:
                         st.info("Tidak ada data unit")
                 
-                # --- [PAKSA MULAILAH HALAMAN BARU DI SINI] ---
                 force_page_break()
 
-                # --- [HALAMAN 2 SAAT CETAK: Narasi AI Action Plan] ---
                 if user_api_key:
                     with st.expander("👤 Rekomendasi AI: Action Plan Driver & Disiplin (SOP BMT 011)", expanded=False):
                         if st.button("✨ Generate Strategy & Preventive Plan"):
@@ -1383,10 +1371,8 @@ else:
                         if st.session_state.get('res_driver'):
                             st.markdown(f"""<div style="background:white; color:#0f172a; padding:20px; border-radius:16px; border-left:5px solid #2563eb; box-shadow:0 4px 15px rgba(0,0,0,0.05); line-height:1.6; text-align: justify;">{st.session_state['res_driver']}</div>""", unsafe_allow_html=True)
 
-                # --- [PAKSA MULAILAH HALAMAN BARU DI SINI] ---
                 force_page_break()
 
-                # --- [HALAMAN 3 SAAT CETAK: Heatmap Driver] ---
                 st.markdown("#### 🔥 Heatmap Driver per Bulan")
                 col_h1, col_h2, col_h3 = st.columns(3)
                 with col_h1:
@@ -1416,9 +1402,8 @@ else:
                         st.caption(f"💡 Insight: Driver **{top_driver}** memiliki kasus terbanyak")
                 else:
                     st.warning("Data tidak cukup untuk heatmap")
-            
-            # ========== TAB 5: DATA LOGS ==========
-            with tab5:
+
+            def render_data_logs():
                 st.markdown("### 📋 Data Logs")
                 
                 c1, c2, c3 = st.columns([2, 1, 1])
@@ -1464,9 +1449,8 @@ else:
                         file_name=f"data_fms_{datetime.now().strftime('%Y%m%d_%H%M')}.csv",
                         mime='text/csv'
                     )
-            
-            # ========== TAB 6: ANALISIS LANJUTAN ==========
-            with tab6:
+
+            def render_analisis_lanjutan():
                 st.markdown("## 🧠 Analisis Lanjutan untuk Pencegahan")
                 st.caption("Analisis ini membantu mengidentifikasi pola dan risiko untuk tindakan preventif")
                 st.markdown("---")
@@ -1543,6 +1527,51 @@ else:
                         rec_card(rec[0], rec[1], rec[2])
                 else:
                     st.success("✅ Tidak ada rekomendasi prioritas saat ini")
+
+            # ========== SAKELAR EKSPOR / RENDERING MODUL ==========
+            if export_pdf_mode:
+                st.info("💡 **Mode Cetak PDF Aktif**: Seluruh modul/tab ditampilkan berurutan ke bawah. Silakan tekan `Ctrl + P` (atau `Cmd + P` di Mac) untuk menyimpan seluruh halaman sebagai 1 file PDF utuh.")
+                st.markdown("---")
+                
+                render_overview_bulanan()
+                force_page_break()
+                
+                render_tren_mingguan()
+                force_page_break()
+                
+                render_lokasi_waktu()
+                force_page_break()
+                
+                render_driver_unit()
+                force_page_break()
+                
+                render_data_logs()
+                force_page_break()
+                
+                render_analisis_lanjutan()
+            else:
+                # ========== TABS UTAMA (MODE INTERAKTIF NORMAL) ==========
+                tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs([
+                    "📊 Overview Bulanan",
+                    "📅 Tren Mingguan (Week 1-52)",
+                    "🗺️ Lokasi & Waktu",
+                    "👥 Driver & Unit",
+                    "📋 Data Logs",
+                    "🧠 Analisis Lanjutan"
+                ])
+                
+                with tab1:
+                    render_overview_bulanan()
+                with tab2:
+                    render_tren_mingguan()
+                with tab3:
+                    render_lokasi_waktu()
+                with tab4:
+                    render_driver_unit()
+                with tab5:
+                    render_data_logs()
+                with tab6:
+                    render_analisis_lanjutan()
             
             st.sidebar.success(f"✅ {fmt_num(len(df))} data valid")
 
