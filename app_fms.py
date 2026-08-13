@@ -1317,7 +1317,7 @@ else:
                         st.plotly_chart(fig, use_container_width=True)
                     else:
                         st.info("Tidak ada data unit")
-                
+                force_page_break()
                 if user_api_key:
                     with st.expander("👤 Rekomendasi AI: Action Plan Driver & Disiplin (SOP BMT 011)", expanded=False):
                         if st.button("✨ Generate Strategy & Preventive Plan"):
@@ -1367,6 +1367,7 @@ else:
                         if st.session_state.get('res_driver'):
                             st.markdown(f"""<div style="background:white; color:#0f172a; padding:20px; border-radius:16px; border-left:5px solid #2563eb; box-shadow:0 4px 15px rgba(0,0,0,0.05); line-height:1.6; text-align: justify;">{st.session_state['res_driver']}</div>""", unsafe_allow_html=True)
 
+                force_page_break()
                 st.markdown("---")
                 
                 st.markdown("#### 🔥 Heatmap Driver per Bulan")
