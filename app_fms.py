@@ -456,15 +456,36 @@ def plot_shift_comparison(df_fatigue):
     if df_fatigue.empty:
         return None
     
-    shift_df = df_fatigue.groupby(['Bulan', 'Shift']).size().reset_index(name='Total')
+    # Kelompokkan dengan Month_Num agar urutan bulan (1-12) tetap terjaga secara kronologis
+    shift_df = df_fatigue.groupby(['Month_Num', 'Bulan', 'Shift']).size().reset_index(name='Total')
     if shift_df.empty:
         return None
+    
+    # Urutkan secara eksplisit berdasarkan angka bulan
+    shift_df = shift_df.sort_values('Month_Num')
     
     fig = px.line(
         shift_df, x='Bulan', y='Total', color='Shift',
         markers=True, title='Perbandingan Shift',
         color_discrete_map={'Shift 1': '#3b82f6', 'Shift 2': '#8b5cf6'}
     )
+    fig.update_traces(line=dict(width=2.5), marker=dict(size=8))
+    fig.update_layout(
+        plot_bgcolor='#ffffff', paper_bgcolor='#ffffff',
+        font=dict(family='Inter', size=12, color='#0f172a'),
+        title_font=dict(color='#0f172a'),
+        xaxis=dict(
+            showgrid=False, 
+            tickfont=dict(color='#0f172a'),
+            categoryorder='array',
+            categoryarray=['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Ags','Sep','Okt','Nov','Des']
+        ),
+        yaxis=dict(showgrid=True, gridcolor='#e2e8f0', gridwidth=1, tickfont=dict(color='#0f172a')),
+        hovermode='x unified',
+        legend=dict(orientation='h', yanchor='bottom', y=1.02, xanchor='center', x=0.5, font=dict(color='#0f172a')),
+        margin=dict(l=20, r=20, t=40, b=20)
+    )
+    return fig
     fig.update_traces(line=dict(width=2.5), marker=dict(size=8))
     fig.update_layout(
         plot_bgcolor='#ffffff', paper_bgcolor='#ffffff',
