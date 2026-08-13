@@ -194,7 +194,8 @@ div[data-testid="stDataFrame"] {
 # ==================== HELPER FUNCTIONS ====================
 def fmt_num(n):
     return f"{n:,}".replace(',', '.')
-
+def force_page_break():
+    st.markdown('<div class="page-break"></div>', unsafe_allow_html=True)
 def get_image_base64(path):
     try:
         with open(path, "rb") as image_file:
