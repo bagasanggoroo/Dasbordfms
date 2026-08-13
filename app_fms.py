@@ -486,18 +486,6 @@ def plot_shift_comparison(df_fatigue):
         margin=dict(l=20, r=20, t=40, b=20)
     )
     return fig
-    fig.update_traces(line=dict(width=2.5), marker=dict(size=8))
-    fig.update_layout(
-        plot_bgcolor='#ffffff', paper_bgcolor='#ffffff',
-        font=dict(family='Inter', size=12, color='#0f172a'),
-        title_font=dict(color='#0f172a'),
-        xaxis=dict(showgrid=False, tickfont=dict(color='#0f172a')),
-        yaxis=dict(showgrid=True, gridcolor='#e2e8f0', gridwidth=1, tickfont=dict(color='#0f172a')),
-        hovermode='x unified',
-        legend=dict(orientation='h', yanchor='bottom', y=1.02, xanchor='center', x=0.5, font=dict(color='#0f172a')),
-        margin=dict(l=20, r=20, t=40, b=20)
-    )
-    return fig
 
 def plot_alarm_distribution(df_fatigue):
     if df_fatigue.empty:
@@ -796,7 +784,6 @@ def plot_fatigue_vs_overspeed(df_fatigue, df_overspeed):
 
 # ==================== FUNGSI INTEGRASI GEMINI AI ====================
 def generate_gemini_analysis(api_key, prompt_text):
-    # Menggunakan daftar model Gemini generasi v3/v3.5/v3.6 terbaru yang aktif di Google AI Studio
     models_to_try = [
         'gemini-3.6-flash',
         'gemini-3.5-flash-lite',
@@ -862,6 +849,7 @@ def rec_card(priority, icon, text):
 <span style="font-size:0.9rem; color:#1e293b;">{text}</span>
 </div>""".format(bg=bg, border=border, priority=priority, icon=icon, text=text)
     st.markdown(html_rec, unsafe_allow_html=True)
+
 # ==================== HEADER DENGAN INTEGRASI LOGO ====================
 header_with_logo(
     "🛡️ Driver Safety Management System (DSMS)",
@@ -1094,11 +1082,7 @@ else:
                         st.session_state['res_eksekutif'] = generate_gemini_analysis(user_api_key, prompt_eksekutif)
                 
                 if st.session_state.get('res_eksekutif'):
-                    st.markdown(f"""
-                    <div style="background:white; color:#0f172a; padding:20px; border-radius:16px; border-left:5px solid #2563eb; box-shadow:0 4px 15px rgba(0,0,0,0.05); line-height:1.6;">
-                        {st.session_state['res_eksekutif']}
-                    </div>
-                    """, unsafe_allow_html=True)
+                    st.markdown(f"""<div style="background:white; color:#0f172a; padding:20px; border-radius:16px; border-left:5px solid #2563eb; box-shadow:0 4px 15px rgba(0,0,0,0.05); line-height:1.6; text-align: justify;">{st.session_state['res_eksekutif']}</div>""", unsafe_allow_html=True)
             else:
                 st.info("💡 Tempel Gemini API Key di sidebar untuk mengaktifkan pembuat laporan narasi AI otomatis.")
             
@@ -1211,11 +1195,7 @@ else:
                                 st.session_state['res_jam'] = generate_gemini_analysis(user_api_key, prompt_jam_rawan)
                         
                         if st.session_state.get('res_jam'):
-                            st.markdown(f"""
-                            <div style="background:white; color:#0f172a; padding:20px; border-radius:16px; border-left:5px solid #2563eb; box-shadow:0 4px 15px rgba(0,0,0,0.05); line-height:1.6;">
-                                {st.session_state['res_jam']}
-                            </div>
-                            """, unsafe_allow_html=True)
+                            st.markdown(f"""<div style="background:white; color:#0f172a; padding:20px; border-radius:16px; border-left:5px solid #2563eb; box-shadow:0 4px 15px rgba(0,0,0,0.05); line-height:1.6; text-align: justify;">{st.session_state['res_jam']}</div>""", unsafe_allow_html=True)
                 
                 st.markdown("---")
                 
@@ -1350,11 +1330,7 @@ else:
                                 st.session_state['res_driver'] = generate_gemini_analysis(user_api_key, prompt_top_driver)
                         
                         if st.session_state.get('res_driver'):
-                            st.markdown(f"""
-                            <div style="background:white; color:#0f172a; padding:20px; border-radius:16px; border-left:5px solid #2563eb; box-shadow:0 4px 15px rgba(0,0,0,0.05); line-height:1.6;">
-                                {st.session_state['res_driver']}
-                            </div>
-                            """, unsafe_allow_html=True)
+                            st.markdown(f"""<div style="background:white; color:#0f172a; padding:20px; border-radius:16px; border-left:5px solid #2563eb; box-shadow:0 4px 15px rgba(0,0,0,0.05); line-height:1.6; text-align: justify;">{st.session_state['res_driver']}</div>""", unsafe_allow_html=True)
 
                 st.markdown("---")
                 
