@@ -68,33 +68,7 @@ html, body, [class*="css"] {
     transition: all .25s ease;
     border: 1px solid var(--border-color, #e2e8f0);
     position: relative;
-}
-.kpi:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 10px 25px rgba(0,0,0,.1);
-}
-.kpi-icon {
-    font-size: 28px;
-    margin-bottom: 6px;
-}
-.kpi-title {
-    font-size: 13px;
-    opacity: 0.8;
-    text-transform: uppercase;
-    letter-spacing: .8px;
-    font-weight: 600;
-}
-.kpi-value {
-    font-size: 34px;
-    font-weight: 700;
-    color: var(--text-color);
-    margin-top: 6px;
-}
-.kpi-footer {
-    margin-top: 8px;
-    color: #3b82f6;
-    font-size: 13px;
-    font-weight: 500;
+    margin-bottom: 15px;
 }
 
 /* BUTTON STYLING */
@@ -108,12 +82,6 @@ html, body, [class*="css"] {
     box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
     transition: all .2s ease;
 }
-.stButton > button:hover {
-    background: #2563eb;
-    color: #ffffff !important;
-    transform: translateY(-2px);
-    box-shadow: 0 6px 16px rgba(37,99,235,0.3);
-}
 
 /* DATAFRAME STYLING */
 div[data-testid="stDataFrame"] {
@@ -122,14 +90,24 @@ div[data-testid="stDataFrame"] {
     overflow: hidden;
 }
 
-/* PLOTLY CONTAINER */
-.js-plotly-plot .plotly .main-svg {
-    border-radius: 12px;
+/* KONTAINER RINGKASAN AI AUTO-BREAK */
+.ai-summary-box {
+    background: #ffffff;
+    color: #0f172a;
+    padding: 20px;
+    border-radius: 16px;
+    border-left: 5px solid #2563eb;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    line-height: 1.6;
+    text-align: justify;
+    margin-bottom: 20px;
+    page-break-inside: auto !important; /* Memungkinkan pemotongan halaman secara alami */
+    break-inside: auto !important;
 }
 
 /* ==================== KHUSUS SAAT CETAK / SIMPAN PDF (@media print) ==================== */
 @media print {
-    /* 1. Sembunyikan Navigasi, Sidebar, Header Streamlit, Button, & Tab List */
+    /* 1. Sembunyikan Elemen Navigasi & Input */
     section[data-testid="stSidebar"],
     header[data-testid="stHeader"],
     footer,
@@ -147,20 +125,15 @@ div[data-testid="stDataFrame"] {
     /* 2. Pengaturan Halaman A4 & Margin Cetak */
     @page {
         size: A4 portrait;
-        margin: 10mm 12mm 10mm 12mm;
+        margin: 12mm 12mm 12mm 12mm;
     }
 
-    /* 3. BUKA BLOKIR OVERFLOW STREAMLIT AGAR CETAKAN BERLANJUT KE HALAMAN 2, 3, DST */
-    html, body {
-        height: max-content !important;
+    /* 3. Penanganan Overflow Agar Cetakan Berlanjut Mulus */
+    html, body, .stApp, .main {
+        height: auto !important;
         overflow: visible !important;
         background-color: #ffffff !important;
         color: #0f172a !important;
-    }
-
-    .stApp, .main, [data-testid="stVerticalBlock"] {
-        overflow: visible !important;
-        height: auto !important;
     }
 
     .block-container {
@@ -170,32 +143,36 @@ div[data-testid="stDataFrame"] {
         max-width: 100% !important;
     }
 
-    /* 4. CEGAH GRAFIK DAN KOTAK TERPOTONG DI TENGAH HALAMAN */
+    /* 4. Mencegah Elemen Kecil/Grafik Terpotong Di Tengah, Tapi Izinkan Teks AI Mengalir */
     .kpi,
-    .js-plotly-plot,
-    div[data-testid="stExpander"],
-    div[style*="border-left"],
-    div[style*="background:white"] {
+    .js-plotly-plot {
         page-break-inside: avoid !important;
         break-inside: avoid !important;
-        margin-bottom: 15px !important;
+        margin-bottom: 20px !important;
+        display: block !important;
     }
 
-    /* 5. CEGAH JUDUL TERPISAH DARI GRAFIK DI BWAHNYA */
+    .ai-summary-box {
+        page-break-inside: auto !important;
+        break-inside: auto !important;
+        display: block !important;
+    }
+
+    /* 5. Cega Judul Terpisah Dari Grafiknya */
     h1, h2, h3, h4, h5, h6 {
         page-break-after: avoid !important;
         break-after: avoid !important;
     }
 
-    /* 6. PEMISAH HALAMAN PRESISI */
+    /* 6. Pemisah Halaman Presisi */
     .page-break {
         display: block !important;
         page-break-before: always !important;
         break-before: page !important;
         clear: both !important;
+        height: 1px;
     }
 
-    /* Hilangkan shadow agar cetakan bersih */
     * {
         box-shadow: none !important;
         text-shadow: none !important;
@@ -207,8 +184,10 @@ div[data-testid="stDataFrame"] {
 # ==================== HELPER FUNCTIONS ====================
 def fmt_num(n):
     return f"{n:,}".replace(',', '.')
+
 def force_page_break():
     st.markdown('<div class="page-break"></div>', unsafe_allow_html=True)
+
 def get_image_base64(path):
     try:
         with open(path, "rb") as image_file:
@@ -357,7 +336,7 @@ def load_and_process_data(file):
     
     return df, cols, labels
 
-# ==================== UI COMPONENTS (FIXED KPI ADVANCED) ====================
+# ==================== UI COMPONENTS ====================
 def kpi_advanced(title, value, footer, icon="📊", status="NORMAL", delta_text="", extra_info="", color="#2563eb"):
     status_bg = "#dcfce7" if status == "NORMAL" else ("#fef3c7" if status == "ALERT" else "#fee2e2")
     status_color = "#166534" if status == "NORMAL" else ("#92400e" if status == "ALERT" else "#991b1b")
@@ -367,7 +346,7 @@ def kpi_advanced(title, value, footer, icon="📊", status="NORMAL", delta_text=
     delta_html = f'<span style="font-size:13px; font-weight:600; margin-left:8px; color:{delta_color};">{delta_text}</span>' if delta_text else ""
     extra_html = f'<div style="font-size:11px; font-weight:600; color:#dc2626; margin-top:3px;">⚠️ {extra_info}</div>' if extra_info else ""
 
-    html_card = """<div style="background:#ffffff; border-radius:16px; border:1px solid #e2e8f0; border-top:4px solid {color}; padding:18px 20px; box-shadow:0 4px 12px rgba(0,0,0,0.03);">
+    html_card = f"""<div class="kpi" style="border-top:4px solid {color};">
 <div style="display:flex; justify-content:space-between; align-items:flex-start;">
 <div style="font-size:24px;">{icon}</div>
 <span style="background:{status_bg}; color:{status_color}; border:1px solid {status_border}; padding:2px 8px; border-radius:12px; font-size:10px; font-weight:700;">{status}</span>
@@ -379,19 +358,7 @@ def kpi_advanced(title, value, footer, icon="📊", status="NORMAL", delta_text=
 </div>
 {extra_html}
 <div style="margin-top:8px; color:#2563eb; font-size:12px; font-weight:600; border-top:1px dashed #f1f5f9; padding-top:6px;">{footer}</div>
-</div>""".format(
-        color=color,
-        icon=icon,
-        status_bg=status_bg,
-        status_color=status_color,
-        status_border=status_border,
-        status=status,
-        title=title,
-        value=value,
-        delta_html=delta_html,
-        extra_html=extra_html,
-        footer=footer
-    )
+</div>"""
     st.markdown(html_card, unsafe_allow_html=True)
 
 # ==================== CHART FUNCTIONS ====================
@@ -884,20 +851,20 @@ with st.sidebar:
     st.caption("© 2026 PT. Bumiputera Maha Terpercaya")
 
 def insight(color, title, text, icon="💡"):
-    html_insight = """<div style="background:{color}; padding:16px 20px; border-radius:14px; margin-bottom:10px; border-left:5px solid {color}; color:#0f172a;">
+    html_insight = f"""<div style="background:{color}; padding:16px 20px; border-radius:14px; margin-bottom:12px; border-left:5px solid {color}; color:#0f172a;">
 <div style="font-weight:600; font-size:0.95rem; color:#0f172a;">{icon} {title}</div>
 <div style="font-size:0.85rem; color:#334155; margin-top:4px;">{text}</div>
-</div>""".format(color=color, title=title, text=text, icon=icon)
+</div>"""
     st.markdown(html_insight, unsafe_allow_html=True)
 
 def rec_card(priority, icon, text):
     bg = '#fef2f2' if 'PRIORITAS' in priority else '#fffbeb'
     border = '#ef4444' if 'PRIORITAS' in priority else '#f59e0b'
-    html_rec = """<div style="background:{bg}; padding:12px 16px; border-radius:12px; border-left:5px solid {border}; margin:6px 0; color:#1e293b;">
+    html_rec = f"""<div style="background:{bg}; padding:12px 16px; border-radius:12px; border-left:5px solid {border}; margin:8px 0; color:#1e293b;">
 <span style="font-weight:600; font-size:0.85rem;">{priority}</span> 
 <span style="font-size:1rem;">{icon}</span> 
 <span style="font-size:0.9rem; color:#1e293b;">{text}</span>
-</div>""".format(bg=bg, border=border, priority=priority, icon=icon, text=text)
+</div>"""
     st.markdown(html_rec, unsafe_allow_html=True)
 
 # ==================== HEADER DENGAN INTEGRASI LOGO ====================
@@ -1132,7 +1099,7 @@ else:
                         st.session_state['res_eksekutif'] = generate_gemini_analysis(user_api_key, prompt_eksekutif)
                 
                 if st.session_state.get('res_eksekutif'):
-                    st.markdown(f"""<div style="background:white; color:#0f172a; padding:20px; border-radius:16px; border-left:5px solid #2563eb; box-shadow:0 4px 15px rgba(0,0,0,0.05); line-height:1.6; text-align: justify;">{st.session_state['res_eksekutif']}</div>""", unsafe_allow_html=True)
+                    st.markdown(f"""<div class="ai-summary-box">{st.session_state['res_eksekutif']}</div>""", unsafe_allow_html=True)
             else:
                 st.info("💡 Tempel Gemini API Key di sidebar untuk mengaktifkan pembuat laporan narasi AI otomatis.")
             
@@ -1233,7 +1200,7 @@ else:
                                 st.session_state['res_jam'] = generate_gemini_analysis(user_api_key, prompt_jam_rawan)
                         
                         if st.session_state.get('res_jam'):
-                            st.markdown(f"""<div style="background:white; color:#0f172a; padding:20px; border-radius:16px; border-left:5px solid #2563eb; box-shadow:0 4px 15px rgba(0,0,0,0.05); line-height:1.6; text-align: justify;">{st.session_state['res_jam']}</div>""", unsafe_allow_html=True)
+                            st.markdown(f"""<div class="ai-summary-box">{st.session_state['res_jam']}</div>""", unsafe_allow_html=True)
                 
                 st.markdown("---")
                 
@@ -1320,8 +1287,6 @@ else:
                     else:
                         st.info("Tidak ada data unit")
                 
-                force_page_break()
-
                 if user_api_key:
                     with st.expander("👤 Rekomendasi AI: Action Plan Driver & Disiplin (SOP BMT 011)", expanded=False):
                         if st.button("✨ Generate Strategy & Preventive Plan"):
@@ -1369,9 +1334,7 @@ else:
                                 st.session_state['res_driver'] = generate_gemini_analysis(user_api_key, prompt_top_driver)
                         
                         if st.session_state.get('res_driver'):
-                            st.markdown(f"""<div style="background:white; color:#0f172a; padding:20px; border-radius:16px; border-left:5px solid #2563eb; box-shadow:0 4px 15px rgba(0,0,0,0.05); line-height:1.6; text-align: justify;">{st.session_state['res_driver']}</div>""", unsafe_allow_html=True)
-
-                force_page_break()
+                            st.markdown(f"""<div class="ai-summary-box">{st.session_state['res_driver']}</div>""", unsafe_allow_html=True)
 
                 st.markdown("#### 🔥 Heatmap Driver per Bulan")
                 col_h1, col_h2, col_h3 = st.columns(3)
