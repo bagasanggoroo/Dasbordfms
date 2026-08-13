@@ -107,7 +107,17 @@ div[data-testid="stDataFrame"] {
 
 /* ==================== KHUSUS SAAT CETAK / SIMPAN PDF (@media print) ==================== */
 @media print {
-    /* 1. Sembunyikan Elemen Navigasi & Input */
+    /* 1. Reset Tinggi & Overflow Body / Streamlit Main Container */
+    html, body, .stApp, [data-testid="stAppViewContainer"], .main {
+        height: auto !important;
+        min-height: 100% !important;
+        overflow: visible !important;
+        background-color: #ffffff !important;
+        color: #0f172a !important;
+        position: relative !important;
+    }
+
+    /* 2. Sembunyikan Elemen Antarmuka yang Tidak Perlu Dilaporkan */
     section[data-testid="stSidebar"],
     header[data-testid="stHeader"],
     footer,
@@ -122,49 +132,56 @@ div[data-testid="stDataFrame"] {
         display: none !important;
     }
 
-    /* 2. Pengaturan Halaman A4 & Margin Cetak */
-    @page {
-        size: A4 portrait;
-        margin: 12mm 12mm 12mm 12mm;
-    }
-
-    /* 3. Penanganan Overflow Agar Cetakan Berlanjut Mulus */
-    html, body, .stApp, .main {
-        height: auto !important;
-        overflow: visible !important;
-        background-color: #ffffff !important;
-        color: #0f172a !important;
-    }
-
+    /* 3. Atur Ulang Layout Container Utama Agar Mengalir Sesuai Urutan */
     .block-container {
         padding: 0 !important;
         margin: 0 !important;
         width: 100% !important;
         max-width: 100% !important;
-    }
-
-    /* 4. Mencegah Elemen Kecil/Grafik Terpotong Di Tengah, Tapi Izinkan Teks AI Mengalir */
-    .kpi,
-    .js-plotly-plot {
-        page-break-inside: avoid !important;
-        break-inside: avoid !important;
-        margin-bottom: 20px !important;
+        position: relative !important;
         display: block !important;
     }
 
-    .ai-summary-box {
+    /* 4. Mencegah Plotly Chart & Card Saling Bertumpuk */
+    .js-plotly-plot, 
+    .plot-container,
+    .kpi,
+    div[data-testid="stColumn"] {
+        position: relative !important;
+        page-break-inside: avoid !important;
+        break-inside: avoid !important;
+        margin-bottom: 25px !important;
+        display: block !important;
+        float: none !important;
+        width: 100% !important;
+    }
+
+    /* 5. Izinkan Teks AI / Ringkasan Terpotong Alami ke Halaman Berikutnya */
+    .ai-summary-box,
+    div[style*="background:white"],
+    div[style*="background: white"] {
+        position: relative !important;
         page-break-inside: auto !important;
         break-inside: auto !important;
         display: block !important;
+        overflow: visible !important;
+        height: auto !important;
+        margin-bottom: 20px !important;
     }
 
-    /* 5. Cega Judul Terpisah Dari Grafiknya */
+    /* 6. Mencegah Judul Terpisah dari Grafiknya (Orphan Heading) */
     h1, h2, h3, h4, h5, h6 {
         page-break-after: avoid !important;
         break-after: avoid !important;
     }
 
-    /* 6. Pemisah Halaman Presisi */
+    /* 7. Pengaturan Halaman Cetak A4 */
+    @page {
+        size: A4 portrait;
+        margin: 15mm 12mm 15mm 12mm;
+    }
+
+    /* 8. Pembatas Halaman Manual (Opsional) */
     .page-break {
         display: block !important;
         page-break-before: always !important;
@@ -172,12 +189,11 @@ div[data-testid="stDataFrame"] {
         clear: both !important;
         height: 1px;
     }
-
-    * {
-        box-shadow: none !important;
-        text-shadow: none !important;
-    }
 }
+</style>
+""",
+    unsafe_allow_html=True,
+)
 </style>
 """, unsafe_allow_html=True)
 
