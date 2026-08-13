@@ -1037,7 +1037,7 @@ else:
                         insight("#dbeafe", "Unit Temuan Berulang", f"{top_unit} ({top_val} temuan valid)")
 
             # SEKSI AI NARRATIVE GENERATOR
-            st.markdown("#### 🤖 Laporan Narasi Otomatis (Gemini AI - Standard Compliance)")
+            st.markdown("#### Laporan Keselamatan Operasional (SOP BMT-011 & BIB-035)")
             if user_api_key:
                 if st.button("✨ Generate Narasi Laporan Eksekutif dengan Gemini AI"):
                     with st.spinner("🧠 AI sedang menganalisis data berdasarkan SOP BMT 011 & PPO BIB 035..."):
