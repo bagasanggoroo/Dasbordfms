@@ -129,7 +129,7 @@ div[data-testid="stDataFrame"] {
 
 /* ==================== KHUSUS SAAT CETAK / SIMPAN PDF (@media print) ==================== */
 @media print {
-    /* 1. Sembunyikan Navigasi, Header Streamlit, Sidebar, Button, Form, & Tab List */
+    /* 1. Sembunyikan Navigasi, Sidebar, Header Streamlit, Button, & Tab List */
     section[data-testid="stSidebar"],
     header[data-testid="stHeader"],
     footer,
@@ -144,25 +144,33 @@ div[data-testid="stDataFrame"] {
         display: none !important;
     }
 
-    /* 2. Pengaturan Halaman A4 & Margin */
+    /* 2. Pengaturan Halaman A4 & Margin Cetak */
     @page {
         size: A4 portrait;
-        margin: 8mm 10mm 8mm 10mm;
+        margin: 10mm 12mm 10mm 12mm;
     }
 
-    /* 3. RESET STREAMLIT OVERFLOW AGAR HALAMAN BISA MEMANJANG & TERBAGI RAPI */
-    html, body, .stApp, .main, .main .block-container, div[data-testid="stVerticalBlock"] {
-        height: auto !important;
-        min-height: 100% !important;
+    /* 3. BUKA BLOKIR OVERFLOW STREAMLIT AGAR CETAKAN BERLANJUT KE HALAMAN 2, 3, DST */
+    html, body {
+        height: max-content !important;
         overflow: visible !important;
-        padding: 0 !important;
-        margin: 0 !important;
-        width: 100% !important;
         background-color: #ffffff !important;
         color: #0f172a !important;
     }
 
-    /* 4. MENCEGAH ELEMEN KOTAK & GRAFIK TERPOTONG DI TENGAH HALAMAN */
+    .stApp, .main, [data-testid="stVerticalBlock"] {
+        overflow: visible !important;
+        height: auto !important;
+    }
+
+    .block-container {
+        padding: 0 !important;
+        margin: 0 !important;
+        width: 100% !important;
+        max-width: 100% !important;
+    }
+
+    /* 4. CEGAH GRAFIK DAN KOTAK TERPOTONG DI TENGAH HALAMAN */
     .kpi,
     .js-plotly-plot,
     div[data-testid="stExpander"],
@@ -170,10 +178,10 @@ div[data-testid="stDataFrame"] {
     div[style*="background:white"] {
         page-break-inside: avoid !important;
         break-inside: avoid !important;
-        margin-bottom: 12px !important;
+        margin-bottom: 15px !important;
     }
 
-    /* 5. MENCEGAH JUDUL TERLEMPAR SENDIRI (ORPHAN HEADER) */
+    /* 5. CEGAH JUDUL TERPISAH DARI GRAFIK DI BWAHNYA */
     h1, h2, h3, h4, h5, h6 {
         page-break-after: avoid !important;
         break-after: avoid !important;
@@ -184,12 +192,10 @@ div[data-testid="stDataFrame"] {
         display: block !important;
         page-break-before: always !important;
         break-before: page !important;
-        height: 0 !important;
-        margin: 0 !important;
-        padding: 0 !important;
+        clear: both !important;
     }
 
-    /* Hilangkan shadow agar cetakan PDF bersih */
+    /* Hilangkan shadow agar cetakan bersih */
     * {
         box-shadow: none !important;
         text-shadow: none !important;
