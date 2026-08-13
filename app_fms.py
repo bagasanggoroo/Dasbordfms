@@ -129,7 +129,7 @@ div[data-testid="stDataFrame"] {
 
 /* ==================== KHUSUS SAAT CETAK / SIMPAN PDF (@media print) ==================== */
 @media print {
-    /* 1. Sembunyikan elemen Navigasi, Header, Sidebar, Button & Form Control */
+    /* 1. Sembunyikan Navigasi, Header Streamlit, Sidebar, Button, Form, & Tab List */
     section[data-testid="stSidebar"],
     header[data-testid="stHeader"],
     footer,
@@ -144,14 +144,17 @@ div[data-testid="stDataFrame"] {
         display: none !important;
     }
 
-    /* 2. Pengaturan Halaman A4 & Margin Cetak */
+    /* 2. Pengaturan Halaman A4 & Margin */
     @page {
         size: A4 portrait;
-        margin: 10mm 12mm 10mm 12mm;
+        margin: 8mm 10mm 8mm 10mm;
     }
 
-    /* 3. Atur Kontainer Utama agar Memenuhi Halaman */
-    html, body, .stApp, .block-container {
+    /* 3. RESET STREAMLIT OVERFLOW AGAR HALAMAN BISA MEMANJANG & TERBAGI RAPI */
+    html, body, .stApp, .main, .main .block-container, div[data-testid="stVerticalBlock"] {
+        height: auto !important;
+        min-height: 100% !important;
+        overflow: visible !important;
         padding: 0 !important;
         margin: 0 !important;
         width: 100% !important;
@@ -159,7 +162,7 @@ div[data-testid="stDataFrame"] {
         color: #0f172a !important;
     }
 
-    /* 4. Mencegah Elemen Grafik / Kotak Terpotong di Tengah Halaman */
+    /* 4. MENCEGAH ELEMEN KOTAK & GRAFIK TERPOTONG DI TENGAH HALAMAN */
     .kpi,
     .js-plotly-plot,
     div[data-testid="stExpander"],
@@ -167,22 +170,26 @@ div[data-testid="stDataFrame"] {
     div[style*="background:white"] {
         page-break-inside: avoid !important;
         break-inside: avoid !important;
-        margin-bottom: 15px !important;
+        margin-bottom: 12px !important;
     }
 
-    /* 5. Mencegah Judul Terpisah dari Elemen di Bawahnya */
+    /* 5. MENCEGAH JUDUL TERLEMPAR SENDIRI (ORPHAN HEADER) */
     h1, h2, h3, h4, h5, h6 {
         page-break-after: avoid !important;
         break-after: avoid !important;
     }
 
-    /* 6. Pemisah Halaman Manual */
+    /* 6. PEMISAH HALAMAN PRESISI */
     .page-break {
+        display: block !important;
         page-break-before: always !important;
         break-before: page !important;
+        height: 0 !important;
+        margin: 0 !important;
+        padding: 0 !important;
     }
 
-    /* Hilangkan shadow agar cetakan bersih */
+    /* Hilangkan shadow agar cetakan PDF bersih */
     * {
         box-shadow: none !important;
         text-shadow: none !important;
@@ -491,12 +498,10 @@ def plot_shift_comparison(df_fatigue):
     if df_fatigue.empty:
         return None
     
-    # Kelompokkan dengan Month_Num agar urutan bulan (1-12) tetap terjaga secara kronologis
     shift_df = df_fatigue.groupby(['Month_Num', 'Bulan', 'Shift']).size().reset_index(name='Total')
     if shift_df.empty:
         return None
     
-    # Urutkan secara eksplisit berdasarkan angka bulan
     shift_df = shift_df.sort_values('Month_Num')
     
     fig = px.line(
@@ -1278,6 +1283,7 @@ else:
             
             # ========== TAB 4: DRIVER & UNIT ==========
             with tab4:
+                # --- [HALAMAN 1 SAAT CETAK: Demografi & Top Drivers/Units] ---
                 fig = plot_demografi(df_fatigue, df_overspeed, age_labels)
                 st.plotly_chart(fig, use_container_width=True)
                 
@@ -1317,7 +1323,11 @@ else:
                         st.plotly_chart(fig, use_container_width=True)
                     else:
                         st.info("Tidak ada data unit")
+                
+                # --- [PAKSA MULAILAH HALAMAN BARU DI SINI] ---
                 force_page_break()
+
+                # --- [HALAMAN 2 SAAT CETAK: Narasi AI Action Plan] ---
                 if user_api_key:
                     with st.expander("👤 Rekomendasi AI: Action Plan Driver & Disiplin (SOP BMT 011)", expanded=False):
                         if st.button("✨ Generate Strategy & Preventive Plan"):
@@ -1367,9 +1377,10 @@ else:
                         if st.session_state.get('res_driver'):
                             st.markdown(f"""<div style="background:white; color:#0f172a; padding:20px; border-radius:16px; border-left:5px solid #2563eb; box-shadow:0 4px 15px rgba(0,0,0,0.05); line-height:1.6; text-align: justify;">{st.session_state['res_driver']}</div>""", unsafe_allow_html=True)
 
+                # --- [PAKSA MULAILAH HALAMAN BARU DI SINI] ---
                 force_page_break()
-                st.markdown("---")
-                
+
+                # --- [HALAMAN 3 SAAT CETAK: Heatmap Driver] ---
                 st.markdown("#### 🔥 Heatmap Driver per Bulan")
                 col_h1, col_h2, col_h3 = st.columns(3)
                 with col_h1:
