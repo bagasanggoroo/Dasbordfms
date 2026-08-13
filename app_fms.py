@@ -129,29 +129,63 @@ div[data-testid="stDataFrame"] {
 
 /* ==================== KHUSUS SAAT CETAK / SIMPAN PDF (@media print) ==================== */
 @media print {
+    /* 1. Sembunyikan elemen Navigasi, Header, Sidebar, Button & Form Control */
     section[data-testid="stSidebar"],
     header[data-testid="stHeader"],
-    .stButton,
     footer,
-    .no-print {
-        display: none !important;
-    }
-    
+    .stButton,
+    .no-print,
+    [data-testid="stSlider"],
+    [data-testid="stSelectbox"],
+    [data-testid="stTextInput"],
+    [data-testid="stFileUploader"],
     div[data-testid="stTabs"] [role="tablist"],
     div[data-testid="stTabs"] [data-baseweb="tab-list"] {
         display: none !important;
     }
 
+    /* 2. Pengaturan Halaman A4 & Margin Cetak */
     @page {
         size: A4 portrait;
-        margin: 10mm;
+        margin: 10mm 12mm 10mm 12mm;
     }
 
-    .block-container {
+    /* 3. Atur Kontainer Utama agar Memenuhi Halaman */
+    html, body, .stApp, .block-container {
         padding: 0 !important;
         margin: 0 !important;
         width: 100% !important;
         background-color: #ffffff !important;
+        color: #0f172a !important;
+    }
+
+    /* 4. Mencegah Elemen Grafik / Kotak Terpotong di Tengah Halaman */
+    .kpi,
+    .js-plotly-plot,
+    div[data-testid="stExpander"],
+    div[style*="border-left"],
+    div[style*="background:white"] {
+        page-break-inside: avoid !important;
+        break-inside: avoid !important;
+        margin-bottom: 15px !important;
+    }
+
+    /* 5. Mencegah Judul Terpisah dari Elemen di Bawahnya */
+    h1, h2, h3, h4, h5, h6 {
+        page-break-after: avoid !important;
+        break-after: avoid !important;
+    }
+
+    /* 6. Pemisah Halaman Manual */
+    .page-break {
+        page-break-before: always !important;
+        break-before: page !important;
+    }
+
+    /* Hilangkan shadow agar cetakan bersih */
+    * {
+        box-shadow: none !important;
+        text-shadow: none !important;
     }
 }
 </style>
