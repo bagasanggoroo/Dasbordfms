@@ -23,7 +23,7 @@ if "res_jam" not in st.session_state:
 if "res_driver" not in st.session_state:
   st.session_state["res_driver"] = None
 
-# ==================== CSS CUSTOM STYLING (PERBAIKAN KONTRAST TEKS & PRINT PDF) ====================
+# ==================== CSS CUSTOM STYLING (PERBAIKAN TOTAL PRINT PDF) ====================
 st.markdown(
     """
 <style>
@@ -102,13 +102,11 @@ div[data-testid="stDataFrame"] {
     line-height: 1.6;
     text-align: justify;
     margin-bottom: 20px;
-    page-break-inside: auto !important; /* Memungkinkan pemotongan halaman secara alami */
-    break-inside: auto !important;
 }
 
-/* ==================== KHUSUS SAAT CETAK / SIMPAN PDF (@media print) ==================== */
+/* ==================== FIX TERTUMPUK/MENIMPA SAAT PRINT PDF (@media print) ==================== */
 @media print {
-    /* 1. Sembunyikan Elemen Navigasi & Input */
+    /* Sembunyikan Navigasi, Sidebar, & Widget Interaktif */
     section[data-testid="stSidebar"],
     header[data-testid="stHeader"],
     footer,
@@ -119,22 +117,24 @@ div[data-testid="stDataFrame"] {
     [data-testid="stTextInput"],
     [data-testid="stFileUploader"],
     div[data-testid="stTabs"] [role="tablist"],
-    div[data-testid="stTabs"] [data-baseweb="tab-list"] {
+    div[data-testid="stTabs"] [data-baseweb="tab-list"],
+    .stAlert {
         display: none !important;
     }
 
-    /* 2. Pengaturan Halaman A4 & Margin Cetak */
+    /* Pengaturan Halaman A4 & Layout Mengalir */
     @page {
         size: A4 portrait;
-        margin: 12mm 12mm 12mm 12mm;
+        margin: 10mm 10mm 10mm 10mm;
     }
 
-    /* 3. Penanganan Overflow Agar Cetakan Berlanjut Mulus */
-    html, body, .stApp, .main {
+    html, body, .stApp, .main, [data-testid="stAppViewContainer"] {
         height: auto !important;
+        min-height: auto !important;
         overflow: visible !important;
         background-color: #ffffff !important;
         color: #0f172a !important;
+        position: static !important;
     }
 
     .block-container {
@@ -144,34 +144,50 @@ div[data-testid="stDataFrame"] {
         max-width: 100% !important;
     }
 
-    /* 4. Mencegah Elemen Kecil/Grafik Terpotong Di Tengah, Tapi Izinkan Teks AI Mengalir */
-    .kpi,
-    .js-plotly-plot {
+    /* Mencegah Tumpukan Kolom & Flex Container */
+    [data-testid="column"] {
+        width: 100% !important;
+        flex: 1 1 100% !important;
+        max-width: 100% !important;
+        margin-bottom: 15px !important;
+        page-break-inside: avoid !important;
+        break-inside: avoid !important;
+    }
+
+    /* Kontrol Grafis Plotly Agar Tidak Menimpa */
+    .js-plotly-plot, .plot-container {
+        page-break-inside: avoid !important;
+        break-inside: avoid !important;
+        margin-bottom: 25px !important;
+        display: block !important;
+        clear: both !important;
+        max-height: 400px !important;
+    }
+
+    .kpi, .ai-summary-box {
         page-break-inside: avoid !important;
         break-inside: avoid !important;
         margin-bottom: 20px !important;
         display: block !important;
+        clear: both !important;
     }
 
-    .ai-summary-box {
-        page-break-inside: auto !important;
-        break-inside: auto !important;
-        display: block !important;
-    }
-
-    /* 5. Cega Judul Terpisah Dari Grafiknya */
+    /* Judul Tidak Terpisah dari Grafiknya */
     h1, h2, h3, h4, h5, h6 {
         page-break-after: avoid !important;
         break-after: avoid !important;
+        margin-top: 15px !important;
     }
 
-    /* 6. Pemisah Halaman Presisi */
+    /* Pemisah Halaman Tegas */
     .page-break {
         display: block !important;
         page-break-before: always !important;
         break-before: page !important;
         clear: both !important;
-        height: 1px;
+        height: 1px !important;
+        margin: 0 !important;
+        padding: 0 !important;
     }
 
     * {
@@ -880,7 +896,7 @@ def plot_hotspot(df, label="Fatigue"):
       yaxis=dict(showgrid=False, tickfont=dict(color="#0f172a")),
       margin=dict(l=20, r=20, t=40, b=20),
       showlegend=False,
-      height=400,
+      height=380,
   )
   return fig
 
@@ -999,7 +1015,7 @@ def plot_top_driver(df_fatigue):
       yaxis=dict(showgrid=False, tickfont=dict(color="#0f172a")),
       margin=dict(l=20, r=20, t=40, b=20),
       showlegend=False,
-      height=500,
+      height=450,
   )
   return fig
 
@@ -1043,7 +1059,7 @@ def plot_heatmap(df_fatigue, order_months, top_n=15):
           title_font=dict(color="#0f172a"),
       ),
       margin=dict(l=20, r=20, t=40, b=20),
-      height=max(400, len(heatmap_data) * 25),
+      height=max(380, len(heatmap_data) * 22),
   )
   fig.update_xaxes(title="Bulan", title_font=dict(color="#0f172a"))
   fig.update_yaxes(title="Driver", title_font=dict(color="#0f172a"))
@@ -1209,7 +1225,7 @@ def plot_fatigue_vs_overspeed(df_fatigue, df_overspeed):
           font=dict(color="#0f172a"),
       ),
       margin=dict(l=20, r=20, t=40, b=20),
-      height=450,
+      height=400,
   )
   return fig
 
@@ -1660,6 +1676,8 @@ else:
         else:
           st.info("Tidak ada data fatigue")
 
+        force_page_break()
+
         fig_o = plot_tren_generic(
             df_overspeed, title="Tren Bulanan Kasus Overspeed", color="#f59e0b"
         )
@@ -1667,6 +1685,8 @@ else:
           st.plotly_chart(fig_o, use_container_width=True)
         else:
           st.info("Tidak ada data overspeed")
+
+        force_page_break()
 
         fig_total = plot_tren_generic(
             df, title="Tren Bulanan Total Seluruh Alarm FMS", color="#2563eb"
@@ -1818,11 +1838,8 @@ else:
                 showlegend=False,
             )
             st.plotly_chart(fig, use_container_width=True)
-            st.caption(
-                "💡 Overspeed umumnya terjadi pada jam operasional puncak"
-            )
 
-        st.markdown("---")
+        force_page_break()
 
         c1, c2 = st.columns(2)
         with c1:
@@ -1843,7 +1860,7 @@ else:
         fig = plot_demografi(df_fatigue, df_overspeed, age_labels)
         st.plotly_chart(fig, use_container_width=True)
 
-        st.markdown("---")
+        force_page_break()
 
         c1, c2 = st.columns(2)
         with c1:
@@ -1892,7 +1909,7 @@ else:
                 yaxis=dict(showgrid=False, tickfont=dict(color="#0f172a")),
                 margin=dict(l=20, r=20, t=40, b=20),
                 showlegend=False,
-                height=450,
+                height=400,
             )
             st.plotly_chart(fig, use_container_width=True)
           else:
@@ -1962,6 +1979,8 @@ else:
                     f"""<div class="ai-summary-box">{st.session_state['res_driver']}</div>""",
                     unsafe_allow_html=True,
                 )
+
+        force_page_break()
 
         st.markdown("#### 🔥 Heatmap Driver per Bulan")
         col_h1, col_h2, col_h3 = st.columns(3)
@@ -2123,7 +2142,7 @@ else:
         else:
           st.warning("Data kurang dari 3 bulan untuk prediksi")
 
-        st.markdown("---")
+        force_page_break()
 
         st.markdown("### 🔄 Fatigue vs Overspeed")
         fig = plot_fatigue_vs_overspeed(df_fatigue, df_overspeed)
